@@ -3,4 +3,9 @@ name = "rust_src"
 version = "0.1.0"
 edition = "2024"
 
+# Configure rust project as shared library.
+[lib]
+name = "libai_core"
+crate-type = ["cdylib"]
+
 [dependencies]
