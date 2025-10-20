@@ -1,1 +1,1 @@
-mod neuron;
+pub mod neuron;
