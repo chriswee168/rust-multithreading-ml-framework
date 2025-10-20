@@ -10,3 +10,13 @@ pub struct NeuronAttr<'a>
     neuron_level: u32,
     neuron_id: String,
 }
+
+/// Contains trait methods for input, hidden and output neurons.
+pub trait NeuronTrait
+{
+    fn forward(&mut self); // Forward propagation.
+    fn backward(&mut self); // Backward propagation.
+
+    fn add_edge(&mut self, edge: &mut DirectEdge);
+    fn remove_edge(&mut self, edge_index: usize);
+}
