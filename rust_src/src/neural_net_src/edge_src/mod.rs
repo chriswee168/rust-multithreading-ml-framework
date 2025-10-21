@@ -1,1 +1,1 @@
-mod direct_edge;
+pub mod direct_edge;
