@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::neural_net_src::neuron_src::neuron::NeuronTrait;
+use crate::neural_net_src::neuron_src::core_deps::NeuronTrait;
 
 /// Struct that defines directed edges responsible for connecting
 /// neurons.

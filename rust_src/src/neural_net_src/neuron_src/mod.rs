@@ -1,1 +1,1 @@
-pub mod neuron;
+pub mod core_deps;
