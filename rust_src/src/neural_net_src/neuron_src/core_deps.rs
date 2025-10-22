@@ -37,6 +37,6 @@ pub trait NeuronTrait
     fn forward(&mut self); // Forward propagation.
     fn backward(&mut self); // Backward propagation.
 
-    fn add_edge(&mut self, edge: &mut DirectEdge);
+    fn add_edge(&mut self, edge: Arc<Mutex<DirectEdge>>);
     fn remove_edge(&mut self, edge_index: usize);
 }
