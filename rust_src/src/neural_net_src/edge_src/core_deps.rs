@@ -38,6 +38,6 @@ impl EdgeAttr
 /// Contains trait methods for input, hidden and output edges.
 pub trait EdgeTrait
 {
-    fn forward(input_val: f32) -> f32;
-    fn backward(gradient_val: f32) -> f32;
+    fn forward(&self, input_val: f32) -> f32;
+    fn backward(&self, gradient_val: f32) -> f32;
 }
