@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use crate::neural_net_src::{edge_src::direct_edge::DirectEdge, neuron_src::core_deps::{NeuronAttr, NeuronTrait}};
 
 /// Struct to define input neuron attributes and behaviour.
@@ -27,5 +29,27 @@ impl InputNeuron
             attr: neuron_attrs,
             input_array_index
         }
+    }
+}
+
+impl NeuronTrait for InputNeuron
+{
+    /// Add an edge for this neuron to connect to another neuron.
+    fn add_edge(&mut self, edge: Arc<Mutex<DirectEdge>>) 
+    {
+        self.attr.add_edge(edge);
+    }
+    /// Remove an edge to disconnect this neuron from another neuron.
+    fn remove_edge(&mut self, edge_index: usize) 
+    {
+        self.attr.remove_edge(edge_index);
+    }
+    fn forward(&mut self) 
+    {
+        
+    }
+    fn backward(&mut self) 
+    {
+        
     }
 }
