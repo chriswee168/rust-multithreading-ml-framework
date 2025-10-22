@@ -34,9 +34,9 @@ impl NeuronAttr
 /// Contains trait methods for input, hidden and output neurons.
 pub trait NeuronTrait
 {
-    fn forward(&mut self); // Forward propagation.
-    fn backward(&mut self); // Backward propagation.
+    pub fn forward(&mut self); // Forward propagation.
+    pub fn backward(&mut self); // Backward propagation.
 
-    fn add_edge(&mut self, edge: &mut DirectEdge);
-    fn remove_edge(&mut self, edge_index: usize);
+    pub fn add_edge(&mut self, edge: &mut DirectEdge);
+    pub fn remove_edge(&mut self, edge_index: usize);
 }
