@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::neural_net_src::{edge_src::direct_edge::DirectEdge, neuron_src::core_deps::{NeuronAttr, NeuronTrait}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}};
 
 /// Struct to define input neuron attributes and behaviour.
 pub struct InputNeuron
@@ -35,7 +35,7 @@ impl InputNeuron
 impl NeuronTrait for InputNeuron
 {
     /// Add an edge for this neuron to connect to another neuron.
-    fn add_edge(&mut self, edge: Arc<Mutex<DirectEdge>>) 
+    fn add_edge(&mut self, edge: Arc<Mutex<Box<dyn EdgeTrait>>>) 
     {
         self.attr.add_edge(edge);
     }
