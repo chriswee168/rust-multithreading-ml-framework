@@ -29,6 +29,19 @@ impl NeuronAttr
             neuron_level, neuron_id
         }
     }
+
+    /// Add an edge for this neuron to connect to another neuron.
+    pub fn add_edge(&mut self, edge: Arc<Mutex<DirectEdge>>)
+    {
+        self.forward_edges.push(edge);
+    }
+
+    /// Remove an edge to disconnect this neuron from another neuron.
+    pub fn remove_edge(&mut self, edge_index: usize) -> Arc<Mutex<DirectEdge>>
+    {
+        let removed_edge: Arc<Mutex<DirectEdge>> = self.forward_edges.remove(edge_index);
+        return removed_edge;
+    }
 }
 
 /// Contains trait methods for input, hidden and output neurons.
