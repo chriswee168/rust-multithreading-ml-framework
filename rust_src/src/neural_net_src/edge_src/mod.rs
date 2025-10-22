@@ -1,1 +1,1 @@
-pub mod direct_edge;
+pub mod core_deps;
