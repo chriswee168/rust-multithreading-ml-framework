@@ -6,14 +6,14 @@ pub struct EdgeAttr
     // Parameters to use during forward propagation.
     // y = w * x + b
     // Weight values to use for negative and positive input.
-    neg_weight: f32,
-    pos_weight: f32,
-    bias: f32, // Bias value to shift the product.
+    pub neg_weight: f32,
+    pub pos_weight: f32,
+    pub bias: f32, // Bias value to shift the product.
 
     // Gradients to obtain from back propagation to optimize parameters.
-    neg_weight_grad: f32,
-    pos_weight_grad: f32,
-    bias_grad: f32,
+    pub neg_weight_grad: f32,
+    pub pos_weight_grad: f32,
+    pub bias_grad: f32,
 }
 
 // Implement constructor method.
