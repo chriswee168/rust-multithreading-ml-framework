@@ -31,5 +31,5 @@ impl EdgeAttr
 pub trait EdgeTrait
 {
     fn forward(&self, input_val: f32) -> f32;
-    fn backward(&self, gradient_val: f32) -> f32;
+    fn backward(&mut self, input_val: f32, gradient_val: f32, lr: f32) -> f32;
 }
