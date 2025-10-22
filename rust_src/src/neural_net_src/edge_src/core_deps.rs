@@ -9,11 +9,6 @@ pub struct EdgeAttr
     pub neg_weight: f32,
     pub pos_weight: f32,
     pub bias: f32, // Bias value to shift the product.
-
-    // Gradients to obtain from back propagation to optimize parameters.
-    pub neg_weight_grad: f32,
-    pub pos_weight_grad: f32,
-    pub bias_grad: f32,
 }
 
 // Implement constructor method.
@@ -28,9 +23,6 @@ impl EdgeAttr
             neg_weight: rand_gen.gen_range(-weight_range..=weight_range),
             pos_weight: rand_gen.gen_range(-weight_range..=weight_range),
             bias: 0.0,
-            neg_weight_grad: 0.0,
-            pos_weight_grad: 0.0,
-            bias_grad: 0.0
         }
     }
 }
