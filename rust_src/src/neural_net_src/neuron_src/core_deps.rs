@@ -15,6 +15,22 @@ pub struct NeuronAttr
     neuron_id: String,
 }
 
+impl NeuronAttr
+{
+    pub fn new(
+        max_backward_edges: usize, max_forward_edges: usize, 
+        neuron_level: u32, neuron_id: String
+    ) -> Self
+    {
+        return Self 
+        {
+            forward_edges: Vec::with_capacity(max_forward_edges), 
+            backward_edges: Vec::with_capacity(max_backward_edges), 
+            neuron_level, neuron_id
+        }
+    }
+}
+
 /// Contains trait methods for input, hidden and output neurons.
 pub trait NeuronTrait
 {
