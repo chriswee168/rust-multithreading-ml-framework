@@ -1,8 +1,4 @@
-use std::sync::{Arc, Mutex};
-
 use rand::Rng;
-
-use crate::neural_net_src::neuron_src::core_deps::NeuronTrait;
 
 /// Struct that defines default attributes for edges.
 pub struct EdgeAttr
@@ -37,4 +33,11 @@ impl EdgeAttr
             bias_grad: 0.0
         }
     }
+}
+
+/// Contains trait methods for input, hidden and output edges.
+pub trait EdgeTrait
+{
+    fn forward(input_val: f32) -> f32;
+    fn backward(gradient_val: f32) -> f32;
 }
