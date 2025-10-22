@@ -2,14 +2,9 @@ use std::sync::{Arc, Mutex};
 
 use crate::neural_net_src::neuron_src::core_deps::NeuronTrait;
 
-/// Struct that defines directed edges responsible for connecting
-/// neurons.
-pub struct DirectEdge
+/// Struct that defines default attributes for edges.
+pub struct EdgeAttr
 {
-    // References to neurons connected to each other.
-    prev_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>,
-    next_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>,
-
     // Parameters to use during forward propagation.
     // y = w * x + b
     // Weight values to use for negative and positive input.
