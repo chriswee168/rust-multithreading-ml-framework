@@ -1,0 +1,31 @@
+use crate::neural_net_src::{edge_src::direct_edge::DirectEdge, neuron_src::core_deps::{NeuronAttr, NeuronTrait}};
+
+/// Struct to define input neuron attributes and behaviour.
+pub struct InputNeuron
+{
+    attr: NeuronAttr, // Default neuron attributes.
+
+    // Index of value in the input array this input neuron is responsible for
+    // obtaining.
+    input_array_index: usize,
+}
+
+impl InputNeuron
+{
+    pub fn new(
+        max_backward_edges: usize, max_forward_edges: usize, 
+        neuron_level: u32, neuron_id: String, input_array_index: usize
+    ) -> Self
+    {
+        let neuron_attrs: NeuronAttr = NeuronAttr::new(
+            max_backward_edges, max_forward_edges, 
+            neuron_level, neuron_id
+        );
+
+        return Self
+        {
+            attr: neuron_attrs,
+            input_array_index
+        }
+    }
+}
