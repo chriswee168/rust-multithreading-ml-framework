@@ -26,3 +26,25 @@ impl OutputNeuron
         }
     }
 }
+
+impl NeuronTrait for OutputNeuron
+{
+    /// Add an edge for this neuron to connect to another neuron.
+    fn add_edge(&mut self, edge: Arc<Mutex<Box<dyn EdgeTrait>>>) 
+    {
+        self.attr.add_edge(edge);
+    }
+    /// Remove an edge to disconnect this neuron from another neuron.
+    fn remove_edge(&mut self, edge_index: usize) 
+    {
+        self.attr.remove_edge(edge_index);
+    }
+    fn forward(&mut self) 
+    {
+        
+    }
+    fn backward(&mut self) 
+    {
+        
+    }
+}
