@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, neuron_src::core_deps::NeuronTrait};
 
-/// Connects an index of the input array with an input neuron.
+/// Connects any two neurons (input->hidden, hidden->hidden, hidden->output).
 pub struct HiddenEdge
 {
     attr: EdgeAttr, // Contains the essential attributes of an edge.
