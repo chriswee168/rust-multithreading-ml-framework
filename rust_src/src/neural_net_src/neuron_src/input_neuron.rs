@@ -6,17 +6,13 @@ use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_dep
 pub struct InputNeuron
 {
     attr: NeuronAttr, // Default neuron attributes.
-
-    // Index of value in the input array this input neuron is responsible for
-    // obtaining.
-    input_array_index: usize,
 }
 
 impl InputNeuron
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32, neuron_id: String, input_array_index: usize
+        neuron_level: u32, neuron_id: String
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
@@ -27,7 +23,6 @@ impl InputNeuron
         return Self
         {
             attr: neuron_attrs,
-            input_array_index
         }
     }
 }
