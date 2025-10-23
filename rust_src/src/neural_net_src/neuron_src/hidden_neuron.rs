@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}};
 
-/// Struct to define input neuron attributes and behaviour.
+/// Struct to define hidden neuron attributes and behaviour.
 pub struct HiddenNeuron
 {
     attr: NeuronAttr, // Default neuron attributes.
