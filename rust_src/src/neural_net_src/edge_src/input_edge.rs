@@ -1,13 +1,11 @@
-use std::sync::{Arc, Mutex};
-
-use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, neuron_src::core_deps::NeuronTrait};
+use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, types_aliases::ArcNeuronTrait};
 
 /// Connects an index of the input array with an input neuron.
 pub struct InputEdge
 {
     attr: EdgeAttr, // Contains the essential attributes of an edge.
     input_array_index: usize,
-    next_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>
+    next_neuron: ArcNeuronTrait
 }
 
 // Implement constructor.
@@ -15,7 +13,7 @@ impl InputEdge
 {
     pub fn new(
         input_array_index: usize, 
-        next_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>, 
+        next_neuron: ArcNeuronTrait, 
         weight_range: f32
     ) -> Self
     {
