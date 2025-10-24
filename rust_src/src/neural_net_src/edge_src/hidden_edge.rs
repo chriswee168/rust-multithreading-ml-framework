@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, types_aliases::ArcNeuronTrait};
 
 /// Connects any two neurons (input->hidden, hidden->hidden, hidden->output).
@@ -27,7 +29,7 @@ impl HiddenEdge
     }
 }
 
-impl EdgeTrait for HiddenEdge
+impl EdgeTrait<ArcNeuronTrait, ArcNeuronTrait> for HiddenEdge
 {
     // Forward propagation.
     fn forward(&self, input_val: f32) -> f32 {
@@ -67,5 +69,15 @@ impl EdgeTrait for HiddenEdge
         }
 
         return input_gradient;
+    }
+
+    // Get previous neuron this edge connects.
+    fn get_prev(&self) -> ArcNeuronTrait {
+        return Arc::clone(&self.prev_neuron);
+    }
+
+    // Get next neuron this edge connects.
+    fn get_next(&self) -> ArcNeuronTrait {
+        return Arc::clone(&self.next_neuron);
     }
 }

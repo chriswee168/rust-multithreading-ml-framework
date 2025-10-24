@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, types_aliases::ArcNeuronTrait};
 
 /// Connects an index of the input array with an input neuron.
@@ -27,7 +29,7 @@ impl InputEdge
     }
 }
 
-impl EdgeTrait for InputEdge
+impl EdgeTrait<usize, ArcNeuronTrait> for InputEdge
 {
     // Forward propagation.
     fn forward(&self, input_val: f32) -> f32 {
@@ -67,5 +69,15 @@ impl EdgeTrait for InputEdge
         }
 
         return input_gradient;
+    }
+
+    // Get input array index.
+    fn get_prev(&self) -> usize {
+        return self.input_array_index;
+    }
+
+    // Get the next input neuron this edge connections
+    fn get_next(&self) -> ArcNeuronTrait {
+        return Arc::clone(&self.next_neuron);
     }
 }
