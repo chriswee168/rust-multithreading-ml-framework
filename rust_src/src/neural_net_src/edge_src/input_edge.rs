@@ -29,7 +29,7 @@ impl InputEdge
     }
 }
 
-impl EdgeTrait<usize, ArcNeuronTrait> for InputEdge
+impl EdgeTrait for InputEdge
 {
     // Forward propagation.
     fn forward(&self, input_val: f32) -> f32 {
@@ -72,12 +72,12 @@ impl EdgeTrait<usize, ArcNeuronTrait> for InputEdge
     }
 
     // Get input array index.
-    fn get_prev(&self) -> usize {
-        return self.input_array_index;
+    fn get_prev_id(&self) -> Option<usize> {
+        return Some(self.input_array_index);
     }
 
     // Get the next input neuron this edge connections
-    fn get_next(&self) -> ArcNeuronTrait {
-        return Arc::clone(&self.next_neuron);
+    fn get_next_neuron(&self) -> Option<ArcNeuronTrait> {
+        return Some(Arc::clone(&self.next_neuron));
     }
 }

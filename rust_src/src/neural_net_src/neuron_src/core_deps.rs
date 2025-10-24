@@ -8,8 +8,8 @@ pub struct NeuronAttr
 {
     // Contains Arc references to edges indicating which neurons the current
     // neuron is connected to.
-    forward_edges: Vec<Arc<Mutex<Box<dyn EdgeTrait>>>>,
-    backward_edges: Vec<Arc<Mutex<Box<dyn EdgeTrait>>>>,
+    pub forward_edges: Vec<Arc<Mutex<Box<dyn EdgeTrait>>>>,
+    pub backward_edges: Vec<Arc<Mutex<Box<dyn EdgeTrait>>>>,
 
     neuron_level: u32,
     neuron_id: String,
