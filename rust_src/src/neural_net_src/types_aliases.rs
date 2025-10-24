@@ -6,4 +6,4 @@ use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_dep
 pub type ArcNeuronTrait = Arc<Mutex<Box<dyn NeuronTrait>>>;
 
 // Type aliases for edges.
-pub type ArcEdgeTrait = Arc<Mutex<Box<dyn EdgeTrait>>>;
+pub type ArcEdgeTrait<T, U> = Arc<Mutex<Box<dyn EdgeTrait<T, U>>>>;
