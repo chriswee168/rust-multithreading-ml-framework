@@ -28,8 +28,13 @@ impl EdgeAttr
 }
 
 /// Contains trait methods for input, hidden and output edges.
-pub trait EdgeTrait
+pub trait EdgeTrait<T, U>
 {
     fn forward(&self, input_val: f32) -> f32;
     fn backward(&mut self, input_val: f32, gradient_val: f32, lr: f32) -> f32;
+
+    // Methods to obtain the previous/next neuron/index, typing depends on
+    // edge struct.
+    fn get_prev(&self) -> T;
+    fn get_next(&self) -> U;
 }
