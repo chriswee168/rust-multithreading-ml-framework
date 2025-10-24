@@ -1,12 +1,12 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
-use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, neuron_src::core_deps::NeuronTrait};
+use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, types_aliases::ArcNeuronTrait};
 
 /// Connects an output neuron with an index of output array.
 pub struct OutputEdge
 {
     attr: EdgeAttr, // Contains the essential attributes of an edge.
-    prev_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>,
+    prev_neuron: ArcNeuronTrait,
     output_array_index: usize,
 }
 
@@ -14,7 +14,7 @@ pub struct OutputEdge
 impl OutputEdge
 {
     pub fn new(
-        prev_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>, 
+        prev_neuron: ArcNeuronTrait, 
         output_array_index: usize, 
         weight_range: f32
     ) -> Self
@@ -29,7 +29,7 @@ impl OutputEdge
     }
 }
 
-impl EdgeTrait for OutputEdge
+impl EdgeTrait<ArcNeuronTrait, usize> for OutputEdge
 {
     // Forward propagation.
     fn forward(&self, input_val: f32) -> f32 {
@@ -69,5 +69,15 @@ impl EdgeTrait for OutputEdge
         }
 
         return input_gradient;
+    }
+
+    // Get previous output neuron this edge is connected to.
+    fn get_prev(&self) -> ArcNeuronTrait {
+        return Arc::clone(&self.prev_neuron);
+    }
+
+    // Get index of output array.
+    fn get_next(&self) -> usize {
+        return self.output_array_index;
     }
 }
