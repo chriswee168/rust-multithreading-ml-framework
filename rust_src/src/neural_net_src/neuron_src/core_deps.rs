@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::neural_net_src::edge_src::core_deps::EdgeTrait;
+use crate::neural_net_src::types_aliases::ArcEdgeTrait;
 
 /// Struct that contains all attributes required for input,
 /// hidden and output neurons.
@@ -8,8 +8,8 @@ pub struct NeuronAttr
 {
     // Contains Arc references to edges indicating which neurons the current
     // neuron is connected to.
-    forward_edges: Vec<Arc<Mutex<Box<dyn EdgeTrait>>>>,
-    backward_edges: Vec<Arc<Mutex<Box<dyn EdgeTrait>>>>,
+    pub forward_edges: Vec<ArcEdgeTrait>,
+    pub backward_edges: Vec<ArcEdgeTrait>,
 
     neuron_level: u32,
     neuron_id: String,
@@ -31,15 +31,15 @@ impl NeuronAttr
     }
 
     /// Add an edge for this neuron to connect to another neuron.
-    pub fn add_edge(&mut self, edge: Arc<Mutex<Box<dyn EdgeTrait>>>)
+    pub fn add_edge(&mut self, edge: ArcEdgeTrait)
     {
         self.forward_edges.push(edge);
     }
 
     /// Remove an edge to disconnect this neuron from another neuron.
-    pub fn remove_edge(&mut self, edge_index: usize) -> Arc<Mutex<Box<dyn EdgeTrait>>>
+    pub fn remove_edge(&mut self, edge_index: usize) -> ArcEdgeTrait
     {
-        let removed_edge: Arc<Mutex<Box<dyn EdgeTrait>>> = self.forward_edges.remove(edge_index);
+        let removed_edge: ArcEdgeTrait = self.forward_edges.remove(edge_index);
         return removed_edge;
     }
 }
@@ -50,6 +50,6 @@ pub trait NeuronTrait
     fn forward(&mut self); // Forward propagation.
     fn backward(&mut self); // Backward propagation.
 
-    fn add_edge(&mut self, edge: Arc<Mutex<Box<dyn EdgeTrait>>>);
+    fn add_edge(&mut self, edge: ArcEdgeTrait);
     fn remove_edge(&mut self, edge_index: usize);
 }

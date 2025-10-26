@@ -1,6 +1,4 @@
-use std::sync::{Arc, Mutex};
-
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}};
+use crate::neural_net_src::{neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::ArcEdgeTrait};
 
 /// Struct to define hidden neuron attributes and behaviour.
 pub struct HiddenNeuron
@@ -30,7 +28,7 @@ impl HiddenNeuron
 impl NeuronTrait for HiddenNeuron
 {
     /// Add an edge for this neuron to connect to another neuron.
-    fn add_edge(&mut self, edge: Arc<Mutex<Box<dyn EdgeTrait>>>) 
+    fn add_edge(&mut self, edge: ArcEdgeTrait) 
     {
         self.attr.add_edge(edge);
     }
