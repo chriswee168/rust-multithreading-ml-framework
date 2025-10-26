@@ -18,12 +18,22 @@ pub struct NeuralNet
 
 impl NeuralNet
 {
-    pub fn new() -> Self
+    pub fn new(num_threads: usize) -> Self
     {
+        // Create thread buffers.
+        let mut thread_buffers: Vec<Mutex<NeuronBuffer>> = Vec::with_capacity(num_threads);
+        for _ in 0..num_threads - 1 // One thread is already used by main program.
+        {
+            thread_buffers.push(Mutex::new(NeuronBuffer::new()));
+        }
+        let thread_buffer_arc: ArcNeuronBufferVec = Arc::new(thread_buffers);
+        
+        // Create base neural network.
         return Self
         {
             all_neurons: HashMap::new(),
-            all_edges: HashMap::new()
+            all_edges: HashMap::new(),
+            thread_buffers: thread_buffer_arc,
         }
     }
 }
