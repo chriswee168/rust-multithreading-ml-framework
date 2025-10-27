@@ -46,6 +46,24 @@ impl NeuronAttr
         let removed_edge: ArcEdgeTrait = self.forward_edges.remove(edge_index);
         return removed_edge;
     }
+
+    /// Increment this neuron's received sum.
+    pub fn increment_sum(&mut self, value: f32)
+    {
+        self.received_sum += value;
+    }
+
+    /// Obtain the current received sum of this neuron.
+    pub fn get_sum(&self) -> f32
+    {
+        return self.received_sum;
+    }
+
+    /// Reset the received sum of this neuron to zero.
+    pub fn zero_sum(&mut self)
+    {
+        self.received_sum = 0.0;
+    }
 }
 
 /// Contains trait methods for input, hidden and output neurons.
