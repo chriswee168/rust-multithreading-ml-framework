@@ -11,6 +11,9 @@ pub struct NeuronAttr
     pub forward_edges: Vec<ArcEdgeTrait>,
     pub backward_edges: Vec<ArcEdgeTrait>,
 
+    // Used to keep track of values being passed between neurons.
+    received_sum: f32,
+
     neuron_level: u32,
     neuron_id: String,
 }
@@ -26,7 +29,8 @@ impl NeuronAttr
         {
             forward_edges: Vec::with_capacity(max_forward_edges), 
             backward_edges: Vec::with_capacity(max_backward_edges), 
-            neuron_level, neuron_id
+            neuron_level, neuron_id,
+            received_sum: 0.0
         }
     }
 
