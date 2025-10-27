@@ -72,6 +72,11 @@ pub trait NeuronTrait
     fn forward(&mut self); // Forward propagation.
     fn backward(&mut self); // Backward propagation.
 
+    // Wrapper methods for received_sum attribute in NeuronAttr.
+    fn increment_sum(&mut self, value: f32);
+    fn get_sum(&self) -> f32;
+    fn zero_sum(&mut self);
+
     fn add_edge(&mut self, edge: ArcEdgeTrait);
     fn remove_edge(&mut self, edge_index: usize);
 }
