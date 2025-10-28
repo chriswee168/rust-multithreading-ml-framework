@@ -1,4 +1,4 @@
-use crate::neural_net_src::{neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::ArcEdgeTrait};
+use crate::neural_net_src::{neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::hidden_forward}, types_aliases::ArcEdgeTrait};
 
 /// Struct to define hidden neuron attributes and behaviour.
 pub struct HiddenNeuron
@@ -37,9 +37,10 @@ impl NeuronTrait for HiddenNeuron
     {
         self.attr.remove_edge(edge_index);
     }
+    /// Perform forward pass.
     fn forward(&mut self) 
     {
-        
+        hidden_forward(&self.attr);
     }
     fn backward(&mut self) 
     {
