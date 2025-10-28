@@ -1,5 +1,7 @@
 use rand::Rng;
 
+use crate::neural_net_src::{types_aliases::ArcNeuronTrait};
+
 /// Struct that defines default attributes for edges.
 pub struct EdgeAttr
 {
@@ -28,13 +30,15 @@ impl EdgeAttr
 }
 
 /// Contains trait methods for input, hidden and output edges.
-pub trait EdgeTrait<T, U>
+pub trait EdgeTrait
 {
     fn forward(&self, input_val: f32) -> f32;
     fn backward(&mut self, input_val: f32, gradient_val: f32, lr: f32) -> f32;
 
     // Methods to obtain the previous/next neuron/index, typing depends on
     // edge struct.
-    fn get_prev(&self) -> T;
-    fn get_next(&self) -> U;
+    fn get_prev_id(&self) -> Option<usize> { None }
+    fn get_prev_neuron(&self) -> Option<ArcNeuronTrait> { None }
+    fn get_next_id(&self) -> Option<usize> { None }
+    fn get_next_neuron(&self) -> Option<ArcNeuronTrait> { None }
 }

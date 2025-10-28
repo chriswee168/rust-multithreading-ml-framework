@@ -29,7 +29,7 @@ impl HiddenEdge
     }
 }
 
-impl EdgeTrait<ArcNeuronTrait, ArcNeuronTrait> for HiddenEdge
+impl EdgeTrait for HiddenEdge
 {
     // Forward propagation.
     fn forward(&self, input_val: f32) -> f32 {
@@ -72,12 +72,12 @@ impl EdgeTrait<ArcNeuronTrait, ArcNeuronTrait> for HiddenEdge
     }
 
     // Get previous neuron this edge connects.
-    fn get_prev(&self) -> ArcNeuronTrait {
-        return Arc::clone(&self.prev_neuron);
+    fn get_prev_neuron(&self) -> Option<ArcNeuronTrait> {
+        return Some(Arc::clone(&self.prev_neuron));
     }
 
     // Get next neuron this edge connects.
-    fn get_next(&self) -> ArcNeuronTrait {
-        return Arc::clone(&self.next_neuron);
+    fn get_next_neuron(&self) -> Option<ArcNeuronTrait> {
+        return Some(Arc::clone(&self.next_neuron));
     }
 }
