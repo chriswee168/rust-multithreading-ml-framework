@@ -5,10 +5,14 @@ use crate::neural_net_src::types_aliases::{ArcEdgeTrait, ArcNeuronBufferVec, Arc
 /// Define the main neural network struct.
 pub struct NeuralNet
 {
-    // Contains an Arc reference to all neurons and edges in the
-    // neural net.
-    all_neurons: HashMap<String, ArcNeuronTrait>,
-    all_edges: HashMap<String, ArcEdgeTrait>,
+    // Contains Arc references to input, hidden and output neurons.
+    input_neurons: HashMap<String, ArcNeuronTrait>,
+    hidden_neurons: HashMap<String, ArcNeuronTrait>,
+    output_neurons: HashMap<String, ArcNeuronTrait>,
+
+    input_edges: HashMap<String, ArcEdgeTrait>, // input array -> input neurons
+    hidden_edges: HashMap<String, ArcEdgeTrait>, // neuron -> neuron
+    output_edges: HashMap<String, ArcEdgeTrait>, // output neuron -> output array
 
     // Neuron buffers are used for Breadth First Search traversal
     // during forward and backward propagation through neurons/edges.
@@ -31,8 +35,14 @@ impl NeuralNet
         // Create base neural network.
         return Self
         {
-            all_neurons: HashMap::new(),
-            all_edges: HashMap::new(),
+            input_neurons: HashMap::new(),
+            hidden_neurons: HashMap::new(),
+            output_neurons: HashMap::new(),
+
+            input_edges: HashMap::new(),
+            hidden_edges: HashMap::new(),
+            output_edges: HashMap::new(),
+            
             thread_buffers: thread_buffer_arc,
         }
     }
