@@ -1,12 +1,15 @@
 use std::sync::Arc;
 
-use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, types_aliases::ArcNeuronTrait};
+use crate::neural_net_src::{edge_src::{core_deps::{EdgeAttr, EdgeTrait}, element_mutexed_vec::ElementMutexedVec}, types_aliases::ArcNeuronTrait};
 
 /// Connects an index of the input array with an input neuron.
 pub struct InputEdge
 {
     attr: EdgeAttr, // Contains the essential attributes of an edge.
     input_array_index: usize,
+
+    // Used during backpropagation to obtain input array gradients.
+    input_mutexed_vec: Arc<ElementMutexedVec<f32>>,
     next_neuron: ArcNeuronTrait
 }
 
@@ -16,6 +19,7 @@ impl InputEdge
     pub fn new(
         input_array_index: usize, 
         next_neuron: ArcNeuronTrait, 
+        input_mutexed_vec: Arc<ElementMutexedVec<f32>>,
         weight_range: f32
     ) -> Self
     {
@@ -24,6 +28,7 @@ impl InputEdge
         {
             attr: edge_attr,
             input_array_index,
+            input_mutexed_vec,
             next_neuron
         };        
     }
@@ -79,5 +84,11 @@ impl EdgeTrait for InputEdge
     // Get the next input neuron this edge connections
     fn get_next_neuron(&self) -> Option<ArcNeuronTrait> {
         return Some(Arc::clone(&self.next_neuron));
+    }
+
+    // Obtain input mutexed vector for obtaining input gradients
+    // during backpropagation.
+    fn get_element_mutexed_vec(&self) -> Option<Arc<ElementMutexedVec<f32>>> {
+        return Some(Arc::clone(&self.input_mutexed_vec));
     }
 }
