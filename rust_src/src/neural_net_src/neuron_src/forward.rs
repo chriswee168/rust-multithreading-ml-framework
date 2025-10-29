@@ -36,7 +36,7 @@ pub fn hidden_forward(neuron_attr: &NeuronAttr)
 /// Function for output neurons to forward propagate values though each
 /// edge. Output neurons has output edges containing indexes for output
 /// array.
-pub fn output_forward(neuron_attr: &NeuronAttr, output_mutexed_vec: Arc<ElementMutexedVec<f32>>)
+pub fn output_forward(neuron_attr: &NeuronAttr)
 {
     for edge in &neuron_attr.forward_edges
     {
@@ -44,6 +44,9 @@ pub fn output_forward(neuron_attr: &NeuronAttr, output_mutexed_vec: Arc<ElementM
         let output_index: usize;
         // Value to write to the index of the output array.
         let edge_output: f32;
+        // Obtains the output values to send to the python frontend as an
+        // array.
+        let output_mutexed_vec: Arc<ElementMutexedVec<f32>>;
 
         {
             // Get exclusive access to edge.
@@ -52,6 +55,7 @@ pub fn output_forward(neuron_attr: &NeuronAttr, output_mutexed_vec: Arc<ElementM
 
             // Get the output index of the output array this edge "connects" to.
             output_index = edge_guard.get_next_id().unwrap();
+            output_mutexed_vec = edge_guard.get_element_mutexed_vec().unwrap();
         }
 
         {
