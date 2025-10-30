@@ -1,22 +1,48 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, MutexGuard};
 
-use crate::neural_net_src::{neural_net::NeuralNet, types_aliases::ArcNeuronTrait};
+use crate::neural_net_src::{edge_src::hidden_edge::HiddenEdge, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, rand_id_gen::rand_id_gen, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
 
 impl NeuralNet
 {
-    // Join two neurons with a hidden edge.
+    /// Join two neurons with a hidden edge.
     pub fn join_neurons(
-        &mut self, neuron0_id: String, neuron1_id: String,
+        &mut self, neuron0_id: String, neuron1_id: String, 
+        edge_id_len: usize, edge_weight_range: f32
     )
     {
         // Get the neuron arcs.
         let neuron0: ArcNeuronTrait = self.obtain_neuron(neuron0_id).unwrap();
         let neuron1: ArcNeuronTrait = self.obtain_neuron(neuron1_id).unwrap();
 
+        // Randomly generate an ID for hidden edge.
+        let random_edge_id: String = rand_id_gen(edge_id_len);
 
+        // Create hidden edge.
+        let hidden_edge: ArcEdgeTrait = 
+            ArcEdgeTrait::new(
+                Mutex::new(
+                    Box::new(
+                        HiddenEdge::new(
+                            neuron0.clone(), neuron1.clone(), 
+                            edge_weight_range,
+                        )
+                    )
+                )
+            );
+
+        // Acquire mutexes for mutability.
+        let mut neuron0: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron0.lock().unwrap();
+        let mut neuron1: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron1.lock().unwrap();
+
+        // Connect the two neurons with the same hidden edge.
+        neuron0.add_forward_edge(random_edge_id.clone(), hidden_edge.clone());
+        neuron1.add_backward_edge(random_edge_id.clone(), hidden_edge.clone());
+
+        // Add the edge to hidden edge hashmap.
+        self.hidden_edges.insert(random_edge_id, hidden_edge);
     }
 
-    // Obtain the neuron arc from either input, hidden or output neuron hashmap.
+    /// Obtain the neuron arc from either input, hidden or output neuron hashmap.
     fn obtain_neuron(&self, neuron_id: String) -> Option<ArcNeuronTrait>
     {
         if self.input_neurons.get(&neuron_id).is_some()
