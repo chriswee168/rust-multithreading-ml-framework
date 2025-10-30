@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 use crate::neural_net_src::types_aliases::ArcEdgeTrait;
 
@@ -8,8 +8,8 @@ pub struct NeuronAttr
 {
     // Contains Arc references to edges indicating which neurons the current
     // neuron is connected to.
-    pub forward_edges: Vec<ArcEdgeTrait>,
-    pub backward_edges: Vec<ArcEdgeTrait>,
+    pub forward_edges: HashMap<String, ArcEdgeTrait>,
+    pub backward_edges: HashMap<String, ArcEdgeTrait>,
 
     // Used to keep track of values being passed between neurons.
     received_sum: f32,
@@ -27,8 +27,8 @@ impl NeuronAttr
     {
         return Self 
         {
-            forward_edges: Vec::with_capacity(max_forward_edges), 
-            backward_edges: Vec::with_capacity(max_backward_edges), 
+            forward_edges: HashMap::with_capacity(max_forward_edges), 
+            backward_edges: HashMap::with_capacity(max_backward_edges), 
             neuron_level, neuron_id,
             received_sum: 0.0
         }
