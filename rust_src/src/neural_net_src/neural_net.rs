@@ -6,18 +6,18 @@ use crate::neural_net_src::types_aliases::{ArcEdgeTrait, ArcNeuronBufferVec, Arc
 pub struct NeuralNet
 {
     // Contains Arc references to input, hidden and output neurons.
-    input_neurons: HashMap<String, ArcNeuronTrait>,
-    hidden_neurons: HashMap<String, ArcNeuronTrait>,
-    output_neurons: HashMap<String, ArcNeuronTrait>,
+    pub input_neurons: HashMap<String, ArcNeuronTrait>,
+    pub hidden_neurons: HashMap<String, ArcNeuronTrait>,
+    pub output_neurons: HashMap<String, ArcNeuronTrait>,
 
-    input_edges: HashMap<String, ArcEdgeTrait>, // input array -> input neurons
-    hidden_edges: HashMap<String, ArcEdgeTrait>, // neuron -> neuron
-    output_edges: HashMap<String, ArcEdgeTrait>, // output neuron -> output array
+    pub input_edges: HashMap<String, ArcEdgeTrait>, // input array -> input neurons
+    pub hidden_edges: HashMap<String, ArcEdgeTrait>, // neuron -> neuron
+    pub output_edges: HashMap<String, ArcEdgeTrait>, // output neuron -> output array
 
     // Neuron buffers are used for Breadth First Search traversal
     // during forward and backward propagation through neurons/edges.
     // Each CPU thread uses its own buffer to reduce contention.
-    thread_buffers: ArcNeuronBufferVec
+    pub thread_buffers: ArcNeuronBufferVec
 }
 
 impl NeuralNet
