@@ -85,4 +85,10 @@ impl EdgeTrait for InputEdge
     fn get_next_neuron(&self) -> Option<ArcNeuronTrait> {
         return Some(Arc::clone(&self.next_neuron));
     }
+
+    // Obtain input mutexed vector for obtaining input gradients
+    // during backpropagation.
+    fn get_element_mutexed_vec(&self) -> Option<Arc<ElementMutexedVec<f32>>> {
+        return Some(Arc::clone(&self.input_mutexed_vec));
+    }
 }

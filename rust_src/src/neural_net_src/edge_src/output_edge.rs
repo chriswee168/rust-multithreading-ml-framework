@@ -85,4 +85,9 @@ impl EdgeTrait for OutputEdge
     fn get_next_id(&self) -> Option<usize> {
         return Some(self.output_array_index);
     }
+
+    // Obtain output mutexed vector for obtaining output values during forward pass.
+    fn get_element_mutexed_vec(&self) -> Option<Arc<ElementMutexedVec<f32>>> {
+        return Some(Arc::clone(&self.output_mutexed_vec));
+    }
 }
