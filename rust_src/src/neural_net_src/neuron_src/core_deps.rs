@@ -34,17 +34,30 @@ impl NeuronAttr
         }
     }
 
-    /// Add an edge for this neuron to connect to another neuron.
-    pub fn add_edge(&mut self, edge: ArcEdgeTrait)
+    /// Add a forward edge for this neuron to connect to another neuron.
+    pub fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait)
     {
-        self.forward_edges.push(edge);
+        self.forward_edges.insert(edge_id, edge);
     }
 
-    /// Remove an edge to disconnect this neuron from another neuron.
-    pub fn remove_edge(&mut self, edge_index: usize) -> ArcEdgeTrait
+    /// Remove a forward edge to disconnect this neuron from another neuron.
+    pub fn remove_forward_edge(&mut self, edge_id: String) -> Option<ArcEdgeTrait>
     {
-        let removed_edge: ArcEdgeTrait = self.forward_edges.remove(edge_index);
+        let removed_edge: Option<ArcEdgeTrait> = self.forward_edges.remove(&edge_id);
         return removed_edge;
+    }
+
+    /// Add a backward edge for this neuron to connect to a previous neuron.
+    pub fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait)
+    {
+        self.backward_edges.insert(edge_id, edge);
+    }
+
+    /// Remove a backward edge to disconnect this neuron from a previous neuron.
+    pub fn remove_backward_edge(&mut self, edge_id: String) -> Option<ArcEdgeTrait>
+    {
+        let backward_edge: Option<ArcEdgeTrait> = self.backward_edges.remove(&edge_id);
+        return backward_edge;
     }
 
     /// Increment this neuron's received sum.
@@ -77,6 +90,8 @@ pub trait NeuronTrait
     fn get_sum(&self) -> f32;
     fn zero_sum(&mut self);
 
-    fn add_edge(&mut self, edge: ArcEdgeTrait);
-    fn remove_edge(&mut self, edge_index: usize);
+    fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
+    fn remove_forward_edge(&mut self, edge_id: String);
+    fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
+    fn remove_backward_edge(&mut self, edge_id: String);
 }
