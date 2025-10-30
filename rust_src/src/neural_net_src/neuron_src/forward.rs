@@ -6,7 +6,7 @@ use crate::neural_net_src::{edge_src::{core_deps::EdgeTrait, element_mutexed_vec
 /// edge.
 pub fn hidden_forward(neuron_attr: &NeuronAttr)
 {
-    for edge in &neuron_attr.forward_edges
+    for (_, edge) in &neuron_attr.forward_edges
     {
         // Reference to the next neuron this edge connects to.
         let next_neuron: ArcNeuronTrait;
@@ -38,7 +38,7 @@ pub fn hidden_forward(neuron_attr: &NeuronAttr)
 /// array.
 pub fn output_forward(neuron_attr: &NeuronAttr)
 {
-    for edge in &neuron_attr.forward_edges
+    for (_, edge) in &neuron_attr.forward_edges
     {
         // The output index of the output array this edge "connects" to.
         let output_index: usize;
