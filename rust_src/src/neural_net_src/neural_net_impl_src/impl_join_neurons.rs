@@ -41,25 +41,4 @@ impl NeuralNet
         // Add the edge to hidden edge hashmap.
         self.hidden_edges.insert(random_edge_id, hidden_edge);
     }
-
-    /// Obtain the neuron arc from either input, hidden or output neuron hashmap.
-    fn obtain_neuron(&self, neuron_id: String) -> Option<ArcNeuronTrait>
-    {
-        if self.input_neurons.get(&neuron_id).is_some()
-        {
-            return Some(Arc::clone(self.input_neurons.get(&neuron_id).unwrap()));
-        }
-        else if self.hidden_neurons.get(&neuron_id).is_some() 
-        {
-            return Some(Arc::clone(self.hidden_neurons.get(&neuron_id).unwrap()));
-        }
-        else if self.output_neurons.get(&neuron_id).is_some()
-        {
-            return Some(Arc::clone(self.output_neurons.get(&neuron_id).unwrap()));
-        }
-        else
-        {
-            None
-        }
-    }
 }
