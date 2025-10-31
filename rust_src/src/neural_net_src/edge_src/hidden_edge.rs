@@ -1,21 +1,21 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
-use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, neuron_src::core_deps::NeuronTrait};
+use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, types_aliases::ArcNeuronTrait};
 
 /// Connects any two neurons (input->hidden, hidden->hidden, hidden->output).
 pub struct HiddenEdge
 {
     attr: EdgeAttr, // Contains the essential attributes of an edge.
-    prev_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>,
-    next_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>,
+    prev_neuron: ArcNeuronTrait,
+    next_neuron: ArcNeuronTrait,
 }
 
 // Implement constructor.
 impl HiddenEdge
 {
     pub fn new(
-        prev_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>, 
-        next_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>, 
+        prev_neuron: ArcNeuronTrait, 
+        next_neuron: ArcNeuronTrait, 
         weight_range: f32
     ) -> Self
     {
@@ -69,5 +69,15 @@ impl EdgeTrait for HiddenEdge
         }
 
         return input_gradient;
+    }
+
+    // Get previous neuron this edge connects.
+    fn get_prev_neuron(&self) -> Option<ArcNeuronTrait> {
+        return Some(Arc::clone(&self.prev_neuron));
+    }
+
+    // Get next neuron this edge connects.
+    fn get_next_neuron(&self) -> Option<ArcNeuronTrait> {
+        return Some(Arc::clone(&self.next_neuron));
     }
 }

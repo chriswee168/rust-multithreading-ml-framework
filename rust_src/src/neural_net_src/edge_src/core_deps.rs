@@ -1,4 +1,8 @@
+use std::sync::Arc;
+
 use rand::Rng;
+
+use crate::neural_net_src::{edge_src::element_mutexed_vec::ElementMutexedVec, types_aliases::ArcNeuronTrait};
 
 /// Struct that defines default attributes for edges.
 pub struct EdgeAttr
@@ -32,4 +36,14 @@ pub trait EdgeTrait
 {
     fn forward(&self, input_val: f32) -> f32;
     fn backward(&mut self, input_val: f32, gradient_val: f32, lr: f32) -> f32;
+
+    // Methods to obtain the previous/next neuron/index, typing depends on
+    // edge struct.
+    fn get_prev_id(&self) -> Option<usize> { None }
+    fn get_prev_neuron(&self) -> Option<ArcNeuronTrait> { None }
+    fn get_next_id(&self) -> Option<usize> { None }
+    fn get_next_neuron(&self) -> Option<ArcNeuronTrait> { None }
+
+    // Obtain the element mutexed vector for input and output edges.
+    fn get_element_mutexed_vec(&self) -> Option<Arc<ElementMutexedVec<f32>>> { None }
 }

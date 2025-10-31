@@ -1,21 +1,25 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
-use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, neuron_src::core_deps::NeuronTrait};
+use crate::neural_net_src::{edge_src::{core_deps::{EdgeAttr, EdgeTrait}, element_mutexed_vec::ElementMutexedVec}, types_aliases::ArcNeuronTrait};
 
 /// Connects an output neuron with an index of output array.
 pub struct OutputEdge
 {
     attr: EdgeAttr, // Contains the essential attributes of an edge.
-    prev_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>,
+    prev_neuron: ArcNeuronTrait,
     output_array_index: usize,
+
+    // Used during forward propagation to obtain output array.
+    output_mutexed_vec: Arc<ElementMutexedVec<f32>>,
 }
 
 // Implement constructor.
 impl OutputEdge
 {
     pub fn new(
-        prev_neuron: Arc<Mutex<Box<dyn NeuronTrait>>>, 
+        prev_neuron: ArcNeuronTrait, 
         output_array_index: usize, 
+        output_mutexed_vec: Arc<ElementMutexedVec<f32>>,
         weight_range: f32
     ) -> Self
     {
@@ -24,7 +28,8 @@ impl OutputEdge
         {
             attr: edge_attr,
             prev_neuron,
-            output_array_index
+            output_array_index,
+            output_mutexed_vec
         };        
     }
 }
@@ -69,5 +74,20 @@ impl EdgeTrait for OutputEdge
         }
 
         return input_gradient;
+    }
+
+    // Get previous output neuron this edge is connected to.
+    fn get_prev_neuron(&self) -> Option<ArcNeuronTrait> {
+        return Some(Arc::clone(&self.prev_neuron));
+    }
+
+    // Get index of output array.
+    fn get_next_id(&self) -> Option<usize> {
+        return Some(self.output_array_index);
+    }
+
+    // Obtain output mutexed vector for obtaining output values during forward pass.
+    fn get_element_mutexed_vec(&self) -> Option<Arc<ElementMutexedVec<f32>>> {
+        return Some(Arc::clone(&self.output_mutexed_vec));
     }
 }
