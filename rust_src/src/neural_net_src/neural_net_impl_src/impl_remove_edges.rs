@@ -41,4 +41,21 @@ impl NeuralNet
         // Remove edge from input edge hashmap.
         self.input_edges.remove(&edge_id);
     }
+
+    /// Remove an output edge.
+    pub fn remove_output_edge(&mut self, edge_id: String)
+    {
+        let output_edge: ArcEdgeTrait = self.obtain_edge(edge_id.clone()).unwrap();
+        let output_edge: MutexGuard<'_, Box<dyn EdgeTrait>> = output_edge.lock().unwrap();
+
+        // Get the output neuron that uses this edge.
+        let output_neuron: ArcNeuronTrait = output_edge.get_next_neuron().unwrap();
+        let mut output_neuron: MutexGuard<'_, Box<dyn NeuronTrait>> = output_neuron.lock().unwrap();
+
+        // Remove edge arc from output neuron.
+        output_neuron.remove_forward_edge(edge_id.clone());
+
+        // Remove edge from output edge hashmap.
+        self.output_edges.remove(&edge_id);
+    }
 }
