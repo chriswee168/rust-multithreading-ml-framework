@@ -1,6 +1,6 @@
-mod neuron_src;
-mod edge_src;
-mod neural_net;
-mod types_aliases;
-mod neural_net_impl_src;
-mod rand_id_gen;
+pub mod neuron_src;
+pub mod edge_src;
+pub mod neural_net;
+pub mod types_aliases;
+pub mod neural_net_impl_src;
+pub mod rand_id_gen;
