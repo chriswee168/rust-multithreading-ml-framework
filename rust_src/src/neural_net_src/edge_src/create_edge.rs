@@ -1,10 +1,13 @@
 use std::sync::{Arc, Mutex};
 
-use crate::neural_net_src::{edge_src::{element_mutexed_vec::ElementMutexedVec, input_edge::InputEdge}, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
+use crate::neural_net_src::{
+    edge_src::{element_mutexed_vec::ElementMutexedVec, 
+        hidden_edge::HiddenEdge, input_edge::InputEdge, 
+        output_edge::OutputEdge}, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
 
 /// Create input edge.
 pub fn create_input_edge(
-    input_array_idx: usize, input_neuron: ArcNeuronTrait, 
+    input_array_idx: usize, input_neuron: &ArcNeuronTrait, 
     input_mutexed_vec: Arc<ElementMutexedVec<f32>>, edge_weight_range: f32 
 ) -> ArcEdgeTrait
 {
@@ -22,4 +25,47 @@ pub fn create_input_edge(
         );
     
     return input_edge;
+}
+
+/// Create output edge.
+pub fn create_output_edge(
+    output_neuron: &ArcNeuronTrait, output_array_idx: usize, 
+    output_mutexed_vec: Arc<ElementMutexedVec<f32>>, edge_weight_range: f32 
+) -> ArcEdgeTrait
+{
+    let output_edge: ArcEdgeTrait = 
+        Arc::new(
+            Mutex::new(
+                Box::new(
+                    OutputEdge::new(
+                        output_neuron.clone(),
+                        output_array_idx,  
+                        output_mutexed_vec.clone(), edge_weight_range
+                    )
+                )
+            )
+        );
+    
+    return output_edge;
+}
+
+/// Create hidden edge.
+pub fn create_hidden_edge(
+    neuron0: &ArcNeuronTrait, neuron1: &ArcNeuronTrait, edge_weight_range: f32 
+) -> ArcEdgeTrait
+{
+    let hidden_edge: ArcEdgeTrait = 
+        Arc::new(
+            Mutex::new(
+                Box::new(
+                    HiddenEdge::new(
+                        neuron0.clone(),
+                        neuron1.clone(),  
+                        edge_weight_range
+                    )
+                )
+            )
+        );
+    
+    return hidden_edge;
 }
