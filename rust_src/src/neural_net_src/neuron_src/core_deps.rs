@@ -14,6 +14,7 @@ pub struct NeuronAttr
     // Used to keep track of values being passed between neurons.
     received_sum: f32,
 
+    // Determines which previous neurons can connect to this neuron.
     neuron_level: u32,
 }
 
