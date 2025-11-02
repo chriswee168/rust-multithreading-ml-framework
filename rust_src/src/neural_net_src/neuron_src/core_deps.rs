@@ -15,22 +15,20 @@ pub struct NeuronAttr
     received_sum: f32,
 
     neuron_level: u32,
-    neuron_id: String,
 }
 
 impl NeuronAttr
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32, neuron_id: String
+        neuron_level: u32
     ) -> Self
     {
         return Self 
         {
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
-            neuron_level, neuron_id,
-            received_sum: 0.0
+            neuron_level, received_sum: 0.0
         }
     }
 
