@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::neural_net_src::{neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::{hidden_forward}}, types_aliases::ArcEdgeTrait};
 
 /// Struct to define input neuron attributes and behaviour.
@@ -71,5 +73,14 @@ impl NeuronTrait for InputNeuron
     /// Reset the received sum of this neuron to zero.
     fn zero_sum(&mut self) {
         self.attr.zero_sum();
+    }
+
+    /// Getter methods to display neuron edges.
+    fn get_forward_edges(&self) -> &HashMap<String, ArcEdgeTrait> {
+        return &self.attr.forward_edges;
+    }
+
+    fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait> {
+        return &self.attr.backward_edges;
     }
 }
