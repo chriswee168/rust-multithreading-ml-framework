@@ -93,4 +93,8 @@ pub trait NeuronTrait
     fn remove_forward_edge(&mut self, edge_id: &str);
     fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
     fn remove_backward_edge(&mut self, edge_id: &str);
+    
+    // Getter methods to access neuron edge connections.
+    fn get_forward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
+    fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
 }
