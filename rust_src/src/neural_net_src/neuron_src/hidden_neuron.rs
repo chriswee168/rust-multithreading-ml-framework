@@ -10,12 +10,12 @@ impl HiddenNeuron
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32, neuron_id: String
+        neuron_level: u32
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
             max_backward_edges, max_forward_edges, 
-            neuron_level, neuron_id
+            neuron_level
         );
 
         return Self
