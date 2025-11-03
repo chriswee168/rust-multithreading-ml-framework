@@ -7,7 +7,7 @@ impl NeuralNet
     /// Add an edge for an input neuron to connect it to an index
     /// of the input array.
     pub fn add_input_edge(
-        &mut self, input_neuron_id: String, edge_id_len: usize, 
+        &mut self, input_neuron_id: &str, edge_id_len: usize, 
         input_array_idx: usize, edge_weight_range: f32,
         input_mutexed_vec: Arc<ElementMutexedVec<f32>>
     )
@@ -33,7 +33,7 @@ impl NeuralNet
     /// Add an edge for an output neuron to connect it to an index
     /// of the output array.
     pub fn add_output_edge(
-        &mut self, output_neuron_id: String, edge_id_len: usize, 
+        &mut self, output_neuron_id: &str, edge_id_len: usize, 
         output_array_idx: usize, edge_weight_range: f32,
         output_mutexed_vec: Arc<ElementMutexedVec<f32>>
     )

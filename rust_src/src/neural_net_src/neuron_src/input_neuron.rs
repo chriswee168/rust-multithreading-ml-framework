@@ -33,7 +33,7 @@ impl NeuronTrait for InputNeuron
         self.attr.add_forward_edge(edge_id, edge);
     }
     /// Remove an edge to disconnect this neuron from another neuron.
-    fn remove_forward_edge(&mut self, edge_id: String) 
+    fn remove_forward_edge(&mut self, edge_id: &str) 
     {
         self.attr.remove_forward_edge(edge_id);
     }
@@ -43,7 +43,7 @@ impl NeuronTrait for InputNeuron
         self.attr.add_backward_edge(edge_id, edge);
     }
     /// Remove an edge to disconnect this neuron from a previous neuron.
-    fn remove_backward_edge(&mut self, edge_id: String) 
+    fn remove_backward_edge(&mut self, edge_id: &str) 
     {
         self.attr.remove_backward_edge(edge_id);
     }
