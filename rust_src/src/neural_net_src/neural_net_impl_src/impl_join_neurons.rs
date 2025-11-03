@@ -6,7 +6,7 @@ impl NeuralNet
 {
     /// Join two neurons with a hidden edge.
     pub fn join_neurons(
-        &mut self, neuron0_id: String, neuron1_id: String, 
+        &mut self, neuron0_id: &str, neuron1_id: &str, 
         edge_id_len: usize, edge_weight_range: f32
     )
     {
