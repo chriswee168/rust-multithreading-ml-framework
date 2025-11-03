@@ -1,12 +1,12 @@
 use std::sync::{Arc, Mutex, MutexGuard};
 
-use crate::neural_net_src::{edge_src::hidden_edge::HiddenEdge, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, rand_id_gen::rand_id_gen, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
+use crate::neural_net_src::{edge_src::{create_edge::create_hidden_edge, hidden_edge::HiddenEdge}, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, rand_id_gen::rand_id_gen, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
 
 impl NeuralNet
 {
     /// Join two neurons with a hidden edge.
     pub fn join_neurons(
-        &mut self, neuron0_id: String, neuron1_id: String, 
+        &mut self, neuron0_id: &str, neuron1_id: &str, 
         edge_id_len: usize, edge_weight_range: f32
     )
     {
@@ -18,17 +18,9 @@ impl NeuralNet
         let random_edge_id: String = rand_id_gen(edge_id_len);
 
         // Create hidden edge.
-        let hidden_edge: ArcEdgeTrait = 
-            ArcEdgeTrait::new(
-                Mutex::new(
-                    Box::new(
-                        HiddenEdge::new(
-                            neuron0.clone(), neuron1.clone(), 
-                            edge_weight_range,
-                        )
-                    )
-                )
-            );
+        let hidden_edge: ArcEdgeTrait = create_hidden_edge(
+            &neuron0, &neuron1, edge_weight_range
+        );
 
         // Acquire mutexes for mutability.
         let mut neuron0: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron0.lock().unwrap();
