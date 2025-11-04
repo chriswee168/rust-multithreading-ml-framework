@@ -28,15 +28,15 @@ fn join_neurons()
     // input -> hidden, hidden -> output and input -> output.
     neural_net.join_neurons(
         "input", "hidden", String::from("edge"), 
-        1.0
+        0.0, 0.0
     );
     neural_net.join_neurons(
         "hidden", "output", String::from("edge1"), 
-        1.0
+        0.0, 0.0
     );
     neural_net.join_neurons(
         "input", "output", String::from("edge2"), 
-        1.0
+        0.0, 0.0
     );
 
     let edge: &ArcEdgeTrait = neural_net.hidden_edges.get("edge").unwrap();
