@@ -20,10 +20,11 @@ impl InputEdge
         input_array_index: usize, 
         next_neuron: ArcNeuronTrait, 
         input_mutexed_vec: Arc<ElementMutexedVec<f32>>,
-        weight_range: f32
+        neg_weight: f32,
+        pos_weight: f32
     ) -> Self
     {
-        let edge_attr: EdgeAttr = EdgeAttr::new(weight_range);
+        let edge_attr: EdgeAttr = EdgeAttr::new(neg_weight, pos_weight);
         return Self
         {
             attr: edge_attr,

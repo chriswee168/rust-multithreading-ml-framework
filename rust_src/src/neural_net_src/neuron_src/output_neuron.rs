@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::ArcEdgeTrait};
 
@@ -73,5 +73,14 @@ impl NeuronTrait for OutputNeuron
     /// Reset the received sum of this neuron to zero.
     fn zero_sum(&mut self) {
         self.attr.zero_sum();
+    }
+
+    /// Getter methods to display neuron edges.
+    fn get_forward_edges(&self) -> &HashMap<String, ArcEdgeTrait> {
+        return &self.attr.forward_edges;
+    }
+
+    fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait> {
+        return &self.attr.backward_edges;
     }
 }

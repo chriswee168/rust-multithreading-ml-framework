@@ -1,7 +1,5 @@
 use std::sync::Arc;
 
-use rand::Rng;
-
 use crate::neural_net_src::{edge_src::element_mutexed_vec::ElementMutexedVec, types_aliases::ArcNeuronTrait};
 
 /// Struct that defines default attributes for edges.
@@ -18,14 +16,12 @@ pub struct EdgeAttr
 // Implement constructor method.
 impl EdgeAttr
 {
-    pub fn new(weight_range: f32) -> Self
+    pub fn new(neg_weight: f32, pos_weight: f32) -> Self
     {
-        // Used for random weight initialization within specified range.
-        let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
         return Self
         {
-            neg_weight: rand_gen.gen_range(-weight_range..=weight_range),
-            pos_weight: rand_gen.gen_range(-weight_range..=weight_range),
+            neg_weight,
+            pos_weight,
             bias: 0.0,
         }
     }

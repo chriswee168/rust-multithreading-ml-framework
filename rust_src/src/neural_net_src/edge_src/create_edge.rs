@@ -8,7 +8,7 @@ use crate::neural_net_src::{
 /// Create input edge.
 pub fn create_input_edge(
     input_array_idx: usize, input_neuron: &ArcNeuronTrait, 
-    input_mutexed_vec: Arc<ElementMutexedVec<f32>>, edge_weight_range: f32 
+    input_mutexed_vec: Arc<ElementMutexedVec<f32>>, neg_weight: f32, pos_weight: f32
 ) -> ArcEdgeTrait
 {
     let input_edge: ArcEdgeTrait = 
@@ -18,7 +18,7 @@ pub fn create_input_edge(
                     InputEdge::new(
                         input_array_idx, 
                         input_neuron.clone(), 
-                        input_mutexed_vec.clone(), edge_weight_range
+                        input_mutexed_vec.clone(), neg_weight, pos_weight
                     )
                 )
             )
@@ -30,7 +30,7 @@ pub fn create_input_edge(
 /// Create output edge.
 pub fn create_output_edge(
     output_neuron: &ArcNeuronTrait, output_array_idx: usize, 
-    output_mutexed_vec: Arc<ElementMutexedVec<f32>>, edge_weight_range: f32 
+    output_mutexed_vec: Arc<ElementMutexedVec<f32>>, neg_weight: f32, pos_weight: f32
 ) -> ArcEdgeTrait
 {
     let output_edge: ArcEdgeTrait = 
@@ -40,7 +40,7 @@ pub fn create_output_edge(
                     OutputEdge::new(
                         output_neuron.clone(),
                         output_array_idx,  
-                        output_mutexed_vec.clone(), edge_weight_range
+                        output_mutexed_vec.clone(), neg_weight, pos_weight
                     )
                 )
             )
@@ -51,7 +51,7 @@ pub fn create_output_edge(
 
 /// Create hidden edge.
 pub fn create_hidden_edge(
-    neuron0: &ArcNeuronTrait, neuron1: &ArcNeuronTrait, edge_weight_range: f32 
+    neuron0: &ArcNeuronTrait, neuron1: &ArcNeuronTrait, neg_weight: f32, pos_weight: f32
 ) -> ArcEdgeTrait
 {
     let hidden_edge: ArcEdgeTrait = 
@@ -61,7 +61,7 @@ pub fn create_hidden_edge(
                     HiddenEdge::new(
                         neuron0.clone(),
                         neuron1.clone(),  
-                        edge_weight_range
+                        neg_weight, pos_weight
                     )
                 )
             )
