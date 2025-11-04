@@ -7,7 +7,7 @@ impl NeuralNet
     /// Join two neurons with a hidden edge.
     pub fn join_neurons(
         &mut self, neuron0_id: &str, neuron1_id: &str, 
-        edge_id: String, edge_weight_range: f32
+        edge_id: String, neg_weight: f32, pos_weight: f32
     )
     {
         // Get the neuron arcs.
@@ -16,7 +16,7 @@ impl NeuralNet
 
         // Create hidden edge.
         let hidden_edge: ArcEdgeTrait = create_hidden_edge(
-            &neuron0, &neuron1, edge_weight_range
+            &neuron0, &neuron1, neg_weight, pos_weight
         );
 
         // Acquire mutexes for mutability.
