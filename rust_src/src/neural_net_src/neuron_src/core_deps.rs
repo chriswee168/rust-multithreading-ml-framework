@@ -14,23 +14,22 @@ pub struct NeuronAttr
     // Used to keep track of values being passed between neurons.
     received_sum: f32,
 
+    // Determines which previous neurons can connect to this neuron.
     neuron_level: u32,
-    neuron_id: String,
 }
 
 impl NeuronAttr
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32, neuron_id: String
+        neuron_level: u32
     ) -> Self
     {
         return Self 
         {
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
-            neuron_level, neuron_id,
-            received_sum: 0.0
+            neuron_level, received_sum: 0.0
         }
     }
 
@@ -41,9 +40,9 @@ impl NeuronAttr
     }
 
     /// Remove a forward edge to disconnect this neuron from another neuron.
-    pub fn remove_forward_edge(&mut self, edge_id: String) -> Option<ArcEdgeTrait>
+    pub fn remove_forward_edge(&mut self, edge_id: &str) -> Option<ArcEdgeTrait>
     {
-        let removed_edge: Option<ArcEdgeTrait> = self.forward_edges.remove(&edge_id);
+        let removed_edge: Option<ArcEdgeTrait> = self.forward_edges.remove(edge_id);
         return removed_edge;
     }
 
@@ -54,9 +53,9 @@ impl NeuronAttr
     }
 
     /// Remove a backward edge to disconnect this neuron from a previous neuron.
-    pub fn remove_backward_edge(&mut self, edge_id: String) -> Option<ArcEdgeTrait>
+    pub fn remove_backward_edge(&mut self, edge_id: &str) -> Option<ArcEdgeTrait>
     {
-        let backward_edge: Option<ArcEdgeTrait> = self.backward_edges.remove(&edge_id);
+        let backward_edge: Option<ArcEdgeTrait> = self.backward_edges.remove(edge_id);
         return backward_edge;
     }
 
@@ -91,7 +90,11 @@ pub trait NeuronTrait
     fn zero_sum(&mut self);
 
     fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
-    fn remove_forward_edge(&mut self, edge_id: String);
+    fn remove_forward_edge(&mut self, edge_id: &str);
     fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
-    fn remove_backward_edge(&mut self, edge_id: String);
+    fn remove_backward_edge(&mut self, edge_id: &str);
+    
+    // Getter methods to access neuron edge connections.
+    fn get_forward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
+    fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
 }

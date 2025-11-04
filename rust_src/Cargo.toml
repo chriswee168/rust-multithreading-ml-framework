@@ -6,7 +6,7 @@ edition = "2024"
 # Configure rust project as shared library.
 [lib]
 name = "libai_core"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 serde = "1.0.228"
