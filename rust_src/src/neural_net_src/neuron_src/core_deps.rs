@@ -11,8 +11,7 @@ pub struct NeuronAttr
     pub forward_edges: HashMap<String, ArcEdgeTrait>,
     pub backward_edges: HashMap<String, ArcEdgeTrait>,
 
-    // Used to keep track of values being passed between neurons.
-    received_sum: f32,
+    forward_sum: f32, // Keep track of values during forward pass.
 
     // Determines which previous neurons can connect to this neuron.
     neuron_level: u32,
@@ -29,7 +28,7 @@ impl NeuronAttr
         {
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
-            neuron_level, received_sum: 0.0
+            neuron_level, forward_sum: 0.0
         }
     }
 
@@ -62,19 +61,19 @@ impl NeuronAttr
     /// Increment this neuron's received sum.
     pub fn increment_sum(&mut self, value: f32)
     {
-        self.received_sum += value;
+        self.forward_sum += value;
     }
 
     /// Obtain the current received sum of this neuron.
     pub fn get_sum(&self) -> f32
     {
-        return self.received_sum;
+        return self.forward_sum;
     }
 
     /// Reset the received sum of this neuron to zero.
     pub fn zero_sum(&mut self)
     {
-        self.received_sum = 0.0;
+        self.forward_sum = 0.0;
     }
 }
 
@@ -84,7 +83,7 @@ pub trait NeuronTrait
     fn forward(&mut self); // Forward propagation.
     fn backward(&mut self); // Backward propagation.
 
-    // Wrapper methods for received_sum attribute in NeuronAttr.
+    // Wrapper methods for forward_sum attribute in NeuronAttr.
     fn increment_sum(&mut self, value: f32);
     fn get_sum(&self) -> f32;
     fn zero_sum(&mut self);
