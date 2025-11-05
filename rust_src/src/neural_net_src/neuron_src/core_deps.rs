@@ -11,8 +11,13 @@ pub struct NeuronAttr
     pub forward_edges: HashMap<String, ArcEdgeTrait>,
     pub backward_edges: HashMap<String, ArcEdgeTrait>,
 
-    // Used to keep track of values being passed between neurons.
-    received_sum: f32,
+    forward_sum: f32, // Keep track of values during forward pass.
+    backward_sum: f32, // Keep track of values during backward pass.
+
+    // Used to control when the forward and backward sums are reset to zero
+    // during the forward and backward pass.
+    forward_visit_count: usize,
+    backward_visit_count: usize,
 
     // Determines which previous neurons can connect to this neuron.
     neuron_level: u32,
@@ -29,7 +34,8 @@ impl NeuronAttr
         {
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
-            neuron_level, received_sum: 0.0
+            neuron_level, forward_sum: 0.0, backward_sum: 0.0,
+            forward_visit_count: 0, backward_visit_count: 0
         }
     }
 
@@ -59,22 +65,82 @@ impl NeuronAttr
         return backward_edge;
     }
 
-    /// Increment this neuron's received sum.
-    pub fn increment_sum(&mut self, value: f32)
+    /// Increment sum.
+    pub fn add_to_sum(&mut self, value: f32, is_forward: bool)
     {
-        self.received_sum += value;
+        if is_forward
+        {
+            self.forward_sum += value;
+        }
+        else 
+        {
+            self.backward_sum += value;
+        }
     }
 
-    /// Obtain the current received sum of this neuron.
-    pub fn get_sum(&self) -> f32
+    /// Obtain the current sum of this neuron.
+    pub fn get_sum(&self, is_forward: bool) -> f32
     {
-        return self.received_sum;
+        if is_forward
+        {
+            return self.forward_sum;
+        }
+        else 
+        {
+            return self.backward_sum;    
+        }
     }
 
-    /// Reset the received sum of this neuron to zero.
-    pub fn zero_sum(&mut self)
+    /// Reset the sum of this neuron to zero.
+    pub fn zero_sum(&mut self, is_forward: bool)
     {
-        self.received_sum = 0.0;
+        if is_forward
+        {
+            self.forward_sum = 0.0;
+        }
+        else 
+        {
+            self.backward_sum = 0.0;    
+        }
+    }
+
+    /// Increment visit count.
+    pub fn add_visit_count(&mut self, is_forward: bool)
+    {
+        if is_forward
+        {
+            self.forward_visit_count += 1;
+        }
+        else 
+        {
+            self.backward_visit_count += 1;
+        }
+    }
+
+    /// Obtain the current visit count of this neuron.
+    pub fn get_visit_count(&self, is_forward: bool) -> usize
+    {
+        if is_forward
+        {
+            return self.forward_visit_count;
+        }
+        else 
+        {
+            return self.backward_visit_count;    
+        }
+    }
+
+    /// Reset the visit count of this neuron to zero.
+    pub fn zero_visit_count(&mut self, is_forward: bool)
+    {
+        if is_forward
+        {
+            self.forward_visit_count = 0;
+        }
+        else 
+        {
+            self.backward_visit_count = 0;    
+        }
     }
 }
 
@@ -84,10 +150,15 @@ pub trait NeuronTrait
     fn forward(&mut self); // Forward propagation.
     fn backward(&mut self); // Backward propagation.
 
-    // Wrapper methods for received_sum attribute in NeuronAttr.
-    fn increment_sum(&mut self, value: f32);
-    fn get_sum(&self) -> f32;
-    fn zero_sum(&mut self);
+    // Wrapper methods for sum attributes in NeuronAttr.
+    fn add_to_sum(&mut self, value: f32, is_forward: bool);
+    fn get_sum(&self, is_forward: bool) -> f32;
+    fn zero_sum(&mut self, is_forward: bool);
+
+    // Wrapper methods for visit counter attributes in NeuronAttr.
+    fn add_visit_count(&mut self, is_forward: bool);
+    fn get_visit_count(&self, is_forward: bool) -> usize;
+    fn zero_visit_count(&mut self, is_forward: bool);
 
     fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
     fn remove_forward_edge(&mut self, edge_id: &str);
