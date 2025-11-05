@@ -17,7 +17,7 @@ pub fn hidden_forward(neuron_attr: &NeuronAttr)
         {
             // Get exclusive access to edge.
             let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
-            edge_output = edge_guard.forward(neuron_attr.get_sum());
+            edge_output = edge_guard.forward(neuron_attr.get_forward_sum());
 
             // Get the next neuron.
             next_neuron = edge_guard.get_next_neuron().unwrap();
@@ -28,7 +28,7 @@ pub fn hidden_forward(neuron_attr: &NeuronAttr)
             let mut next_neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = next_neuron.lock().unwrap();
                 
             // Increment the edge output value to the received sum of next neuron.
-            next_neuron_guard.increment_sum(edge_output);
+            next_neuron_guard.add_forward_sum(edge_output);
         }
     }
 }
@@ -51,7 +51,7 @@ pub fn output_forward(neuron_attr: &NeuronAttr)
         {
             // Get exclusive access to edge.
             let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
-            edge_output = edge_guard.forward(neuron_attr.get_sum());
+            edge_output = edge_guard.forward(neuron_attr.get_forward_sum());
 
             // Get the output index of the output array this edge "connects" to.
             output_index = edge_guard.get_next_id().unwrap();
