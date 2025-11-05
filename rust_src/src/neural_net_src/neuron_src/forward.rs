@@ -1,6 +1,6 @@
-use std::{cell::{RefCell, RefMut}, sync::{Arc, MutexGuard}};
+use std::{cell::{RefCell, RefMut}, sync::{Arc, MutexGuard, RwLock, RwLockWriteGuard}};
 
-use crate::neural_net_src::{edge_src::{core_deps::EdgeTrait, element_mutexed_vec::ElementMutexedVec}, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::ArcNeuronTrait};
+use crate::neural_net_src::{edge_src::{core_deps::EdgeTrait}, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::ArcNeuronTrait};
 
 /// Function for input/hidden neurons to forward propagate values though each
 /// edge.
@@ -46,7 +46,7 @@ pub fn output_forward(neuron_attr: &NeuronAttr)
         let edge_output: f32;
         // Obtains the output values to send to the python frontend as an
         // array.
-        let output_mutexed_vec: Arc<ElementMutexedVec<f32>>;
+        let output_rwlock_vec: Arc<RwLock<Vec<f32>>>;
 
         {
             // Get exclusive access to edge.
@@ -55,14 +55,13 @@ pub fn output_forward(neuron_attr: &NeuronAttr)
 
             // Get the output index of the output array this edge "connects" to.
             output_index = edge_guard.get_next_id().unwrap();
-            output_mutexed_vec = edge_guard.get_element_mutexed_vec().unwrap();
+            output_rwlock_vec = edge_guard.get_rwlock_vec().unwrap();
         }
 
         {
             // Get exclusive access to specific index of output array and write
             // edge output.
-            let _guard: MutexGuard<'_, ()> = output_mutexed_vec.locks[output_index].lock().unwrap();
-            let mut output_array: RefMut<'_, Vec<f32>> = output_mutexed_vec.data.borrow_mut();
+            let mut output_array: RwLockWriteGuard<'_, Vec<f32>> = output_rwlock_vec.write().unwrap();
             output_array[output_index] += edge_output;
         }
     }

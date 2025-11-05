@@ -1,6 +1,6 @@
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
-use crate::neural_net_src::{edge_src::{core_deps::{EdgeAttr, EdgeTrait}, element_mutexed_vec::ElementMutexedVec}, types_aliases::ArcNeuronTrait};
+use crate::neural_net_src::{edge_src::{core_deps::{EdgeAttr, EdgeTrait}}, types_aliases::ArcNeuronTrait};
 
 /// Connects an index of the input array with an input neuron.
 pub struct InputEdge
@@ -9,7 +9,7 @@ pub struct InputEdge
     input_array_index: usize,
 
     // Used during backpropagation to obtain input array gradients.
-    input_mutexed_vec: Arc<ElementMutexedVec<f32>>,
+    input_rwlock_vec: Arc<RwLock<Vec<f32>>>,
     next_neuron: ArcNeuronTrait
 }
 
@@ -19,16 +19,17 @@ impl InputEdge
     pub fn new(
         input_array_index: usize, 
         next_neuron: ArcNeuronTrait, 
-        input_mutexed_vec: Arc<ElementMutexedVec<f32>>,
-        weight_range: f32
+        input_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+        neg_weight: f32,
+        pos_weight: f32
     ) -> Self
     {
-        let edge_attr: EdgeAttr = EdgeAttr::new(weight_range);
+        let edge_attr: EdgeAttr = EdgeAttr::new(neg_weight, pos_weight);
         return Self
         {
             attr: edge_attr,
             input_array_index,
-            input_mutexed_vec,
+            input_rwlock_vec,
             next_neuron
         };        
     }
@@ -86,9 +87,9 @@ impl EdgeTrait for InputEdge
         return Some(Arc::clone(&self.next_neuron));
     }
 
-    // Obtain input mutexed vector for obtaining input gradients
+    // Obtain input rwlock vector for obtaining input gradients
     // during backpropagation.
-    fn get_element_mutexed_vec(&self) -> Option<Arc<ElementMutexedVec<f32>>> {
-        return Some(Arc::clone(&self.input_mutexed_vec));
+    fn get_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
+        return Some(Arc::clone(&self.input_rwlock_vec));
     }
 }
