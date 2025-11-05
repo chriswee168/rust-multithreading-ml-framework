@@ -29,17 +29,17 @@ fn forward_pass()
     // Set input neuron value to 10.0.
     let test_input_value: f32 = 10.0;
     let mut input_neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = input_neuron.lock().unwrap();
-    input_neuron_guard.increment_sum(test_input_value);
+    input_neuron_guard.add_forward_sum(test_input_value);
 
     // Forward propagation from input neuron to hidden neuron.
     // 10.0 * -0.9 = -9.0
     input_neuron_guard.forward();
     let mut hidden_neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = hidden_neuron.lock().unwrap();
-    assert_eq!(-9.0, hidden_neuron_guard.get_sum());
+    assert_eq!(-9.0, hidden_neuron_guard.get_forward_sum());
 
     // Forward propagation from hidden neuron to output neuron.
     // -9.0 * -0.5 = 4.5
     hidden_neuron_guard.forward();
     let output_neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = output_neuron.lock().unwrap();
-    assert_eq!(4.5, output_neuron_guard.get_sum());
+    assert_eq!(4.5, output_neuron_guard.get_forward_sum());
 }
