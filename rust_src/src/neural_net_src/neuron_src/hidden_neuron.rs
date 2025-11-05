@@ -59,7 +59,7 @@ impl NeuronTrait for HiddenNeuron
         
     }
 
-    /// Increment this neuron's received sum.
+    /// Increment this neuron's forward sum.
     fn add_forward_sum(&mut self, value: f32) 
     {
         self.attr.add_forward_sum(value);    
@@ -70,9 +70,25 @@ impl NeuronTrait for HiddenNeuron
         return self.attr.get_forward_sum();
     }
 
-    /// Reset the received sum of this neuron to zero.
+    /// Reset the forward sum of this neuron to zero.
     fn zero_forward_sum(&mut self) {
         self.attr.zero_forward_sum();
+    }
+
+    /// Increment this neuron's backward sum.
+    fn add_backward_sum(&mut self, value: f32) 
+    {
+        self.attr.add_backward_sum(value);    
+    }
+
+    /// Obtain the current backward sum of this neuron.
+    fn get_backward_sum(&self) -> f32 {
+        return self.attr.get_backward_sum();
+    }
+
+    /// Reset the backward sum of this neuron to zero.
+    fn zero_backward_sum(&mut self) {
+        self.attr.zero_backward_sum();
     }
 
     /// Getter methods to display neuron edges.

@@ -82,6 +82,24 @@ impl NeuronAttr
     {
         self.forward_sum = 0.0;
     }
+
+    /// Increment backward sum.
+    pub fn add_backward_sum(&mut self, value: f32)
+    {
+        self.backward_sum += value;
+    }
+
+    /// Obtain the current backward sum of this neuron.
+    pub fn get_backward_sum(&self) -> f32
+    {
+        return self.backward_sum;
+    }
+
+    /// Reset the backward sum of this neuron to zero.
+    pub fn zero_backward_sum(&mut self)
+    {
+        self.backward_sum = 0.0;
+    }
 }
 
 /// Contains trait methods for input, hidden and output neurons.
@@ -94,6 +112,11 @@ pub trait NeuronTrait
     fn add_forward_sum(&mut self, value: f32);
     fn get_forward_sum(&self) -> f32;
     fn zero_forward_sum(&mut self);
+
+    // Wrapper methods for backward_sum attribute in NeuronAttr.
+    fn add_backward_sum(&mut self, value: f32);
+    fn get_backward_sum(&self) -> f32;
+    fn zero_backward_sum(&mut self);
 
     fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
     fn remove_forward_edge(&mut self, edge_id: &str);
