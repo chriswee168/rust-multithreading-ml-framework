@@ -52,7 +52,7 @@ impl NeuronTrait for OutputNeuron
     /// Perform forward pass.
     fn forward(&mut self) 
     {
-        output_forward(&self.attr);
+        output_forward(&mut self.attr);
     }
     fn backward(&mut self) 
     {

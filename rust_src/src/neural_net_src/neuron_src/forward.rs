@@ -4,9 +4,12 @@ use crate::neural_net_src::{edge_src::{core_deps::EdgeTrait}, neuron_src::core_d
 
 /// Function for input/hidden neurons to forward propagate values though each
 /// edge.
-pub fn hidden_forward(neuron_attr: &NeuronAttr)
+pub fn hidden_forward(neuron_attr: &mut NeuronAttr)
 {
+    // Get neuron sum and reset the visit count of this neuron.
     let neuron_sum: f32 = neuron_attr.get_sum(true);
+    neuron_attr.zero_visit_count(true);
+
     for (_, edge) in &neuron_attr.forward_edges
     {
         // Reference to the next neuron this edge connects to.
@@ -28,8 +31,19 @@ pub fn hidden_forward(neuron_attr: &NeuronAttr)
             // Get exclusive access to the next neuron.
             let mut next_neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = next_neuron.lock().unwrap();
             
+            // Get forward visit count of next neuron.
+            let visit_count: usize = next_neuron_guard.get_visit_count(true);
+
+            // Reset the neuron sum of the next neuron if this is the first
+            // neuron to visit it.
+            if visit_count == 0
+            {
+                next_neuron_guard.zero_sum(true);
+            }
+
             // Increment the edge output value to the received sum of next neuron.
             next_neuron_guard.add_to_sum(edge_output, true);
+            next_neuron_guard.add_visit_count(true);
         }
     }
 }
@@ -37,9 +51,12 @@ pub fn hidden_forward(neuron_attr: &NeuronAttr)
 /// Function for output neurons to forward propagate values though each
 /// edge. Output neurons has output edges containing indexes for output
 /// array.
-pub fn output_forward(neuron_attr: &NeuronAttr)
+pub fn output_forward(neuron_attr: &mut NeuronAttr)
 {
+    // Get neuron sum and reset the visit count of this neuron.
     let neuron_sum: f32 = neuron_attr.get_sum(true);
+    neuron_attr.zero_visit_count(true);
+    
     for (_, edge) in &neuron_attr.forward_edges
     {
         // The output index of the output array this edge "connects" to.

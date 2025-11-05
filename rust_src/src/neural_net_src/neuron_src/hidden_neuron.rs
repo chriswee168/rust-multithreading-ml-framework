@@ -52,7 +52,7 @@ impl NeuronTrait for HiddenNeuron
     /// Perform forward pass.
     fn forward(&mut self) 
     {
-        hidden_forward(&self.attr);
+        hidden_forward(&mut self.attr);
     }
     fn backward(&mut self) 
     {
