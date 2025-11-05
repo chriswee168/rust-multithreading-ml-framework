@@ -14,6 +14,11 @@ pub struct NeuronAttr
     forward_sum: f32, // Keep track of values during forward pass.
     backward_sum: f32, // Keep track of values during backward pass.
 
+    // Used to control when the forward and backward sums are reset to zero
+    // during the forward and backward pass.
+    forward_visit_count: u32,
+    backward_visit_count: u32,
+
     // Determines which previous neurons can connect to this neuron.
     neuron_level: u32,
 }
@@ -29,7 +34,8 @@ impl NeuronAttr
         {
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
-            neuron_level, forward_sum: 0.0, backward_sum: 0.0
+            neuron_level, forward_sum: 0.0, backward_sum: 0.0,
+            forward_visit_count: 0, backward_visit_count: 0
         }
     }
 
