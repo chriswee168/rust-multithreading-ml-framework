@@ -1,14 +1,13 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 
 use crate::neural_net_src::{
-    edge_src::{element_mutexed_vec::ElementMutexedVec, 
-        hidden_edge::HiddenEdge, input_edge::InputEdge, 
+    edge_src::{hidden_edge::HiddenEdge, input_edge::InputEdge, 
         output_edge::OutputEdge}, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
 
 /// Create input edge.
 pub fn create_input_edge(
     input_array_idx: usize, input_neuron: &ArcNeuronTrait, 
-    input_mutexed_vec: Arc<ElementMutexedVec<f32>>, neg_weight: f32, pos_weight: f32
+    input_mutexed_vec: Arc<RwLock<Vec<f32>>>, neg_weight: f32, pos_weight: f32
 ) -> ArcEdgeTrait
 {
     let input_edge: ArcEdgeTrait = 
@@ -30,7 +29,7 @@ pub fn create_input_edge(
 /// Create output edge.
 pub fn create_output_edge(
     output_neuron: &ArcNeuronTrait, output_array_idx: usize, 
-    output_mutexed_vec: Arc<ElementMutexedVec<f32>>, neg_weight: f32, pos_weight: f32
+    output_mutexed_vec: Arc<RwLock<Vec<f32>>>, neg_weight: f32, pos_weight: f32
 ) -> ArcEdgeTrait
 {
     let output_edge: ArcEdgeTrait = 
