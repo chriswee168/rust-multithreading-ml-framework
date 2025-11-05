@@ -75,6 +75,24 @@ impl NeuronTrait for OutputNeuron
         self.attr.zero_sum(is_forward);
     }
 
+    /// Increment this neuron's visit count.
+    fn add_visit_count(&mut self, is_forward: bool) 
+    {
+        self.attr.add_visit_count(is_forward);
+    }
+
+    /// Obtain the current visit count of this neuron.
+    fn get_visit_count(&self, is_forward: bool) -> usize 
+    {
+        return self.attr.get_visit_count(is_forward);
+    }
+
+    /// Reset the visit count of this neuron to zero.
+    fn zero_visit_count(&mut self, is_forward: bool) 
+    {
+        self.attr.zero_visit_count(is_forward);
+    }
+
     /// Getter methods to display neuron edges.
     fn get_forward_edges(&self) -> &HashMap<String, ArcEdgeTrait> {
         return &self.attr.forward_edges;
