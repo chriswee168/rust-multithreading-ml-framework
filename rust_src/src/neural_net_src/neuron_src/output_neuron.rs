@@ -59,36 +59,20 @@ impl NeuronTrait for OutputNeuron
         
     }
 
-    /// Increment this neuron's forward sum.
-    fn add_forward_sum(&mut self, value: f32) 
+    /// Increment this neuron's sum.
+    fn add_to_sum(&mut self, value: f32, is_forward: bool) 
     {
-        self.attr.add_forward_sum(value);    
+        self.attr.add_to_sum(value, is_forward);
     }
 
-    /// Obtain the current forward sum of this neuron.
-    fn get_forward_sum(&self) -> f32 {
-        return self.attr.get_forward_sum();
+    /// Obtain the current sum of this neuron.
+    fn get_sum(&self, is_forward: bool) -> f32 {
+        return self.attr.get_sum(is_forward);
     }
 
-    /// Reset the forward sum of this neuron to zero.
-    fn zero_forward_sum(&mut self) {
-        self.attr.zero_forward_sum();
-    }
-
-    /// Increment this neuron's backward sum.
-    fn add_backward_sum(&mut self, value: f32) 
-    {
-        self.attr.add_backward_sum(value);    
-    }
-
-    /// Obtain the current backward sum of this neuron.
-    fn get_backward_sum(&self) -> f32 {
-        return self.attr.get_backward_sum();
-    }
-
-    /// Reset the backward sum of this neuron to zero.
-    fn zero_backward_sum(&mut self) {
-        self.attr.zero_backward_sum();
+    /// Reset the sum of this neuron to zero.
+    fn zero_sum(&mut self, is_forward: bool) {
+        self.attr.zero_sum(is_forward);
     }
 
     /// Getter methods to display neuron edges.
