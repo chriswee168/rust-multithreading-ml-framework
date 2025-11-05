@@ -16,8 +16,8 @@ pub struct NeuronAttr
 
     // Used to control when the forward and backward sums are reset to zero
     // during the forward and backward pass.
-    forward_visit_count: u32,
-    backward_visit_count: u32,
+    forward_visit_count: usize,
+    backward_visit_count: usize,
 
     // Determines which previous neurons can connect to this neuron.
     neuron_level: u32,
@@ -65,40 +65,82 @@ impl NeuronAttr
         return backward_edge;
     }
 
-    /// Increment forward sum.
-    pub fn add_forward_sum(&mut self, value: f32)
+    /// Increment sum.
+    pub fn add_to_sum(&mut self, value: f32, is_forward: bool)
     {
-        self.forward_sum += value;
+        if is_forward
+        {
+            self.forward_sum += value;
+        }
+        else 
+        {
+            self.backward_sum += value;
+        }
     }
 
-    /// Obtain the current forward sum of this neuron.
-    pub fn get_forward_sum(&self) -> f32
+    /// Obtain the current sum of this neuron.
+    pub fn get_sum(&self, is_forward: bool) -> f32
     {
-        return self.forward_sum;
+        if is_forward
+        {
+            return self.forward_sum;
+        }
+        else 
+        {
+            return self.backward_sum;    
+        }
     }
 
-    /// Reset the forward sum of this neuron to zero.
-    pub fn zero_forward_sum(&mut self)
+    /// Reset the sum of this neuron to zero.
+    pub fn zero_sum(&mut self, is_forward: bool)
     {
-        self.forward_sum = 0.0;
+        if is_forward
+        {
+            self.forward_sum = 0.0;
+        }
+        else 
+        {
+            self.backward_sum = 0.0;    
+        }
     }
 
-    /// Increment backward sum.
-    pub fn add_backward_sum(&mut self, value: f32)
+    /// Increment visit count.
+    pub fn add_visit_count(&mut self, is_forward: bool)
     {
-        self.backward_sum += value;
+        if is_forward
+        {
+            self.forward_visit_count += 1;
+        }
+        else 
+        {
+            self.backward_visit_count += 1;
+        }
     }
 
-    /// Obtain the current backward sum of this neuron.
-    pub fn get_backward_sum(&self) -> f32
+    /// Obtain the current visit count of this neuron.
+    pub fn get_visit_count(&self, is_forward: bool) -> usize
     {
-        return self.backward_sum;
+        if is_forward
+        {
+            return self.forward_visit_count;
+        }
+        else 
+        {
+            return self.backward_visit_count;    
+        }
     }
 
-    /// Reset the backward sum of this neuron to zero.
-    pub fn zero_backward_sum(&mut self)
+    /// Reset the visit count of this neuron to zero.
+    pub fn zero_visit_count(&mut self, is_forward: bool)
     {
-        self.backward_sum = 0.0;
+        if is_forward
+        {
+            self.forward_visit_count = 0;
+        }
+        else 
+        {
+            self.backward_visit_count = 0;    
+        }
     }
 }
 
@@ -108,15 +150,15 @@ pub trait NeuronTrait
     fn forward(&mut self); // Forward propagation.
     fn backward(&mut self); // Backward propagation.
 
-    // Wrapper methods for forward_sum attribute in NeuronAttr.
-    fn add_forward_sum(&mut self, value: f32);
-    fn get_forward_sum(&self) -> f32;
-    fn zero_forward_sum(&mut self);
+    // Wrapper methods for sum attributes in NeuronAttr.
+    fn add_to_sum(&mut self, value: f32, is_forward: bool);
+    fn get_sum(&self, is_forward: bool) -> f32;
+    fn zero_sum(&mut self, is_forward: bool);
 
-    // Wrapper methods for backward_sum attribute in NeuronAttr.
-    fn add_backward_sum(&mut self, value: f32);
-    fn get_backward_sum(&self) -> f32;
-    fn zero_backward_sum(&mut self);
+    // Wrapper methods for visit counter attributes in NeuronAttr.
+    fn add_visit_count(&mut self, is_forward: bool);
+    fn get_visit_count(&self, is_forward: bool) -> usize;
+    fn zero_visit_count(&mut self, is_forward: bool);
 
     fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
     fn remove_forward_edge(&mut self, edge_id: &str);
