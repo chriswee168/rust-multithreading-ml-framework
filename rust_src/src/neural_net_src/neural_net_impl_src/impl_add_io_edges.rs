@@ -9,7 +9,8 @@ impl NeuralNet
     pub fn add_input_edge(
         &mut self, input_neuron_id: &str, edge_id: String, 
         input_array_idx: usize, neg_weight: f32, pos_weight: f32,
-        input_mutexed_vec: Arc<RwLock<Vec<f32>>>
+        input_rwlock_vec: Arc<RwLock<Vec<f32>>>, 
+        grad_rwlock_vec: Arc<RwLock<Vec<f32>>>
     )
     {
         // Get input neuron arc.
@@ -17,7 +18,10 @@ impl NeuralNet
 
         // Create input edge.
         let input_edge: ArcEdgeTrait = create_input_edge(
-            input_array_idx, &input_neuron, input_mutexed_vec, neg_weight, pos_weight
+            input_array_idx, &input_neuron, 
+            input_rwlock_vec, 
+            grad_rwlock_vec,
+            neg_weight, pos_weight
         );
         
         // Add edge to beginning of input neuron.
