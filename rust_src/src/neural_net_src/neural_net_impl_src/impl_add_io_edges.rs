@@ -37,7 +37,8 @@ impl NeuralNet
     pub fn add_output_edge(
         &mut self, output_neuron_id: &str, edge_id: String, 
         output_array_idx: usize, neg_weight: f32, pos_weight: f32,
-        output_mutexed_vec: Arc<RwLock<Vec<f32>>>
+        output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+        grad_rwlock_vec: Arc<RwLock<Vec<f32>>>
     )
     {
         // Get output neuron arc.
@@ -45,7 +46,10 @@ impl NeuralNet
 
         // Create output edge.
         let output_edge: ArcEdgeTrait = create_output_edge(
-            &output_neuron, output_array_idx, output_mutexed_vec, neg_weight, pos_weight
+            &output_neuron, output_array_idx, 
+            output_rwlock_vec,
+            grad_rwlock_vec, 
+            neg_weight, pos_weight
         );
         
         // Add edge to end of output neuron.
