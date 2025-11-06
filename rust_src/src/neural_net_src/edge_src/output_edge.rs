@@ -1,6 +1,6 @@
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
-use crate::neural_net_src::{edge_src::{core_deps::{EdgeAttr, EdgeTrait}, element_mutexed_vec::ElementMutexedVec}, types_aliases::ArcNeuronTrait};
+use crate::neural_net_src::{edge_src::{core_deps::{EdgeAttr, EdgeTrait}}, types_aliases::ArcNeuronTrait};
 
 /// Connects an output neuron with an index of output array.
 pub struct OutputEdge
@@ -9,8 +9,10 @@ pub struct OutputEdge
     prev_neuron: ArcNeuronTrait,
     output_array_index: usize,
 
-    // Used during forward propagation to obtain output array.
-    output_mutexed_vec: Arc<ElementMutexedVec<f32>>,
+    // Arc pointer which stores the output array to return.
+    output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+    // Arc pointer for parallel read access of output array gradients during backpropagation.
+    grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
 }
 
 // Implement constructor.
@@ -19,7 +21,8 @@ impl OutputEdge
     pub fn new(
         prev_neuron: ArcNeuronTrait, 
         output_array_index: usize, 
-        output_mutexed_vec: Arc<ElementMutexedVec<f32>>,
+        output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+        grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
         neg_weight: f32,
         pos_weight: f32
     ) -> Self
@@ -30,7 +33,8 @@ impl OutputEdge
             attr: edge_attr,
             prev_neuron,
             output_array_index,
-            output_mutexed_vec
+            output_rwlock_vec,
+            grad_rwlock_vec
         };        
     }
 }
@@ -87,8 +91,8 @@ impl EdgeTrait for OutputEdge
         return Some(self.output_array_index);
     }
 
-    // Obtain output mutexed vector for obtaining output values during forward pass.
-    fn get_element_mutexed_vec(&self) -> Option<Arc<ElementMutexedVec<f32>>> {
-        return Some(Arc::clone(&self.output_mutexed_vec));
+    // Obtain output rwlock vector for obtaining output values during forward pass.
+    fn get_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
+        return Some(Arc::clone(&self.output_rwlock_vec));
     }
 }

@@ -1,6 +1,6 @@
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
-use crate::neural_net_src::{edge_src::element_mutexed_vec::ElementMutexedVec, types_aliases::ArcNeuronTrait};
+use crate::neural_net_src::{types_aliases::ArcNeuronTrait};
 
 /// Struct that defines default attributes for edges.
 pub struct EdgeAttr
@@ -40,6 +40,6 @@ pub trait EdgeTrait
     fn get_next_id(&self) -> Option<usize> { None }
     fn get_next_neuron(&self) -> Option<ArcNeuronTrait> { None }
 
-    // Obtain the element mutexed vector for input and output edges.
-    fn get_element_mutexed_vec(&self) -> Option<Arc<ElementMutexedVec<f32>>> { None }
+    // Obtain the rwlock vector for input and output edges.
+    fn get_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> { None }
 }
