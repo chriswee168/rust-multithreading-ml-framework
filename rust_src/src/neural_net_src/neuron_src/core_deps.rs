@@ -11,26 +11,31 @@ pub struct NeuronAttr
     pub forward_edges: HashMap<String, ArcEdgeTrait>,
     pub backward_edges: HashMap<String, ArcEdgeTrait>,
 
-    // Used to keep track of values being passed between neurons.
-    received_sum: f32,
+    forward_sum: f32, // Keep track of values during forward pass.
+    backward_sum: f32, // Keep track of values during backward pass.
 
+    // Used to control when the forward and backward sums are reset to zero
+    // during the forward and backward pass.
+    forward_visit_count: usize,
+    backward_visit_count: usize,
+
+    // Determines which previous neurons can connect to this neuron.
     neuron_level: u32,
-    neuron_id: String,
 }
 
 impl NeuronAttr
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32, neuron_id: String
+        neuron_level: u32
     ) -> Self
     {
         return Self 
         {
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
-            neuron_level, neuron_id,
-            received_sum: 0.0
+            neuron_level, forward_sum: 0.0, backward_sum: 0.0,
+            forward_visit_count: 0, backward_visit_count: 0
         }
     }
 
@@ -41,9 +46,9 @@ impl NeuronAttr
     }
 
     /// Remove a forward edge to disconnect this neuron from another neuron.
-    pub fn remove_forward_edge(&mut self, edge_id: String) -> Option<ArcEdgeTrait>
+    pub fn remove_forward_edge(&mut self, edge_id: &str) -> Option<ArcEdgeTrait>
     {
-        let removed_edge: Option<ArcEdgeTrait> = self.forward_edges.remove(&edge_id);
+        let removed_edge: Option<ArcEdgeTrait> = self.forward_edges.remove(edge_id);
         return removed_edge;
     }
 
@@ -54,28 +59,88 @@ impl NeuronAttr
     }
 
     /// Remove a backward edge to disconnect this neuron from a previous neuron.
-    pub fn remove_backward_edge(&mut self, edge_id: String) -> Option<ArcEdgeTrait>
+    pub fn remove_backward_edge(&mut self, edge_id: &str) -> Option<ArcEdgeTrait>
     {
-        let backward_edge: Option<ArcEdgeTrait> = self.backward_edges.remove(&edge_id);
+        let backward_edge: Option<ArcEdgeTrait> = self.backward_edges.remove(edge_id);
         return backward_edge;
     }
 
-    /// Increment this neuron's received sum.
-    pub fn increment_sum(&mut self, value: f32)
+    /// Increment sum.
+    pub fn add_to_sum(&mut self, value: f32, is_forward: bool)
     {
-        self.received_sum += value;
+        if is_forward
+        {
+            self.forward_sum += value;
+        }
+        else 
+        {
+            self.backward_sum += value;
+        }
     }
 
-    /// Obtain the current received sum of this neuron.
-    pub fn get_sum(&self) -> f32
+    /// Obtain the current sum of this neuron.
+    pub fn get_sum(&self, is_forward: bool) -> f32
     {
-        return self.received_sum;
+        if is_forward
+        {
+            return self.forward_sum;
+        }
+        else 
+        {
+            return self.backward_sum;    
+        }
     }
 
-    /// Reset the received sum of this neuron to zero.
-    pub fn zero_sum(&mut self)
+    /// Reset the sum of this neuron to zero.
+    pub fn zero_sum(&mut self, is_forward: bool)
     {
-        self.received_sum = 0.0;
+        if is_forward
+        {
+            self.forward_sum = 0.0;
+        }
+        else 
+        {
+            self.backward_sum = 0.0;    
+        }
+    }
+
+    /// Increment visit count.
+    pub fn add_visit_count(&mut self, is_forward: bool)
+    {
+        if is_forward
+        {
+            self.forward_visit_count += 1;
+        }
+        else 
+        {
+            self.backward_visit_count += 1;
+        }
+    }
+
+    /// Obtain the current visit count of this neuron.
+    pub fn get_visit_count(&self, is_forward: bool) -> usize
+    {
+        if is_forward
+        {
+            return self.forward_visit_count;
+        }
+        else 
+        {
+            return self.backward_visit_count;    
+        }
+    }
+
+    /// Reset the visit count of this neuron to zero.
+    pub fn zero_visit_count(&mut self, is_forward: bool)
+    {
+        if is_forward
+        {
+            self.forward_visit_count = 0;
+        }
+        else 
+        {
+            self.backward_visit_count = 0;    
+        }
     }
 }
 
@@ -85,13 +150,22 @@ pub trait NeuronTrait
     fn forward(&mut self); // Forward propagation.
     fn backward(&mut self); // Backward propagation.
 
-    // Wrapper methods for received_sum attribute in NeuronAttr.
-    fn increment_sum(&mut self, value: f32);
-    fn get_sum(&self) -> f32;
-    fn zero_sum(&mut self);
+    // Wrapper methods for sum attributes in NeuronAttr.
+    fn add_to_sum(&mut self, value: f32, is_forward: bool);
+    fn get_sum(&self, is_forward: bool) -> f32;
+    fn zero_sum(&mut self, is_forward: bool);
+
+    // Wrapper methods for visit counter attributes in NeuronAttr.
+    fn add_visit_count(&mut self, is_forward: bool);
+    fn get_visit_count(&self, is_forward: bool) -> usize;
+    fn zero_visit_count(&mut self, is_forward: bool);
 
     fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
-    fn remove_forward_edge(&mut self, edge_id: String);
+    fn remove_forward_edge(&mut self, edge_id: &str);
     fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait);
-    fn remove_backward_edge(&mut self, edge_id: String);
+    fn remove_backward_edge(&mut self, edge_id: &str);
+    
+    // Getter methods to access neuron edge connections.
+    fn get_forward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
+    fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
 }
