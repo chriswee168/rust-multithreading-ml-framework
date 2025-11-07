@@ -1,6 +1,6 @@
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
-use crate::neural_net_src::{edge_src::core_deps::{EdgeAttr, EdgeTrait}, types_aliases::ArcNeuronTrait};
+use crate::neural_net_src::{edge_src::{core_deps::{EdgeAttr, EdgeTrait}}, types_aliases::ArcNeuronTrait};
 
 /// Connects an output neuron with an index of output array.
 pub struct OutputEdge
@@ -8,6 +8,11 @@ pub struct OutputEdge
     attr: EdgeAttr, // Contains the essential attributes of an edge.
     prev_neuron: ArcNeuronTrait,
     output_array_index: usize,
+
+    // Arc pointer which stores the output array to return.
+    output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+    // Arc pointer for parallel read access of output array gradients during backpropagation.
+    grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
 }
 
 // Implement constructor.
@@ -16,15 +21,20 @@ impl OutputEdge
     pub fn new(
         prev_neuron: ArcNeuronTrait, 
         output_array_index: usize, 
-        weight_range: f32
+        output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+        grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+        neg_weight: f32,
+        pos_weight: f32
     ) -> Self
     {
-        let edge_attr: EdgeAttr = EdgeAttr::new(weight_range);
+        let edge_attr: EdgeAttr = EdgeAttr::new(neg_weight, pos_weight);
         return Self
         {
             attr: edge_attr,
             prev_neuron,
-            output_array_index
+            output_array_index,
+            output_rwlock_vec,
+            grad_rwlock_vec
         };        
     }
 }
@@ -79,5 +89,10 @@ impl EdgeTrait for OutputEdge
     // Get index of output array.
     fn get_next_id(&self) -> Option<usize> {
         return Some(self.output_array_index);
+    }
+
+    // Obtain output rwlock vector for obtaining output values during forward pass.
+    fn get_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
+        return Some(Arc::clone(&self.output_rwlock_vec));
     }
 }

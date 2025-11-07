@@ -1,4 +1,4 @@
-use rand::Rng;
+use std::sync::{Arc, RwLock};
 
 use crate::neural_net_src::{types_aliases::ArcNeuronTrait};
 
@@ -16,14 +16,12 @@ pub struct EdgeAttr
 // Implement constructor method.
 impl EdgeAttr
 {
-    pub fn new(weight_range: f32) -> Self
+    pub fn new(neg_weight: f32, pos_weight: f32) -> Self
     {
-        // Used for random weight initialization within specified range.
-        let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
         return Self
         {
-            neg_weight: rand_gen.gen_range(-weight_range..=weight_range),
-            pos_weight: rand_gen.gen_range(-weight_range..=weight_range),
+            neg_weight,
+            pos_weight,
             bias: 0.0,
         }
     }
@@ -41,4 +39,7 @@ pub trait EdgeTrait
     fn get_prev_neuron(&self) -> Option<ArcNeuronTrait> { None }
     fn get_next_id(&self) -> Option<usize> { None }
     fn get_next_neuron(&self) -> Option<ArcNeuronTrait> { None }
+
+    // Obtain the rwlock vector for input and output edges.
+    fn get_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> { None }
 }
