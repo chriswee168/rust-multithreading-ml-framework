@@ -66,5 +66,8 @@ pub fn main_thread_fn(
                 }
             }
         }
+
+        // Reset mutex guard to false to block thread at condvar.
+        *mutex_guard = false;
     }
 }
