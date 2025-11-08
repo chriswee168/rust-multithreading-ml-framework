@@ -1,12 +1,12 @@
-use std::sync::{atomic::AtomicBool, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard};
+use std::sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard};
 
-use crate::neural_net_src::{neuron_src::create_neuron::create_neuron, types_aliases::{ArcNeuronBufferVec, NeuronBuffer}};
+use crate::neural_net_src::{neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron}, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
 /// Main function for threads to perform forward or backward
 /// propagation of the neural network.
 pub fn main_thread_fn(
     // Indicates whether threads should perform forward or backpropagation.
-    traversal_mode: Arc<AtomicBool>,
+    traverse_forward: Arc<AtomicBool>,
     // Arc pointer to vector containing all neuron buffers for every thread.
     neuron_buffers: ArcNeuronBufferVec, 
     // Specific index of the neuron buffer to use for this thread.
@@ -34,5 +34,37 @@ pub fn main_thread_fn(
             }
         }
 
+        let traversal_bool: bool = traverse_forward.load(Ordering::SeqCst);
+        
+        // Start Breadth First Search traversal.
+        while !buffer_guard.is_empty()
+        {
+            // Remove first neuron from buffer.
+            let neuron: ArcNeuronTrait = buffer_guard.pop_front().unwrap();
+            let mut neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+
+            // Check if neuron's visit count is the same the number of edges depending
+            // on traversal mode.
+            // Neurons only propagate values if it has received total sum from all
+            // previous edges. 
+            let n_edges: usize;
+            let visit_count: usize = neuron_guard.get_visit_count(traversal_bool);
+            if traversal_bool // Perform forward propagation.
+            {
+                n_edges = neuron_guard.get_backward_edges().len();
+                if n_edges == visit_count
+                {
+                    neuron_guard.forward();
+                }
+            }
+            else // Perform backpropagation.
+            {
+                n_edges = neuron_guard.get_forward_edges().len();
+                if n_edges == visit_count
+                {
+                    neuron_guard.backward();
+                }
+            }
+        }
     }
 }
