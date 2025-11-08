@@ -1,4 +1,4 @@
-use std::sync::{atomic::AtomicBool, Arc, Condvar, Mutex, MutexGuard, RwLock};
+use std::sync::{atomic::AtomicBool, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard};
 
 use crate::neural_net_src::{neuron_src::create_neuron::create_neuron, types_aliases::{ArcNeuronBufferVec, NeuronBuffer}};
 
@@ -16,6 +16,9 @@ pub fn main_thread_fn(
     // Get specific neuron buffer for this thread as well as its condvar and mutex.
     let tuple: &(Condvar, Mutex<bool>, RwLock<NeuronBuffer>) = 
         &neuron_buffers[buffer_idx];
+
+    // Get writer lock for this threads neuron buffer.
+    let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = tuple.2.write().unwrap();
     
     // Temporary for loop.
     for i in 0..100
