@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{Arc, Mutex, RwLock}, thread::JoinHandle};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLock}, thread::JoinHandle};
 
 use crate::neural_net_src::types_aliases::{ArcEdgeTrait, ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer};
 
@@ -28,11 +28,18 @@ impl NeuralNet
     pub fn new(num_threads: usize) -> Self
     {
         // Create thread buffers.
-        let mut thread_buffers: Vec<RwLock<NeuronBuffer>> = Vec::with_capacity(num_threads);
+        let mut thread_buffers: Vec<(Condvar, Mutex<bool>, RwLock<NeuronBuffer>)> = 
+            Vec::with_capacity(num_threads);
+
         for _ in 0..num_threads - 1 // One thread is already used by main program.
         {
-            thread_buffers.push(RwLock::new(NeuronBuffer::new()));
+            thread_buffers.push((
+                Condvar::new(),
+                Mutex::new(false),
+                RwLock::new(NeuronBuffer::new())
+            ));
         }
+        
         let thread_buffer_arc: ArcNeuronBufferVec = Arc::new(thread_buffers);
         
         // Create base neural network.
