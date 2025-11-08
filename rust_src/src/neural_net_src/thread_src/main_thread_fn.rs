@@ -20,18 +20,18 @@ pub fn main_thread_fn(
     // Get writer lock for this threads neuron buffer.
     let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = tuple.2.write().unwrap();
     
+    // Acquire mutex guard for condvar wait.
+    let mut mutex_guard: MutexGuard<'_, bool> = tuple.1.lock().unwrap();
+    
     // Temporary for loop.
     for i in 0..100
     {
+        // Wait on Condvar, this thread will be notified and woken up if Mutex
+        // is true to indicate neuron/s are present in its queue to pop off and
+        // work on.
+        while !*mutex_guard // Prevent spurious wakeups.
         {
-            // Wait on Condvar, this thread will be notified and woken up if Mutex
-            // is true to indicate neuron/s are present in its queue to pop off and
-            // work on.
-            let mut mutex_guard: MutexGuard<'_, bool> = tuple.1.lock().unwrap();
-            while !*mutex_guard // Prevent spurious wakeups.
-            {
-                mutex_guard = tuple.0.wait(mutex_guard).unwrap();
-            }
+            mutex_guard = tuple.0.wait(mutex_guard).unwrap();
         }
 
         let traversal_bool: bool = traverse_forward.load(Ordering::SeqCst);
