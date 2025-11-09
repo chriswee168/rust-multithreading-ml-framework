@@ -54,7 +54,7 @@ pub fn main_thread_fn(
                 n_edges = neuron_guard.get_backward_edges().len();
                 if n_edges == visit_count
                 {
-                    neuron_guard.forward();
+                    neuron_guard.forward(&mut buffer_guard);
                 }
             }
             else // Perform backpropagation.

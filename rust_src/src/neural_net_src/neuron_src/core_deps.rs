@@ -1,6 +1,6 @@
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{collections::HashMap, sync::{Arc, Mutex, RwLockWriteGuard}};
 
-use crate::neural_net_src::types_aliases::ArcEdgeTrait;
+use crate::neural_net_src::types_aliases::{ArcEdgeTrait, NeuronBuffer};
 
 /// Struct that contains all attributes required for input,
 /// hidden and output neurons.
@@ -147,7 +147,7 @@ impl NeuronAttr
 /// Contains trait methods for input, hidden and output neurons.
 pub trait NeuronTrait
 {
-    fn forward(&mut self); // Forward propagation.
+    fn forward(&mut self, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>); // Forward propagation.
     fn backward(&mut self); // Backward propagation.
 
     // Wrapper methods for sum attributes in NeuronAttr.

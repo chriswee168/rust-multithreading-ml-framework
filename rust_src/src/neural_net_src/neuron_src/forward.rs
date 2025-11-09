@@ -1,10 +1,10 @@
 use std::{cell::{RefCell, RefMut}, sync::{Arc, MutexGuard, RwLock, RwLockWriteGuard}};
 
-use crate::neural_net_src::{edge_src::{core_deps::EdgeTrait}, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::ArcNeuronTrait};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
 
 /// Function for input/hidden neurons to forward propagate values though each
 /// edge.
-pub fn hidden_forward(neuron_attr: &mut NeuronAttr)
+pub fn hidden_forward(neuron_attr: &mut NeuronAttr, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>)
 {
     // Get neuron sum and reset the visit count of this neuron.
     let neuron_sum: f32 = neuron_attr.get_sum(true);
@@ -45,6 +45,9 @@ pub fn hidden_forward(neuron_attr: &mut NeuronAttr)
             next_neuron_guard.add_to_sum(edge_output, true);
             next_neuron_guard.add_visit_count(true);
         }
+
+        // Append the next neuron to the thread's neuron buffer.
+        neuron_buffer.push_back(next_neuron.clone());
     }
 }
 
