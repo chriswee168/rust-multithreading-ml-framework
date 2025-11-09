@@ -1,6 +1,6 @@
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{collections::HashMap, sync::{Arc, Mutex, RwLockWriteGuard}};
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::ArcEdgeTrait};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 
 /// Struct to define output neuron attributes and behaviour.
 pub struct OutputNeuron
@@ -50,7 +50,7 @@ impl NeuronTrait for OutputNeuron
         self.attr.remove_backward_edge(edge_id);
     }
     /// Perform forward pass.
-    fn forward(&mut self) 
+    fn forward(&mut self, _neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>) 
     {
         output_forward(&mut self.attr);
     }
