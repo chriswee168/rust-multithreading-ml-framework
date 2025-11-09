@@ -1,4 +1,4 @@
-use std::{collections::{HashMap}, sync::{Arc, Mutex}};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLock}, thread::JoinHandle};
 
 use crate::neural_net_src::types_aliases::{ArcEdgeTrait, ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer};
 
@@ -17,7 +17,10 @@ pub struct NeuralNet
     // Neuron buffers are used for Breadth First Search traversal
     // during forward and backward propagation through neurons/edges.
     // Each CPU thread uses its own buffer to reduce contention.
-    pub thread_buffers: ArcNeuronBufferVec
+    pub thread_buffers: ArcNeuronBufferVec,
+
+    // Contains handles of each thread for thread management.
+    pub thread_handles: Vec<JoinHandle<()>>
 }
 
 impl NeuralNet
@@ -25,11 +28,18 @@ impl NeuralNet
     pub fn new(num_threads: usize) -> Self
     {
         // Create thread buffers.
-        let mut thread_buffers: Vec<Mutex<NeuronBuffer>> = Vec::with_capacity(num_threads);
+        let mut thread_buffers: Vec<(Condvar, Mutex<bool>, RwLock<NeuronBuffer>)> = 
+            Vec::with_capacity(num_threads);
+
         for _ in 0..num_threads - 1 // One thread is already used by main program.
         {
-            thread_buffers.push(Mutex::new(NeuronBuffer::new()));
+            thread_buffers.push((
+                Condvar::new(),
+                Mutex::new(false),
+                RwLock::new(NeuronBuffer::new())
+            ));
         }
+        
         let thread_buffer_arc: ArcNeuronBufferVec = Arc::new(thread_buffers);
         
         // Create base neural network.
@@ -44,6 +54,7 @@ impl NeuralNet
             output_edges: HashMap::new(),
             
             thread_buffers: thread_buffer_arc,
+            thread_handles: Vec::new()
         }
     }
 }
