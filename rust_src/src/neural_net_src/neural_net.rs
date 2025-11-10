@@ -72,6 +72,23 @@ impl NeuralNet
         // Clear thread handles.
         self.thread_handles.clear();
 
+        // Spawn threads and keep their handles.
+        for i in 0..num_threads
+        {
+            let traverse_forward_clone: Arc<AtomicBool> = self.traverse_forward.clone();
+            let thread_buffer_clone: ArcNeuronBufferVec = self.thread_buffers.clone();
+            
+            let thread_handle: JoinHandle<()> = thread::spawn(
+                move || main_thread_fn(
+                    traverse_forward_clone, 
+                    thread_buffer_clone, 
+                    i
+                )
+            );
+
+            self.thread_handles.push(thread_handle);
+        }
+    }
 
     /// Set the traversal mode of the neural net. 
     /// (Either forward or backward propagation)
