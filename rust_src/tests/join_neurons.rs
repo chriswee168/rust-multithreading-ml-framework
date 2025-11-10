@@ -6,7 +6,7 @@ use libai_core::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::Neu
 fn join_neurons()
 {
     // Create an empty neural net.
-    let mut neural_net: NeuralNet = NeuralNet::new(1);
+    let mut neural_net: NeuralNet = NeuralNet::new();
 
     // Create a single input, hidden and output neuron, and add them to neural
     // net.
