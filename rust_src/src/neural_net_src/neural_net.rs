@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLock}, thread::{self, JoinHandle}};
+use std::{collections::HashMap, sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, RwLock}, thread::{self, JoinHandle}};
 
 use crate::neural_net_src::{thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcEdgeTrait, ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
@@ -20,7 +20,11 @@ pub struct NeuralNet
     pub thread_buffers: ArcNeuronBufferVec,
 
     // Contains handles of each thread for thread management.
-    pub thread_handles: Vec<JoinHandle<()>>
+    pub thread_handles: Vec<JoinHandle<()>>,
+
+    // Atomic boolean to indicate whether threads should perform forward
+    // or backpropagation. (true by default)
+    traverse_forward: Arc<AtomicBool>
 }
 
 impl NeuralNet
@@ -41,7 +45,8 @@ impl NeuralNet
             output_edges: HashMap::new(),
             
             thread_buffers: thread_buffer_arc,
-            thread_handles: Vec::new()
+            thread_handles: Vec::new(),
+            traverse_forward: Arc::new(AtomicBool::new(true))
         }
     }
 
@@ -68,5 +73,10 @@ impl NeuralNet
         self.thread_handles.clear();
 
 
+    /// Set the traversal mode of the neural net. 
+    /// (Either forward or backward propagation)
+    pub fn prop_forward(&self, boolean: bool)
+    {
+        self.traverse_forward.store(boolean, Ordering::SeqCst);
     }
 }
