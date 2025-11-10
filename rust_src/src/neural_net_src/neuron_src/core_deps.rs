@@ -145,7 +145,7 @@ impl NeuronAttr
 }
 
 /// Contains trait methods for input, hidden and output neurons.
-pub trait NeuronTrait
+pub trait NeuronTrait: Send
 {
     fn forward(&mut self, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>); // Forward propagation.
     fn backward(&mut self); // Backward propagation.
