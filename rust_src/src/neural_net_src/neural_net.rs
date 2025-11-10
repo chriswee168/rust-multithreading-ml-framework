@@ -1,6 +1,6 @@
-use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLock}, thread::JoinHandle};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLock}, thread::{self, JoinHandle}};
 
-use crate::neural_net_src::types_aliases::{ArcEdgeTrait, ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer};
+use crate::neural_net_src::{thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcEdgeTrait, ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
 /// Define the main neural network struct.
 pub struct NeuralNet
@@ -25,22 +25,9 @@ pub struct NeuralNet
 
 impl NeuralNet
 {
-    pub fn new(num_threads: usize) -> Self
-    {
-        // Create thread buffers.
-        let mut thread_buffers: Vec<(Condvar, Mutex<bool>, RwLock<NeuronBuffer>)> = 
-            Vec::with_capacity(num_threads);
-
-        for _ in 0..num_threads - 1 // One thread is already used by main program.
-        {
-            thread_buffers.push((
-                Condvar::new(),
-                Mutex::new(false),
-                RwLock::new(NeuronBuffer::new())
-            ));
-        }
-        
-        let thread_buffer_arc: ArcNeuronBufferVec = Arc::new(thread_buffers);
+    pub fn new() -> Self
+    {   
+        let thread_buffer_arc: ArcNeuronBufferVec = Arc::new(Vec::new());
         
         // Create base neural network.
         return Self
@@ -56,5 +43,30 @@ impl NeuralNet
             thread_buffers: thread_buffer_arc,
             thread_handles: Vec::new()
         }
+    }
+
+    /// Initialise the threads for neural net propagation.
+    pub fn spawn_threads(&mut self, num_threads: usize)
+    {
+        // Create thread buffers.
+        let mut thread_buffers: Vec<(Condvar, Mutex<bool>, RwLock<NeuronBuffer>)> = 
+            Vec::with_capacity(num_threads);
+
+        for _ in 0..num_threads
+        {
+            thread_buffers.push((
+                Condvar::new(),
+                Mutex::new(false),
+                RwLock::new(NeuronBuffer::new())
+            ));
+        }
+
+        // Re-assign number of thread buffers.
+        self.thread_buffers = Arc::new(thread_buffers);
+
+        // Clear thread handles.
+        self.thread_handles.clear();
+
+
     }
 }
