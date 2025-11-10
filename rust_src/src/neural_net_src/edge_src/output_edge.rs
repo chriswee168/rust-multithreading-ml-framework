@@ -9,8 +9,10 @@ pub struct OutputEdge
     prev_neuron: ArcNeuronTrait,
     output_array_index: usize,
 
-    // Used during forward propagation to obtain output array.
+    // Arc pointer which stores the output array to return.
     output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+    // Arc pointer for parallel read access of output array gradients during backpropagation.
+    grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
 }
 
 // Implement constructor.
@@ -20,6 +22,7 @@ impl OutputEdge
         prev_neuron: ArcNeuronTrait, 
         output_array_index: usize, 
         output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+        grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
         neg_weight: f32,
         pos_weight: f32
     ) -> Self
@@ -30,7 +33,8 @@ impl OutputEdge
             attr: edge_attr,
             prev_neuron,
             output_array_index,
-            output_rwlock_vec
+            output_rwlock_vec,
+            grad_rwlock_vec
         };        
     }
 }

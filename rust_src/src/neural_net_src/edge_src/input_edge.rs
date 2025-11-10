@@ -8,8 +8,10 @@ pub struct InputEdge
     attr: EdgeAttr, // Contains the essential attributes of an edge.
     input_array_index: usize,
 
-    // Used during backpropagation to obtain input array gradients.
+    // Arc pointer to the input array, allows read access between threads in parallel.
     input_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+    // Arc pointer to store the input array gradients during backpropagation.
+    grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
     next_neuron: ArcNeuronTrait
 }
 
@@ -20,6 +22,7 @@ impl InputEdge
         input_array_index: usize, 
         next_neuron: ArcNeuronTrait, 
         input_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+        grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
         neg_weight: f32,
         pos_weight: f32
     ) -> Self
@@ -30,6 +33,7 @@ impl InputEdge
             attr: edge_attr,
             input_array_index,
             input_rwlock_vec,
+            grad_rwlock_vec,
             next_neuron
         };        
     }
