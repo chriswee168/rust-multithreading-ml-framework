@@ -1,6 +1,6 @@
-use std::{sync::{atomic::AtomicBool, Arc, RwLock}, thread::JoinHandle};
+use std::{sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, RwLock}, thread::{self, JoinHandle}};
 
-use crate::neural_net_src::{neural_net::NeuralNet, types_aliases::ArcNeuronBufferVec};
+use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, NeuronBuffer}};
 
 pub struct NeuralNetWrapper
 {
@@ -46,5 +46,52 @@ impl NeuralNetWrapper
             output_rwlock_vec: Arc::new(RwLock::new(Vec::new())),
             output_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
         }
+    }
+
+    /// Initialise the threads for neural net propagation.
+    pub fn spawn_threads(&mut self, num_threads: usize)
+    {
+        // Create thread buffers.
+        let mut thread_buffers: Vec<(Condvar, Mutex<bool>, RwLock<NeuronBuffer>)> = 
+            Vec::with_capacity(num_threads);
+
+        for _ in 0..num_threads
+        {
+            thread_buffers.push((
+                Condvar::new(),
+                Mutex::new(false),
+                RwLock::new(NeuronBuffer::new())
+            ));
+        }
+
+        // Re-assign number of thread buffers.
+        self.thread_buffers = Arc::new(thread_buffers);
+
+        // Clear thread handles.
+        self.thread_handles.clear();
+
+        // Spawn threads and keep their handles.
+        for i in 0..num_threads
+        {
+            let traverse_forward_clone: Arc<AtomicBool> = self.traverse_forward.clone();
+            let thread_buffer_clone: ArcNeuronBufferVec = self.thread_buffers.clone();
+            
+            let thread_handle: JoinHandle<()> = thread::spawn(
+                move || main_thread_fn(
+                    traverse_forward_clone, 
+                    thread_buffer_clone, 
+                    i
+                )
+            );
+
+            self.thread_handles.push(thread_handle);
+        }
+    }
+
+    /// Set the traversal mode of the neural net. 
+    /// (Either forward or backward propagation)
+    pub fn prop_forward(&self, boolean: bool)
+    {
+        self.traverse_forward.store(boolean, Ordering::SeqCst);
     }
 }
