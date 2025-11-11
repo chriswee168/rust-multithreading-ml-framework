@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::RwLockWriteGuard};
 
-use crate::neural_net_src::{neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::hidden_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
+use crate::neural_net_src::{neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::{hidden_forward, input_forward}}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 
 /// Struct to define input neuron attributes and behaviour.
 pub struct InputNeuron
@@ -52,6 +52,10 @@ impl NeuronTrait for InputNeuron
     /// Perform forward pass.
     fn forward(&mut self, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>) 
     {
+        // Obtain the dot products of edges with the input array.
+        input_forward(&mut self.attr);
+
+        // Propagate values to hidden neurons.
         hidden_forward(&mut self.attr, neuron_buffer);
     }
     fn backward(&mut self) 
