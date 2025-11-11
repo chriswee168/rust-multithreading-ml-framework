@@ -7,7 +7,8 @@ use crate::neural_net_src::{
 /// Create input edge.
 pub fn create_input_edge(
     input_array_idx: usize, input_neuron: &ArcNeuronTrait, 
-    input_mutexed_vec: Arc<RwLock<Vec<f32>>>, neg_weight: f32, pos_weight: f32
+    input_rwlock_vec: Arc<RwLock<Vec<f32>>>, grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+    neg_weight: f32, pos_weight: f32
 ) -> ArcEdgeTrait
 {
     let input_edge: ArcEdgeTrait = 
@@ -17,7 +18,9 @@ pub fn create_input_edge(
                     InputEdge::new(
                         input_array_idx, 
                         input_neuron.clone(), 
-                        input_mutexed_vec.clone(), neg_weight, pos_weight
+                        input_rwlock_vec, 
+                        grad_rwlock_vec,
+                        neg_weight, pos_weight
                     )
                 )
             )
@@ -29,7 +32,8 @@ pub fn create_input_edge(
 /// Create output edge.
 pub fn create_output_edge(
     output_neuron: &ArcNeuronTrait, output_array_idx: usize, 
-    output_mutexed_vec: Arc<RwLock<Vec<f32>>>, neg_weight: f32, pos_weight: f32
+    output_rwlock_vec: Arc<RwLock<Vec<f32>>>, grad_rwlock_vec: Arc<RwLock<Vec<f32>>>,
+    neg_weight: f32, pos_weight: f32
 ) -> ArcEdgeTrait
 {
     let output_edge: ArcEdgeTrait = 
@@ -39,7 +43,8 @@ pub fn create_output_edge(
                     OutputEdge::new(
                         output_neuron.clone(),
                         output_array_idx,  
-                        output_mutexed_vec.clone(), neg_weight, pos_weight
+                        output_rwlock_vec, grad_rwlock_vec,
+                        neg_weight, pos_weight
                     )
                 )
             )
