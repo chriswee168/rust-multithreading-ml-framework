@@ -1,6 +1,31 @@
-use std::{cell::{RefCell, RefMut}, sync::{Arc, MutexGuard, RwLock, RwLockWriteGuard}};
+use std::{cell::{RefCell, RefMut}, sync::{Arc, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard}};
 
 use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
+
+/// Forward propagation method explicitly for input neurons to work on values
+/// directly from the input array via input edges.
+pub fn input_forward(neuron_attr: &mut NeuronAttr)
+{
+    // Zero the input neuron sum.
+    neuron_attr.zero_sum(true);
+
+    // Get the total sum or dot product of input values multiplied.
+    let mut total_sum: f32 = 0.0;
+    for (_, edge) in &neuron_attr.backward_edges
+    {
+        let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+        let rwlock_vec: Arc<RwLock<Vec<f32>>> = edge_guard.get_rwlock_vec().unwrap();
+        let read_guard: RwLockReadGuard<'_, Vec<f32>> = rwlock_vec.read().unwrap();
+        let vector_index: usize = edge_guard.get_prev_id().unwrap();
+        let input_value: f32 = read_guard[vector_index];
+        let output_value: f32 = edge_guard.forward(input_value);
+
+        total_sum += output_value;
+    }
+
+    // Set the input neuron value for propagation to hidden neurons.
+    neuron_attr.add_to_sum(total_sum, true);
+}
 
 /// Function for input/hidden neurons to forward propagate values though each
 /// edge.
