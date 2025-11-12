@@ -80,11 +80,16 @@ fn forward_pass()
     // Hidden neuron visit count is zeroed as it propagates a value to output neuron.
     assert_eq!(0, hidden_neuron_guard.get_visit_count(true));
     
-    let output_neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = output_neuron.lock().unwrap();
+    let mut output_neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = output_neuron.lock().unwrap();
     assert_eq!(4.5, output_neuron_guard.get_sum(true));
 
     // Output neuron has a visit count of 1 due to receiving a value from hidden neuron.
     assert_eq!(1, output_neuron_guard.get_visit_count(true));
+
+    // Output neuron propagates to output edges and thus output vector.
+    // Validate output vector is correct.
+    output_neuron_guard.forward(&mut buffer_guard);
+    assert_eq!(vec![4.5, 4.5, 4.5, 4.5], *neural_net.output_rwlock_vec.read().unwrap());
 
     // Check if neuron buffer has copies of the neurons in the correct
     // order.
