@@ -47,6 +47,10 @@ fn forward_pass()
         );
     }
 
+    // Initialize input and output vectors.
+    neural_net.init_input_vecs(4);
+    neural_net.init_output_vecs(4);
+
     // Assign sample vector as input for neural net.
     neural_net.set_input_vec(sample_input_vec);
 
