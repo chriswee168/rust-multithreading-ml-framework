@@ -36,6 +36,17 @@ fn forward_pass()
             1.0, 1.0
         );
     }
+
+    // Add output edges to each output index, connecting from output neuron.
+    for i in 0..4
+    {
+        let random_id: String = rand_id_gen(10);
+        neural_net.add_output_edge(
+            "output", random_id, i, 
+            1.0, 1.0
+        );
+    }
+
     // Assign sample vector as input for neural net.
     neural_net.set_input_vec(sample_input_vec);
 
