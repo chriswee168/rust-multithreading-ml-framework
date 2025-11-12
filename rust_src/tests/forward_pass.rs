@@ -1,12 +1,12 @@
 use std::sync::{Arc, MutexGuard, RwLock, RwLockWriteGuard};
 
-use libai_core::neural_net_src::{neural_net::NeuralNet, neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron, input_neuron}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
+use libai_core::{neural_net_src::{neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron, input_neuron}, rand_id_gen::rand_id_gen, types_aliases::{ArcNeuronTrait, NeuronBuffer}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 #[test]
 fn forward_pass()
 {
     // Create an empty neural net.
-    let mut neural_net: NeuralNet = NeuralNet::new();
+    let mut neural_net: NeuralNetWrapper = NeuralNetWrapper::new();
 
     // Create a single input, hidden and output neuron, and add them to neural
     // net.
