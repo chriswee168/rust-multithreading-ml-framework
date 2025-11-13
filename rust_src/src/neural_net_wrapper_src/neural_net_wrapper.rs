@@ -12,6 +12,10 @@ pub struct NeuralNetWrapper
     // Each CPU thread uses its own buffer to reduce contention.
     pub thread_buffers: ArcNeuronBufferVec,
 
+    // Shared thread condvar to pause all threads when adding input neurons
+    // to their buffers.
+    pub thread_condvar: Arc<(Condvar, Mutex<bool>)>, 
+
     // Contains handles of each thread for thread management.
     pub thread_handles: Vec<JoinHandle<()>>,
 
@@ -38,6 +42,7 @@ impl NeuralNetWrapper
             neural_net: NeuralNet::new(),
             
             thread_buffers: thread_buffer_arc,
+            thread_condvar: Arc::new((Condvar::new(), Mutex::new(false))),
             thread_handles: Vec::new(),
             traverse_forward: Arc::new(AtomicBool::new(true)),
 
@@ -52,16 +57,12 @@ impl NeuralNetWrapper
     pub fn spawn_threads(&mut self, num_threads: usize)
     {
         // Create thread buffers.
-        let mut thread_buffers: Vec<(Condvar, Mutex<bool>, RwLock<NeuronBuffer>)> = 
+        let mut thread_buffers: Vec<RwLock<NeuronBuffer>> = 
             Vec::with_capacity(num_threads);
 
         for _ in 0..num_threads
         {
-            thread_buffers.push((
-                Condvar::new(),
-                Mutex::new(false),
-                RwLock::new(NeuronBuffer::new())
-            ));
+            thread_buffers.push(RwLock::new(NeuronBuffer::new()));
         }
 
         // Re-assign number of thread buffers.
