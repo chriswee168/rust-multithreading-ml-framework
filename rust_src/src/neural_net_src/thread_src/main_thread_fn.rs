@@ -16,9 +16,6 @@ pub fn main_thread_fn(
     // Get specific neuron buffer for this thread as well as its condvar and mutex.
     let tuple: &(Condvar, Mutex<bool>, RwLock<NeuronBuffer>) = 
         &neuron_buffers[buffer_idx];
-
-    // Get writer lock for this threads neuron buffer.
-    let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = tuple.2.write().unwrap();
     
     // Acquire mutex guard for condvar wait.
     let mut mutex_guard: MutexGuard<'_, bool> = tuple.1.lock().unwrap();
@@ -35,34 +32,39 @@ pub fn main_thread_fn(
         }
 
         let traversal_bool: bool = traverse_forward.load(Ordering::SeqCst);
-        
-        // Start Breadth First Search traversal.
-        while !buffer_guard.is_empty()
-        {
-            // Remove first neuron from buffer.
-            let neuron: ArcNeuronTrait = buffer_guard.pop_front().unwrap();
-            let mut neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
 
-            // Check if neuron's visit count is the same the number of edges depending
-            // on traversal mode.
-            // Neurons only propagate values if it has received total sum from all
-            // previous edges. 
-            let n_edges: usize;
-            let visit_count: usize = neuron_guard.get_visit_count(traversal_bool);
-            if traversal_bool // Perform forward propagation.
+        {
+            // Get writer lock for this threads neuron buffer.
+            let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = tuple.2.write().unwrap();
+
+            // Start Breadth First Search traversal.
+            while !buffer_guard.is_empty()
             {
-                n_edges = neuron_guard.get_backward_edges().len();
-                if n_edges == visit_count
+                // Remove first neuron from buffer.
+                let neuron: ArcNeuronTrait = buffer_guard.pop_front().unwrap();
+                let mut neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+
+                // Check if neuron's visit count is the same the number of edges depending
+                // on traversal mode.
+                // Neurons only propagate values if it has received total sum from all
+                // previous edges. 
+                let n_edges: usize;
+                let visit_count: usize = neuron_guard.get_visit_count(traversal_bool);
+                if traversal_bool // Perform forward propagation.
                 {
-                    neuron_guard.forward(&mut buffer_guard);
+                    n_edges = neuron_guard.get_backward_edges().len();
+                    if n_edges == visit_count
+                    {
+                        neuron_guard.forward(&mut buffer_guard);
+                    }
                 }
-            }
-            else // Perform backpropagation.
-            {
-                n_edges = neuron_guard.get_forward_edges().len();
-                if n_edges == visit_count
+                else // Perform backpropagation.
                 {
-                    neuron_guard.backward();
+                    n_edges = neuron_guard.get_forward_edges().len();
+                    if n_edges == visit_count
+                    {
+                        neuron_guard.backward();
+                    }
                 }
             }
         }
