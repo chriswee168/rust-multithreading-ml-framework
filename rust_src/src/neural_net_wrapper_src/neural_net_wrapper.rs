@@ -1,6 +1,6 @@
-use std::{sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, RwLock}, thread::{self, JoinHandle}};
+use std::{sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
-use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, NeuronBuffer}};
+use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
 pub struct NeuralNetWrapper
 {
@@ -93,5 +93,42 @@ impl NeuralNetWrapper
     pub fn prop_forward(&self, boolean: bool)
     {
         self.traverse_forward.store(boolean, Ordering::SeqCst);
+    }
+
+    /// Performs the full multi-threaded forward pass from input array to the output array.
+    pub fn forward(&self)
+    {   
+        // Divide number of input neurons by thread count to obtain 
+        // the number of input neurons each thread should have.
+        // Add one to round up.
+        let num_input_neurons: usize = self.neural_net.input_neurons.len();
+        let num_threads: usize = self.thread_handles.len();
+        let neurons_per_buffer: usize = (num_input_neurons / num_threads) + 1;
+
+        let mut increment: usize = 0;
+        let mut buffer_guard_idx: usize = 0;
+        let thread_buffers: &ArcNeuronBufferVec = &self.thread_buffers;
+
+        // Initialize first buffer write guard.
+        let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
+        
+        for (_, input_neuron) in &self.neural_net.input_neurons
+        {
+            buffer_guard.push_back(input_neuron.clone());
+            increment += 1;
+
+            if increment == neurons_per_buffer
+            {
+                // Notify the thread that uses the current buffer to initiate BFS.
+                let mut mutex_guard: MutexGuard<'_, bool> = (*thread_buffers)[buffer_guard_idx].1.lock().unwrap();
+                *mutex_guard = true;
+                (*thread_buffers)[buffer_guard_idx].0.notify_one();
+
+                // Obtain the write lock for the next thread's buffer.
+                buffer_guard_idx += 1;
+                buffer_guard = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
+                increment = 0;
+            }
+        }
     }
 }
