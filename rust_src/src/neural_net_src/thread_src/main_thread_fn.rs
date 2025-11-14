@@ -44,27 +44,13 @@ pub fn main_thread_fn(
                 let neuron: ArcNeuronTrait = buffer_guard.pop_front().unwrap();
                 let mut neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
 
-                // Check if neuron's visit count is the same the number of edges depending
-                // on traversal mode.
-                // Neurons only propagate values if it has received total sum from all
-                // previous edges. 
-                let n_edges: usize;
-                let visit_count: usize = neuron_guard.get_visit_count(traversal_bool);
                 if traversal_bool // Perform forward propagation.
                 {
-                    n_edges = neuron_guard.get_backward_edges().len();
-                    if n_edges == visit_count
-                    {
-                        neuron_guard.forward(&mut buffer_guard);
-                    }
+                    neuron_guard.forward(&mut buffer_guard);
                 }
                 else // Perform backpropagation.
                 {
-                    n_edges = neuron_guard.get_forward_edges().len();
-                    if n_edges == visit_count
-                    {
-                        neuron_guard.backward();
-                    }
+                    neuron_guard.backward();
                 }
             }
         }

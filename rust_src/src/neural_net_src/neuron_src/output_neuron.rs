@@ -52,7 +52,13 @@ impl NeuronTrait for OutputNeuron
     /// Perform forward pass.
     fn forward(&mut self, _neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>) 
     {
-        output_forward(&mut self.attr);
+        // Check the number of visits to this neuron is the same as
+        // number of edges to determine if this neuron has 
+        // obtained the full dot product from all its previous edges.
+        if self.attr.get_visit_count(true) == self.get_backward_edges().len()
+        {
+            output_forward(&mut self.attr);
+        }
     }
     fn backward(&mut self) 
     {
