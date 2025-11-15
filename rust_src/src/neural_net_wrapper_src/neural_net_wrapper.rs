@@ -1,6 +1,6 @@
-use std::{sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, RwLock}, thread::{self, JoinHandle}};
+use std::{sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
-use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, NeuronBuffer}};
+use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
 pub struct NeuralNetWrapper
 {
@@ -25,6 +25,11 @@ pub struct NeuralNetWrapper
     pub input_rwlock_grad_vec: Arc<RwLock<Vec<f32>>>,
     pub output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
     pub output_rwlock_grad_vec: Arc<RwLock<Vec<f32>>>,
+
+    // Keeping track of input/output edges visited.
+    // First usize is used as a counter.
+    // Second usize is to keep the total number of inpt/output edges in the neural network.
+    pub edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>,
     
 }
 impl NeuralNetWrapper
@@ -45,6 +50,8 @@ impl NeuralNetWrapper
             input_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
             output_rwlock_vec: Arc::new(RwLock::new(Vec::new())),
             output_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
+
+            edge_counter: Arc::new((Condvar::new(), Mutex::new((0, 0)))),
         }
     }
 
@@ -93,5 +100,60 @@ impl NeuralNetWrapper
     pub fn prop_forward(&self, boolean: bool)
     {
         self.traverse_forward.store(boolean, Ordering::SeqCst);
+    }
+
+    /// Performs the full multi-threaded forward pass from input array to the output array.
+    pub fn forward(&self)
+    {   
+        // Divide number of input neurons by thread count to obtain 
+        // the number of input neurons each thread should have.
+        // Add one to round up.
+        let num_input_neurons: usize = self.neural_net.input_neurons.len();
+        let num_threads: usize = self.thread_handles.len();
+        let neurons_per_buffer: usize = (num_input_neurons / num_threads) + 1;
+
+        let mut increment: usize = 0;
+        let mut buffer_guard_idx: usize = 0;
+        let thread_buffers: &ArcNeuronBufferVec = &self.thread_buffers;
+
+        // Initialize first buffer write guard.
+        let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
+
+        {
+            // Initialize the output edge counter.
+            let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
+            edge_count_guard.0 = 0;
+            edge_count_guard.1 = self.neural_net.output_edges.len();
+        }
+
+        
+        for (_, input_neuron) in &self.neural_net.input_neurons
+        {
+            buffer_guard.push_back(input_neuron.clone());
+            increment += 1;
+
+            if increment == neurons_per_buffer
+            {
+                // Notify the thread that uses the current buffer to initiate BFS.
+                let mut mutex_guard: MutexGuard<'_, bool> = (*thread_buffers)[buffer_guard_idx].1.lock().unwrap();
+                *mutex_guard = true;
+                (*thread_buffers)[buffer_guard_idx].0.notify_one();
+
+                // Obtain the write lock for the next thread's buffer.
+                buffer_guard_idx += 1;
+                buffer_guard = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
+                increment = 0;
+            }
+        }
+        
+        // Wait on condvar to prevent this method from finishing before the 
+        // neural network is fully traversed.
+        let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
+        // Ensure edge count is actually the same as the total number of output edges
+        // to prevent spurious wakeups.
+        while !(edge_count_guard.0 == edge_count_guard.1)
+        {
+            edge_count_guard = self.edge_counter.0.wait(edge_count_guard).unwrap();
+        }
     }
 }

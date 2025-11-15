@@ -1,3 +1,6 @@
+use core::time;
+use std::time::Duration;
+
 use libai_core::{neural_net_src::{neuron_src::create_neuron::create_neuron, rand_id_gen::rand_id_gen, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 #[test]
@@ -8,16 +11,13 @@ fn threaded_traversal()
     // and 2 output neurons.
     // Neural network is organized as a regular feed forward dense network.
     let mut neural_net: NeuralNetWrapper = NeuralNetWrapper::new();
-
-    neural_net.spawn_threads(4);
-    neural_net.init_input_vecs(4);
-    neural_net.init_output_vecs(4);
     
     // Create input neurons.
     for i in 0..4
     {
         let neuron = create_neuron(
-            5, 5, 0, "input"
+            5, 5, 0, "input",
+            neural_net.edge_counter.clone()
         );
         let name: String = String::from("input") + i.to_string().as_str();
         neural_net.add_input_neuron(name, neuron);
@@ -26,7 +26,8 @@ fn threaded_traversal()
     for i in 0..2
     {
         let neuron = create_neuron(
-            5, 5, 1, "hidden"
+            5, 5, 1, "hidden",
+            neural_net.edge_counter.clone()
         );
         let name: String = String::from("hidden") + i.to_string().as_str();
         neural_net.add_hidden_neuron(name, neuron);
@@ -35,7 +36,8 @@ fn threaded_traversal()
     for i in 0..2
     {
         let neuron = create_neuron(
-            5, 5, 2, "output"
+            5, 5, 2, "output",
+            neural_net.edge_counter.clone()
         );
         let name: String = String::from("output") + i.to_string().as_str();
         neural_net.add_output_neuron(name, neuron);
@@ -90,6 +92,15 @@ fn threaded_traversal()
 
     //////////////////////////////////////////////////////////
     
+    // Spawn threads and initialize the input and output vectors.
+    neural_net.spawn_threads(4);
+    neural_net.init_input_vecs(4);
+    neural_net.init_output_vecs(4);
+
+    // Check if output vector has the correct values after forward pass.
     let sample_input_vec: Vec<f32> = vec![1.0, 2.0, 3.0, 4.0];
+    neural_net.set_input_vec(sample_input_vec);
+    neural_net.forward();
+    assert_eq!(vec![160.0, 160.0, 160.0, 160.0], *neural_net.get_output_vec());
 
 }

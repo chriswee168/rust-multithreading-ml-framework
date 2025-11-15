@@ -11,7 +11,7 @@ fn join_neurons()
     // Create a single input, hidden and output neuron, and add them to neural
     // net.
     let input_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 0, "input"
+        5, 5, 0, "input",
     );
     let hidden_neuron: ArcNeuronTrait = create_neuron(
         5, 5, 1, "hidden"
