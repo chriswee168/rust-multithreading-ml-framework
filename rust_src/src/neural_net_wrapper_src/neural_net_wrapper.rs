@@ -118,6 +118,14 @@ impl NeuralNetWrapper
 
         // Initialize first buffer write guard.
         let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
+
+        {
+            // Initialize the output edge counter.
+            let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
+            edge_count_guard.0 = 0;
+            edge_count_guard.1 = self.neural_net.output_edges.len();
+        }
+
         
         for (_, input_neuron) in &self.neural_net.input_neurons
         {
@@ -136,6 +144,16 @@ impl NeuralNetWrapper
                 buffer_guard = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
                 increment = 0;
             }
+        }
+        
+        // Wait on condvar to prevent this method from finishing before the 
+        // neural network is fully traversed.
+        let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
+        // Ensure edge count is actually the same as the total number of output edges
+        // to prevent spurious wakeups.
+        while !(edge_count_guard.0 == edge_count_guard.1)
+        {
+            edge_count_guard = self.edge_counter.0.wait(edge_count_guard).unwrap();
         }
     }
 }
