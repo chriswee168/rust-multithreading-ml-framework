@@ -103,4 +103,22 @@ fn threaded_traversal()
     neural_net.forward();
     assert_eq!(vec![160.0, 160.0, 160.0, 160.0], *neural_net.get_output_vec());
 
+    // Check each neuron has the correct values accumulated.
+    for (_, neuron) in &neural_net.neural_net.input_neurons
+    {
+        let guard = neuron.lock().unwrap();
+        assert_eq!(10.0, guard.get_sum(true));
+    }
+
+    for (_, neuron) in &neural_net.neural_net.hidden_neurons
+    {
+        let guard = neuron.lock().unwrap();
+        assert_eq!(40.0, guard.get_sum(true));
+    }
+
+    for (_, neuron) in &neural_net.neural_net.output_neurons
+    {
+        let guard = neuron.lock().unwrap();
+        assert_eq!(80.0, guard.get_sum(true));
+    }
 }
