@@ -116,9 +116,6 @@ impl NeuralNetWrapper
         let mut buffer_guard_idx: usize = 0;
         let thread_buffers: &ArcNeuronBufferVec = &self.thread_buffers;
 
-        // Initialize first buffer write guard.
-        let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
-
         {
             // Initialize the output edge counter.
             let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
@@ -126,7 +123,8 @@ impl NeuralNetWrapper
             edge_count_guard.1 = self.neural_net.output_edges.len();
         }
 
-        
+        // Initialize first buffer write guard.
+        let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
         for (_, input_neuron) in &self.neural_net.input_neurons
         {
             buffer_guard.push_back(input_neuron.clone());
@@ -134,18 +132,25 @@ impl NeuralNetWrapper
 
             if increment == neurons_per_buffer
             {
-                // Notify the thread that uses the current buffer to initiate BFS.
-                let mut mutex_guard: MutexGuard<'_, bool> = (*thread_buffers)[buffer_guard_idx].1.lock().unwrap();
-                *mutex_guard = true;
-                (*thread_buffers)[buffer_guard_idx].0.notify_one();
-
                 // Obtain the write lock for the next thread's buffer.
                 buffer_guard_idx += 1;
                 buffer_guard = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
                 increment = 0;
             }
         }
-        
+
+        // Explicitly drop the buffer write guard variable.
+        drop(buffer_guard);
+
+        // Notify all threads to begin BFS traversal on their own buffers.
+        for buffer in thread_buffers.iter()
+        {
+            // Notify the thread that uses the current buffer to initiate BFS.
+            let mut mutex_guard: MutexGuard<'_, bool> = buffer.1.lock().unwrap();
+            *mutex_guard = true;
+            buffer.0.notify_one();
+        }
+
         // Wait on condvar to prevent this method from finishing before the 
         // neural network is fully traversed.
         let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
