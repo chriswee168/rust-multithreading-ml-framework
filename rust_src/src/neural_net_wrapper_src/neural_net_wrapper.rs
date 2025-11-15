@@ -1,4 +1,4 @@
-use std::{sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
+use std::{sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
 use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
@@ -25,6 +25,11 @@ pub struct NeuralNetWrapper
     pub input_rwlock_grad_vec: Arc<RwLock<Vec<f32>>>,
     pub output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
     pub output_rwlock_grad_vec: Arc<RwLock<Vec<f32>>>,
+
+    // Keeping track of input/output edges visited.
+    // First usize is used as a counter.
+    // Second usize is to keep the total number of inpt/output edges in the neural network.
+    pub edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>,
     
 }
 impl NeuralNetWrapper
@@ -45,6 +50,8 @@ impl NeuralNetWrapper
             input_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
             output_rwlock_vec: Arc::new(RwLock::new(Vec::new())),
             output_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
+
+            edge_counter: Arc::new((Condvar::new(), Mutex::new((0, 0)))),
         }
     }
 
