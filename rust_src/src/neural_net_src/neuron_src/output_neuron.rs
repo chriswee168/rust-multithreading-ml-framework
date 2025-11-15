@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{Arc, Mutex, RwLockWriteGuard}};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
 
 use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 
@@ -6,13 +6,15 @@ use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_de
 pub struct OutputNeuron
 {
     attr: NeuronAttr, // Default neuron attributes.
+    edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
 }
 
 impl OutputNeuron
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32
+        neuron_level: u32, 
+        edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
@@ -23,6 +25,7 @@ impl OutputNeuron
         return Self
         {
             attr: neuron_attrs,
+            edge_counter
         }
     }
 }
@@ -52,7 +55,13 @@ impl NeuronTrait for OutputNeuron
     /// Perform forward pass.
     fn forward(&mut self, _neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>) 
     {
-        output_forward(&mut self.attr);
+        // Check the number of visits to this neuron is the same as
+        // number of edges to determine if this neuron has 
+        // obtained the full dot product from all its previous edges.
+        if self.attr.get_visit_count(true) == self.get_backward_edges().len()
+        {
+            output_forward(&mut self.attr, &self.edge_counter);
+        }
     }
     fn backward(&mut self) 
     {
