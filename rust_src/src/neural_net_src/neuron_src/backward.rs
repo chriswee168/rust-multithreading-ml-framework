@@ -38,3 +38,33 @@ pub fn input_backward(neuron_attr: &mut NeuronAttr, lr: f32, return_grads: bool)
     // Zero the input neuron gradient sum.
     neuron_attr.zero_sum(false);
 }
+
+/// Calculate gradients of backward edges of hidden neurons.
+pub fn hidden_backward(neuron_attr: &mut NeuronAttr, lr: f32, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>)
+{
+    // Get neuron gradient sum and reset the visit count of this neuron.
+    let chained_grad: f32 = neuron_attr.get_sum(false);
+    neuron_attr.zero_visit_count(false);
+    
+    for (_, edge) in &neuron_attr.backward_edges
+    {
+        let mut edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+
+        let prev_neuron: ArcNeuronTrait = edge_guard.get_prev_neuron().unwrap();
+        let mut prev_neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = prev_neuron.lock().unwrap();
+
+        let prev_neuron_input_val: f32 = prev_neuron_guard.get_sum(true);
+        let input_grad: f32 = edge_guard.backward(prev_neuron_input_val, chained_grad, lr);
+
+        let backward_count: usize = prev_neuron_guard.get_visit_count(false);
+        if backward_count == 0
+        {
+            prev_neuron_guard.zero_sum(false);
+        }
+
+        prev_neuron_guard.add_to_sum(input_grad, false);
+        prev_neuron_guard.add_visit_count(false);
+
+        neuron_buffer.push_back(prev_neuron.clone());
+    }
+}
