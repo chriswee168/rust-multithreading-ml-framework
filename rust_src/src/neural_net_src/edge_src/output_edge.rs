@@ -91,8 +91,13 @@ impl EdgeTrait for OutputEdge
         return Some(self.output_array_index);
     }
 
-    // Obtain output rwlock vector for obtaining output values during forward pass.
+    // Obtain output rwlock vector to update the output array during forward pass.
     fn get_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
         return Some(Arc::clone(&self.output_rwlock_vec));
+    }
+
+    // Obtain output gradient array during backward pass.
+    fn get_grad_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
+        return Some(Arc::clone(&self.grad_rwlock_vec));
     }
 }
