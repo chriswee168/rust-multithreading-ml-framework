@@ -91,9 +91,15 @@ impl EdgeTrait for InputEdge
         return Some(Arc::clone(&self.next_neuron));
     }
 
-    // Obtain input rwlock vector for obtaining input gradients
-    // during backpropagation.
+    // Obtain input rwlock vector for obtaining input array values
+    // during forward propagation.
     fn get_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
         return Some(Arc::clone(&self.input_rwlock_vec));
+    }
+
+    // Obtain input rwlock vector to store obtaining input gradients
+    // during backpropagation.
+    fn get_grad_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
+        return Some(Arc::clone(&self.grad_rwlock_vec));
     }
 }
