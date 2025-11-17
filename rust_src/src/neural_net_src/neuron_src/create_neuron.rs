@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Condvar, Mutex};
 
 use crate::neural_net_src::{
     neuron_src::{core_deps::NeuronTrait, hidden_neuron::HiddenNeuron, 
@@ -8,20 +8,21 @@ use crate::neural_net_src::{
 /// Create input/hidden/output neuron.
 pub fn create_neuron(
     max_backward_edges: usize, max_forward_edges: usize,
-    neuron_level: u32, neuron_type: &str
+    neuron_level: u32, neuron_type: &str,
+    edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
 ) -> ArcNeuronTrait
 {
     let neuron: Box<dyn NeuronTrait>;
     if neuron_type == "input"
     {
         neuron = Box::new(
-            InputNeuron::new(max_backward_edges, max_forward_edges, neuron_level)
+            InputNeuron::new(max_backward_edges, max_forward_edges, neuron_level, edge_counter)
         );
     }
     else if neuron_type == "output" 
     {
         neuron = Box::new(
-            OutputNeuron::new(max_backward_edges, max_forward_edges, neuron_level)
+            OutputNeuron::new(max_backward_edges, max_forward_edges, neuron_level, edge_counter)
         );
     }
     else if neuron_type == "hidden" 

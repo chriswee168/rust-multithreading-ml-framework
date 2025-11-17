@@ -1,4 +1,4 @@
-use std::{sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
+use std::{sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
 use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
@@ -25,6 +25,11 @@ pub struct NeuralNetWrapper
     pub input_rwlock_grad_vec: Arc<RwLock<Vec<f32>>>,
     pub output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
     pub output_rwlock_grad_vec: Arc<RwLock<Vec<f32>>>,
+
+    // Keeping track of input/output edges visited.
+    // First usize is used as a counter.
+    // Second usize is to keep the total number of inpt/output edges in the neural network.
+    pub edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>,
     
 }
 impl NeuralNetWrapper
@@ -45,6 +50,8 @@ impl NeuralNetWrapper
             input_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
             output_rwlock_vec: Arc::new(RwLock::new(Vec::new())),
             output_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
+
+            edge_counter: Arc::new((Condvar::new(), Mutex::new((0, 0)))),
         }
     }
 
@@ -109,9 +116,15 @@ impl NeuralNetWrapper
         let mut buffer_guard_idx: usize = 0;
         let thread_buffers: &ArcNeuronBufferVec = &self.thread_buffers;
 
+        {
+            // Initialize the output edge counter.
+            let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
+            edge_count_guard.0 = 0;
+            edge_count_guard.1 = self.neural_net.output_edges.len();
+        }
+
         // Initialize first buffer write guard.
         let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
-        
         for (_, input_neuron) in &self.neural_net.input_neurons
         {
             buffer_guard.push_back(input_neuron.clone());
@@ -119,16 +132,33 @@ impl NeuralNetWrapper
 
             if increment == neurons_per_buffer
             {
-                // Notify the thread that uses the current buffer to initiate BFS.
-                let mut mutex_guard: MutexGuard<'_, bool> = (*thread_buffers)[buffer_guard_idx].1.lock().unwrap();
-                *mutex_guard = true;
-                (*thread_buffers)[buffer_guard_idx].0.notify_one();
-
                 // Obtain the write lock for the next thread's buffer.
                 buffer_guard_idx += 1;
                 buffer_guard = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
                 increment = 0;
             }
+        }
+
+        // Explicitly drop the buffer write guard variable.
+        drop(buffer_guard);
+
+        // Notify all threads to begin BFS traversal on their own buffers.
+        for buffer in thread_buffers.iter()
+        {
+            // Notify the thread that uses the current buffer to initiate BFS.
+            let mut mutex_guard: MutexGuard<'_, bool> = buffer.1.lock().unwrap();
+            *mutex_guard = true;
+            buffer.0.notify_one();
+        }
+
+        // Wait on condvar to prevent this method from finishing before the 
+        // neural network is fully traversed.
+        let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
+        // Ensure edge count is actually the same as the total number of output edges
+        // to prevent spurious wakeups.
+        while !(edge_count_guard.0 == edge_count_guard.1)
+        {
+            edge_count_guard = self.edge_counter.0.wait(edge_count_guard).unwrap();
         }
     }
 }

@@ -16,7 +16,8 @@ fn threaded_traversal()
     for i in 0..4
     {
         let neuron = create_neuron(
-            5, 5, 0, "input"
+            5, 5, 0, "input",
+            neural_net.edge_counter.clone()
         );
         let name: String = String::from("input") + i.to_string().as_str();
         neural_net.add_input_neuron(name, neuron);
@@ -25,7 +26,8 @@ fn threaded_traversal()
     for i in 0..2
     {
         let neuron = create_neuron(
-            5, 5, 1, "hidden"
+            5, 5, 1, "hidden",
+            neural_net.edge_counter.clone()
         );
         let name: String = String::from("hidden") + i.to_string().as_str();
         neural_net.add_hidden_neuron(name, neuron);
@@ -34,7 +36,8 @@ fn threaded_traversal()
     for i in 0..2
     {
         let neuron = create_neuron(
-            5, 5, 2, "output"
+            5, 5, 2, "output",
+            neural_net.edge_counter.clone()
         );
         let name: String = String::from("output") + i.to_string().as_str();
         neural_net.add_output_neuron(name, neuron);
@@ -55,6 +58,16 @@ fn threaded_traversal()
             );
         }
 
+        // Also join each input neuron with each output neuron.
+        for (output_neuron_name, _)  in &output_neuron_names
+        {
+            neural_net.join_neurons(
+                input_neuron_name, output_neuron_name, 
+                rand_id_gen(10), 1.0, 1.0
+            );
+        }
+
+        // Create input edges to obtain values from input vector.
         for i in 0..4
         {
             neural_net.add_input_edge(
@@ -76,13 +89,14 @@ fn threaded_traversal()
         }
     }
 
+    // Create input edges to send values to output vector.
     for (output_neuron_name, _)  in &output_neuron_names
     {
         for i in 0..4
         {
             neural_net.add_output_edge(
-            output_neuron_name, rand_id_gen(10), 
-            i, 1.0, 1.0
+                output_neuron_name, rand_id_gen(10), 
+                i, 1.0, 1.0
             );
         }
     }
@@ -98,6 +112,24 @@ fn threaded_traversal()
     let sample_input_vec: Vec<f32> = vec![1.0, 2.0, 3.0, 4.0];
     neural_net.set_input_vec(sample_input_vec);
     neural_net.forward();
-    assert_eq!(vec![160.0, 160.0, 160.0, 160.0], *neural_net.get_output_vec());
+    assert_eq!(vec![240.0, 240.0, 240.0, 240.0], *neural_net.get_output_vec());
 
+    // Check each neuron has the correct values accumulated.
+    for (_, neuron) in &neural_net.neural_net.input_neurons
+    {
+        let guard = neuron.lock().unwrap();
+        assert_eq!(10.0, guard.get_sum(true));
+    }
+
+    for (_, neuron) in &neural_net.neural_net.hidden_neurons
+    {
+        let guard = neuron.lock().unwrap();
+        assert_eq!(40.0, guard.get_sum(true));
+    }
+
+    for (_, neuron) in &neural_net.neural_net.output_neurons
+    {
+        let guard = neuron.lock().unwrap();
+        assert_eq!(120.0, guard.get_sum(true));
+    }
 }
