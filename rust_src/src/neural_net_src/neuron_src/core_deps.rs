@@ -151,7 +151,7 @@ pub trait NeuronTrait: Send
     // Backward propagation.
     fn backward(
         &mut self,
-        lr: f32, edge_counter: &Arc<(Condvar, Mutex<(usize, usize)>)>, 
+        lr: f32, 
         return_grads: bool,
         neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>
     );  // Backward propagation.

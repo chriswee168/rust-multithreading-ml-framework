@@ -62,7 +62,7 @@ impl NeuronTrait for HiddenNeuron
     }
     fn backward(
         &mut self, 
-        lr: f32, _edge_counter: &Arc<(Condvar, Mutex<(usize, usize)>)>, 
+        lr: f32, 
         _return_grads: bool,
         neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>
     )
