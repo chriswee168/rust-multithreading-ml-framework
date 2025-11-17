@@ -122,18 +122,21 @@ fn threaded_traversal()
         {
             let guard = neuron.lock().unwrap();
             assert_eq!(10.0, guard.get_sum(true));
+            assert_eq!(0, guard.get_visit_count(true));
         }
 
         for (_, neuron) in &neural_net.neural_net.hidden_neurons
         {
             let guard = neuron.lock().unwrap();
             assert_eq!(40.0, guard.get_sum(true));
+            assert_eq!(0, guard.get_visit_count(true));
         }
 
         for (_, neuron) in &neural_net.neural_net.output_neurons
         {
             let guard = neuron.lock().unwrap();
             assert_eq!(120.0, guard.get_sum(true));
+            assert_eq!(0, guard.get_visit_count(true));
         }
     }
 }
