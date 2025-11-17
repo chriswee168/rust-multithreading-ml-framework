@@ -13,6 +13,8 @@ pub fn input_backward(
     // Calculate the gradients for parameters of each edge to return to the input 
     // gradient vector.
     let chained_grad: f32 = neuron_attr.get_sum(false);
+    neuron_attr.zero_visit_count(false);
+    
     for (_, edge) in &neuron_attr.backward_edges
     {
         // Get edge guard for exclusive access.
