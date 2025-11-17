@@ -80,3 +80,30 @@ pub fn hidden_backward(neuron_attr: &mut NeuronAttr, lr: f32, neuron_buffer: &mu
         neuron_buffer.push_back(prev_neuron.clone());
     }
 }
+
+/// Calculate gradients of output edges.
+pub fn output_backward(neuron_attr: &mut NeuronAttr, lr: f32)
+{
+    // Zero the input neuron gradient sum.
+    neuron_attr.zero_sum(false);
+
+    let mut total_gradient_sum: f32 = 0.0;
+    for (_, edge) in &neuron_attr.forward_edges
+    {
+        let mut edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+
+        // Get value from the gradient vector given index.
+        let grad_rwlock_vec: Arc<RwLock<Vec<f32>>> = edge_guard.get_grad_rwlock_vec().unwrap();
+        let grad_vec_read_guard: RwLockReadGuard<'_, Vec<f32>> = grad_rwlock_vec.read().unwrap();
+        let grad_vec_idx: usize = edge_guard.get_next_id().unwrap();
+        let gradient_val: f32 = grad_vec_read_guard[grad_vec_idx];
+
+        // Return input gradient of the edge and accumulate to neuron gradient.
+        let input_val: f32 = neuron_attr.get_sum(true);
+        let neuron_grad: f32 = edge_guard.backward(input_val, gradient_val, lr);
+        total_gradient_sum += neuron_grad;
+    }
+
+    // Set the accumulated gradient to use for backpropagation.
+    neuron_attr.add_to_sum(total_gradient_sum, false);
+}
