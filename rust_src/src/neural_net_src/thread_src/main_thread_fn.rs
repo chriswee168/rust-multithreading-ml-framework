@@ -10,7 +10,12 @@ pub fn main_thread_fn(
     // Arc pointer to vector containing all neuron buffers for every thread.
     neuron_buffers: ArcNeuronBufferVec, 
     // Specific index of the neuron buffer to use for this thread.
-    buffer_idx: usize
+    buffer_idx: usize,
+    // Learning rate for gradient descent.
+    lr: f32,
+    // Choose whether the neural net will return the final
+    // gradients of length input dim.
+    return_grads: bool
 )
 {
     // Get specific neuron buffer for this thread as well as its condvar and mutex.
@@ -50,7 +55,7 @@ pub fn main_thread_fn(
                 }
                 else // Perform backpropagation.
                 {
-                    neuron_guard.backward();
+                    neuron_guard.backward(lr, return_grads, &mut buffer_guard);
                 }
             }
         }
