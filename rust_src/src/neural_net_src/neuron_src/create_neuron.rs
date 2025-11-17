@@ -16,7 +16,7 @@ pub fn create_neuron(
     if neuron_type == "input"
     {
         neuron = Box::new(
-            InputNeuron::new(max_backward_edges, max_forward_edges, neuron_level)
+            InputNeuron::new(max_backward_edges, max_forward_edges, neuron_level, edge_counter)
         );
     }
     else if neuron_type == "output" 
