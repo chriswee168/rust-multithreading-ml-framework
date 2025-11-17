@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{Arc, Mutex, RwLockWriteGuard}};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
 
 use crate::neural_net_src::types_aliases::{ArcEdgeTrait, NeuronBuffer};
 
@@ -148,7 +148,13 @@ impl NeuronAttr
 pub trait NeuronTrait: Send
 {
     fn forward(&mut self, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>); // Forward propagation.
-    fn backward(&mut self); // Backward propagation.
+    // Backward propagation.
+    fn backward(
+        &mut self,
+        lr: f32, edge_counter: &Arc<(Condvar, Mutex<(usize, usize)>)>, 
+        return_grads: bool,
+        neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>
+    );  // Backward propagation.
 
     // Wrapper methods for sum attributes in NeuronAttr.
     fn add_to_sum(&mut self, value: f32, is_forward: bool);

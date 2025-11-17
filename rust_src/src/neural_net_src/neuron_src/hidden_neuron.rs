@@ -1,6 +1,6 @@
-use std::{collections::HashMap, sync::RwLockWriteGuard};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
 
-use crate::neural_net_src::{neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::hidden_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
+use crate::neural_net_src::{neuron_src::{backward::hidden_backward, core_deps::{NeuronAttr, NeuronTrait}, forward::hidden_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 
 /// Struct to define hidden neuron attributes and behaviour.
 pub struct HiddenNeuron
@@ -60,9 +60,20 @@ impl NeuronTrait for HiddenNeuron
             hidden_forward(&mut self.attr, neuron_buffer);
         }
     }
-    fn backward(&mut self) 
+    fn backward(
+        &mut self, 
+        lr: f32, _edge_counter: &Arc<(Condvar, Mutex<(usize, usize)>)>, 
+        _return_grads: bool,
+        neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>
+    )
     {
-        
+        // Check the number of visits to this neuron is the same as
+        // number of edges to determine if this neuron has 
+        // accumulated gradients from all its previous edges.
+        if self.attr.get_visit_count(false) == self.get_forward_edges().len()
+        {
+            hidden_backward(&mut self.attr, lr, neuron_buffer);
+        }
     }
 
     /// Increment this neuron's sum.
