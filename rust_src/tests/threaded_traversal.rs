@@ -104,7 +104,7 @@ fn threaded_traversal()
     //////////////////////////////////////////////////////////
     
     // Spawn threads and initialize the input and output vectors.
-    neural_net.spawn_threads(4);
+    neural_net.spawn_threads(4, 0.001, true);
     neural_net.init_input_vecs(4);
     neural_net.init_output_vecs(4);
 
