@@ -49,9 +49,6 @@ pub fn input_backward(
             edge_counter.0.notify_one();
         }
     }
-
-    // Zero the input neuron gradient sum.
-    neuron_attr.zero_sum(false);
 }
 
 /// Calculate gradients of backward edges of hidden neurons.
