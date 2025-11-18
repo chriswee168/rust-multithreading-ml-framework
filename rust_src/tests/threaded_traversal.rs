@@ -114,7 +114,7 @@ fn threaded_traversal()
     {
         neural_net.set_input_vec(sample_input_vec.clone());
         neural_net.init_output_vecs(4);
-        neural_net.forward();
+        neural_net.propagate();
         assert_eq!(vec![240.0, 240.0, 240.0, 240.0], *neural_net.get_output_vec());
 
         // Check each neuron has the correct values accumulated.
