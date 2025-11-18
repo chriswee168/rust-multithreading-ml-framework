@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{backward::{hidden_backward, output_backward}, core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 
 /// Struct to define output neuron attributes and behaviour.
 pub struct OutputNeuron
@@ -63,9 +63,18 @@ impl NeuronTrait for OutputNeuron
             output_forward(&mut self.attr, &self.edge_counter);
         }
     }
-    fn backward(&mut self) 
+    fn backward(
+        &mut self, 
+        lr: f32,
+        _return_grads: bool,
+        neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>
+    )
     {
-        
+        // Accumulate gradients from output gradient vector first.
+        output_backward(&mut self.attr, lr);
+
+        // Backpropagate the gradients through previous neurons.
+        hidden_backward(&mut self.attr, lr, neuron_buffer);
     }
 
     /// Increment this neuron's sum.
