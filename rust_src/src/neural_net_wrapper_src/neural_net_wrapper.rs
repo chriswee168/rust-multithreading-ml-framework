@@ -56,7 +56,11 @@ impl NeuralNetWrapper
     }
 
     /// Initialise the threads for neural net propagation.
-    pub fn spawn_threads(&mut self, num_threads: usize)
+    pub fn spawn_threads(
+        &mut self, num_threads: usize,
+        lr: f32,
+        return_grad: bool
+    )
     {
         // Create thread buffers.
         let mut thread_buffers: Vec<(Condvar, Mutex<bool>, RwLock<NeuronBuffer>)> = 
@@ -87,7 +91,9 @@ impl NeuralNetWrapper
                 move || main_thread_fn(
                     traverse_forward_clone, 
                     thread_buffer_clone, 
-                    i
+                    i,
+                    lr,
+                    return_grad
                 )
             );
 
