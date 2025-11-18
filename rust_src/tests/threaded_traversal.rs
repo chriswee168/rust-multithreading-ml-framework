@@ -104,32 +104,39 @@ fn threaded_traversal()
     //////////////////////////////////////////////////////////
     
     // Spawn threads and initialize the input and output vectors.
-    neural_net.spawn_threads(4);
+    neural_net.spawn_threads(4, 0.001, true);
     neural_net.init_input_vecs(4);
     neural_net.init_output_vecs(4);
 
     // Check if output vector has the correct values after forward pass.
     let sample_input_vec: Vec<f32> = vec![1.0, 2.0, 3.0, 4.0];
-    neural_net.set_input_vec(sample_input_vec);
-    neural_net.forward();
-    assert_eq!(vec![240.0, 240.0, 240.0, 240.0], *neural_net.get_output_vec());
-
-    // Check each neuron has the correct values accumulated.
-    for (_, neuron) in &neural_net.neural_net.input_neurons
+    for i in 0..3
     {
-        let guard = neuron.lock().unwrap();
-        assert_eq!(10.0, guard.get_sum(true));
-    }
+        neural_net.set_input_vec(sample_input_vec.clone());
+        neural_net.init_output_vecs(4);
+        neural_net.forward();
+        assert_eq!(vec![240.0, 240.0, 240.0, 240.0], *neural_net.get_output_vec());
 
-    for (_, neuron) in &neural_net.neural_net.hidden_neurons
-    {
-        let guard = neuron.lock().unwrap();
-        assert_eq!(40.0, guard.get_sum(true));
-    }
+        // Check each neuron has the correct values accumulated.
+        for (_, neuron) in &neural_net.neural_net.input_neurons
+        {
+            let guard = neuron.lock().unwrap();
+            assert_eq!(10.0, guard.get_sum(true));
+            assert_eq!(0, guard.get_visit_count(true));
+        }
 
-    for (_, neuron) in &neural_net.neural_net.output_neurons
-    {
-        let guard = neuron.lock().unwrap();
-        assert_eq!(120.0, guard.get_sum(true));
+        for (_, neuron) in &neural_net.neural_net.hidden_neurons
+        {
+            let guard = neuron.lock().unwrap();
+            assert_eq!(40.0, guard.get_sum(true));
+            assert_eq!(0, guard.get_visit_count(true));
+        }
+
+        for (_, neuron) in &neural_net.neural_net.output_neurons
+        {
+            let guard = neuron.lock().unwrap();
+            assert_eq!(120.0, guard.get_sum(true));
+            assert_eq!(0, guard.get_visit_count(true));
+        }
     }
 }
