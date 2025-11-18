@@ -1,6 +1,6 @@
-use std::{sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
+use std::{collections::HashMap, sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
-use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
 pub struct NeuralNetWrapper
 {
@@ -56,7 +56,11 @@ impl NeuralNetWrapper
     }
 
     /// Initialise the threads for neural net propagation.
-    pub fn spawn_threads(&mut self, num_threads: usize)
+    pub fn spawn_threads(
+        &mut self, num_threads: usize,
+        lr: f32,
+        return_grad: bool
+    )
     {
         // Create thread buffers.
         let mut thread_buffers: Vec<(Condvar, Mutex<bool>, RwLock<NeuronBuffer>)> = 
@@ -87,7 +91,9 @@ impl NeuralNetWrapper
                 move || main_thread_fn(
                     traverse_forward_clone, 
                     thread_buffer_clone, 
-                    i
+                    i,
+                    lr,
+                    return_grad
                 )
             );
 
@@ -103,14 +109,29 @@ impl NeuralNetWrapper
     }
 
     /// Performs the full multi-threaded forward pass from input array to the output array.
-    pub fn forward(&self)
+    pub fn propagate(&self)
     {   
-        // Divide number of input neurons by thread count to obtain 
-        // the number of input neurons each thread should have.
-        // Add one to round up.
-        let num_input_neurons: usize = self.neural_net.input_neurons.len();
+        let is_forward: bool = self.traverse_forward.load(Ordering::SeqCst);
+        
+        let num_io_neurons: usize;
+        let edge_count: usize;
+        let neuron_iterable: &HashMap<String, ArcNeuronTrait>;
+
+        if is_forward
+        {
+            num_io_neurons = self.neural_net.input_neurons.len();
+            edge_count = self.neural_net.output_edges.len();
+            neuron_iterable = &self.neural_net.input_neurons;
+        }
+        else
+        {
+            num_io_neurons = self.neural_net.output_neurons.len();
+            edge_count = self.neural_net.input_edges.len();
+            neuron_iterable = &self.neural_net.output_neurons;
+        }
+        // Get number of input/output neurons each buffer should have.
         let num_threads: usize = self.thread_handles.len();
-        let neurons_per_buffer: usize = (num_input_neurons / num_threads) + 1;
+        let neurons_per_buffer: usize = (num_io_neurons / num_threads) + 1;
 
         let mut increment: usize = 0;
         let mut buffer_guard_idx: usize = 0;
@@ -120,14 +141,15 @@ impl NeuralNetWrapper
             // Initialize the output edge counter.
             let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
             edge_count_guard.0 = 0;
-            edge_count_guard.1 = self.neural_net.output_edges.len();
+            edge_count_guard.1 = edge_count;
         }
 
         // Initialize first buffer write guard.
         let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
-        for (_, input_neuron) in &self.neural_net.input_neurons
+
+        for (_, neuron) in neuron_iterable
         {
-            buffer_guard.push_back(input_neuron.clone());
+            buffer_guard.push_back(neuron.clone());
             increment += 1;
 
             if increment == neurons_per_buffer
@@ -161,4 +183,54 @@ impl NeuralNetWrapper
             edge_count_guard = self.edge_counter.0.wait(edge_count_guard).unwrap();
         }
     }
+
+    /// Display all neurons and their edges.
+    pub fn display_params(&self)
+    {
+        for (neuron_id, neuron) in &self.neural_net.input_neurons
+        {
+            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            self.display_neuron_edges(neuron_guard);
+            println!("----------");
+        }
+
+        for (neuron_id, neuron) in &self.neural_net.hidden_neurons
+        {
+            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            self.display_neuron_edges(neuron_guard);
+            println!("----------");
+        }
+
+        for (neuron_id, neuron) in &self.neural_net.output_neurons
+        {
+            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            self.display_neuron_edges(neuron_guard);
+            println!("----------");
+        }
+    }
+
+    /// Displays the parameters of each edge in a neuron.
+    fn display_neuron_edges(&self, neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>>)
+    {
+        // Display all backward edges.
+        for (edge_id, edge) in neuron_guard.get_backward_edges()
+        {
+            let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+            let edge_params: (f32, f32, f32) = edge_guard.get_params();
+            println!("({}, {:p}) --> {}, {}, {}", edge_id, *edge, edge_params.0, edge_params.1, edge_params.2);
+        }
+
+        // Display all forward edges.
+        for (edge_id, edge) in neuron_guard.get_forward_edges()
+        {
+            let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+            let edge_params: (f32, f32, f32) = edge_guard.get_params();
+            println!("{}, {}, {} --> ({}, {:p})", edge_params.0, edge_params.1, edge_params.2, edge_id, *edge);
+        }
+    }
+
+
 }
