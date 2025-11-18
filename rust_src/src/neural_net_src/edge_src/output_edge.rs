@@ -83,4 +83,9 @@ impl EdgeTrait for OutputEdge
     fn get_grad_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
         return Some(Arc::clone(&self.grad_rwlock_vec));
     }
+
+    // Get parameters.
+    fn get_params(&self) -> (f32, f32, f32) {
+        return (self.attr.pos_weight, self.attr.neg_weight, self.attr.bias);
+    }
 }

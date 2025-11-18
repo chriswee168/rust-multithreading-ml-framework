@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
-use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
 pub struct NeuralNetWrapper
 {
@@ -183,4 +183,54 @@ impl NeuralNetWrapper
             edge_count_guard = self.edge_counter.0.wait(edge_count_guard).unwrap();
         }
     }
+
+    /// Display all neurons and their edges.
+    pub fn display_params(&self)
+    {
+        for (neuron_id, neuron) in &self.neural_net.input_neurons
+        {
+            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            self.display_neuron_edges(neuron_guard);
+            println!("----------");
+        }
+
+        for (neuron_id, neuron) in &self.neural_net.hidden_neurons
+        {
+            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            self.display_neuron_edges(neuron_guard);
+            println!("----------");
+        }
+
+        for (neuron_id, neuron) in &self.neural_net.output_neurons
+        {
+            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            self.display_neuron_edges(neuron_guard);
+            println!("----------");
+        }
+    }
+
+    /// Displays the parameters of each edge in a neuron.
+    fn display_neuron_edges(&self, neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>>)
+    {
+        // Display all backward edges.
+        for (edge_id, edge) in neuron_guard.get_backward_edges()
+        {
+            let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+            let edge_params: (f32, f32, f32) = edge_guard.get_params();
+            println!("({}, {:p}) --> {}, {}, {}", edge_id, *edge, edge_params.0, edge_params.1, edge_params.2);
+        }
+
+        // Display all forward edges.
+        for (edge_id, edge) in neuron_guard.get_forward_edges()
+        {
+            let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+            let edge_params: (f32, f32, f32) = edge_guard.get_params();
+            println!("{}, {}, {} --> ({}, {:p})", edge_params.0, edge_params.1, edge_params.2, edge_id, *edge);
+        }
+    }
+
+
 }
