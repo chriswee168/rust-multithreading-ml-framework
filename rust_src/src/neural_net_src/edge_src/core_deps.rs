@@ -88,4 +88,7 @@ pub trait EdgeTrait: Send
     fn get_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> { None }
     // Obtain the gradient rwlock vector for input and output edges.
     fn get_grad_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> { None }
+
+    // Obtain the parameters of this edge.
+    fn get_params(&self) -> (f32, f32, f32);
 }
