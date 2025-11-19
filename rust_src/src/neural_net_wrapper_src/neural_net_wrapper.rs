@@ -171,29 +171,19 @@ impl NeuralNetWrapper
     pub fn propagate(&self)
     {   
         let is_forward: bool = self.traverse_forward.load(Ordering::SeqCst);
-        
-        let num_io_neurons: usize;
         let edge_count: usize;
-        let neuron_iterable: &HashMap<String, ArcNeuronTrait>;
-
+        let stored_buffers: &Vec<NeuronBuffer>;
         if is_forward
         {
-            num_io_neurons = self.neural_net.input_neurons.len();
             edge_count = self.neural_net.output_edges.len();
-            neuron_iterable = &self.neural_net.input_neurons;
+            stored_buffers = &self.forward_buffers;
         }
         else
         {
-            num_io_neurons = self.neural_net.output_neurons.len();
             edge_count = self.neural_net.input_edges.len();
-            neuron_iterable = &self.neural_net.output_neurons;
+            stored_buffers = &self.backward_buffers;
         }
-        // Get number of input/output neurons each buffer should have.
-        let num_threads: usize = self.thread_handles.len();
-        let neurons_per_buffer: usize = (num_io_neurons / num_threads) + 1;
 
-        let mut increment: usize = 0;
-        let mut buffer_guard_idx: usize = 0;
         let thread_buffers: &ArcNeuronBufferVec = &self.thread_buffers;
 
         {
@@ -203,25 +193,13 @@ impl NeuralNetWrapper
             edge_count_guard.1 = edge_count;
         }
 
-        // Initialize first buffer write guard.
-        let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
-
-        for (_, neuron) in neuron_iterable
+        // Assign each stored buffer to thread buffer.
+        for ((_, _, thread_buffer), stored_buffer) in 
+            thread_buffers.iter().zip(stored_buffers)
         {
-            buffer_guard.push_back(neuron.clone());
-            increment += 1;
-
-            if increment == neurons_per_buffer
-            {
-                // Obtain the write lock for the next thread's buffer.
-                buffer_guard_idx += 1;
-                buffer_guard = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
-                increment = 0;
-            }
+            let mut thread_buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = thread_buffer.write().unwrap();
+            *thread_buffer_guard = stored_buffer.clone();
         }
-
-        // Explicitly drop the buffer write guard variable.
-        drop(buffer_guard);
 
         // Notify all threads to begin BFS traversal on their own buffers.
         for buffer in thread_buffers.iter()
