@@ -105,6 +105,8 @@ fn threaded_traversal()
     
     // Spawn threads and initialize the input and output vectors.
     neural_net.spawn_threads(4, 0.0, true);
+    neural_net.init_forward_buffer();
+    neural_net.init_backward_buffer();
 
     // Check if output vector has the correct values after forward pass.
     let sample_input_vec: Vec<f32> = vec![1.0, 2.0, 3.0, 4.0];
