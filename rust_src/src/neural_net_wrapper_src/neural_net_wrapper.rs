@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
+use std::{collections::{HashMap, VecDeque}, sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
 use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
@@ -30,6 +30,10 @@ pub struct NeuralNetWrapper
     // First usize is used as a counter.
     // Second usize is to keep the total number of inpt/output edges in the neural network.
     pub edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>,
+
+    // Required for direct memory transfer to thread buffers.
+    pub forward_buffers: Vec<NeuronBuffer>,
+    pub backward_buffers: Vec<NeuronBuffer>
     
 }
 impl NeuralNetWrapper
@@ -52,6 +56,9 @@ impl NeuralNetWrapper
             output_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
 
             edge_counter: Arc::new((Condvar::new(), Mutex::new((0, 0)))),
+
+            forward_buffers: Vec::new(),
+            backward_buffers: Vec::new()
         }
     }
 
@@ -101,6 +108,58 @@ impl NeuralNetWrapper
         }
     }
 
+    /// Initialise the forward buffer.
+    pub fn init_forward_buffer(&mut self)
+    {
+        self.forward_buffers = self.init_neuron_buffer(&self.neural_net.input_neurons);
+    }
+
+    /// Initialize the backward buffer.
+    pub fn init_backward_buffer(&mut self)
+    {
+        self.backward_buffers = self.init_neuron_buffer(&self.neural_net.output_neurons);
+    }
+
+    /// Private method for initialising the forward or backward buffers
+    fn init_neuron_buffer(&self, io_neurons: &HashMap<String, ArcNeuronTrait>) -> Vec<NeuronBuffer>
+    {
+        let num_io_neurons: usize;
+        num_io_neurons = io_neurons.len();
+
+        let num_threads: usize = self.thread_handles.len();
+        let neurons_per_buffer: usize = (num_io_neurons / num_threads) + 1;
+
+        let mut increment: usize = 0;
+        let mut buffer_guard_idx: usize = 0;
+        
+        // Create the buffers.
+        let mut buffers: Vec<NeuronBuffer> = Vec::new();
+        for _ in 0..self.thread_handles.len()
+        {
+            buffers.push(VecDeque::new());
+        }
+
+        // Select first buffer.
+        let mut buffer: &mut NeuronBuffer = &mut buffers[buffer_guard_idx];
+
+        // Fill each buffer with neurons_per_buffer neurons.
+        for (_, neuron) in io_neurons
+        {
+            buffer.push_back(neuron.clone());
+            increment += 1;
+
+            if increment == neurons_per_buffer
+            {
+                // Obtain the next buffer.
+                buffer_guard_idx += 1;
+                buffer = &mut buffers[buffer_guard_idx];
+                increment = 0;
+            }
+        }
+
+        return buffers;
+    }
+
     /// Set the traversal mode of the neural net. 
     /// (Either forward or backward propagation)
     pub fn prop_forward(&self, boolean: bool)
@@ -112,29 +171,19 @@ impl NeuralNetWrapper
     pub fn propagate(&self)
     {   
         let is_forward: bool = self.traverse_forward.load(Ordering::SeqCst);
-        
-        let num_io_neurons: usize;
         let edge_count: usize;
-        let neuron_iterable: &HashMap<String, ArcNeuronTrait>;
-
+        let stored_buffers: &Vec<NeuronBuffer>;
         if is_forward
         {
-            num_io_neurons = self.neural_net.input_neurons.len();
             edge_count = self.neural_net.output_edges.len();
-            neuron_iterable = &self.neural_net.input_neurons;
+            stored_buffers = &self.forward_buffers;
         }
         else
         {
-            num_io_neurons = self.neural_net.output_neurons.len();
             edge_count = self.neural_net.input_edges.len();
-            neuron_iterable = &self.neural_net.output_neurons;
+            stored_buffers = &self.backward_buffers;
         }
-        // Get number of input/output neurons each buffer should have.
-        let num_threads: usize = self.thread_handles.len();
-        let neurons_per_buffer: usize = (num_io_neurons / num_threads) + 1;
 
-        let mut increment: usize = 0;
-        let mut buffer_guard_idx: usize = 0;
         let thread_buffers: &ArcNeuronBufferVec = &self.thread_buffers;
 
         {
@@ -144,25 +193,13 @@ impl NeuralNetWrapper
             edge_count_guard.1 = edge_count;
         }
 
-        // Initialize first buffer write guard.
-        let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
-
-        for (_, neuron) in neuron_iterable
+        // Assign each stored buffer to thread buffer.
+        for ((_, _, thread_buffer), stored_buffer) in 
+            thread_buffers.iter().zip(stored_buffers)
         {
-            buffer_guard.push_back(neuron.clone());
-            increment += 1;
-
-            if increment == neurons_per_buffer
-            {
-                // Obtain the write lock for the next thread's buffer.
-                buffer_guard_idx += 1;
-                buffer_guard = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
-                increment = 0;
-            }
+            let mut thread_buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = thread_buffer.write().unwrap();
+            *thread_buffer_guard = stored_buffer.clone();
         }
-
-        // Explicitly drop the buffer write guard variable.
-        drop(buffer_guard);
 
         // Notify all threads to begin BFS traversal on their own buffers.
         for buffer in thread_buffers.iter()
