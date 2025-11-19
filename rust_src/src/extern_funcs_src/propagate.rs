@@ -2,6 +2,17 @@ use std::{mem::forget, os::raw::c_void, sync::{atomic::Ordering, RwLockReadGuard
 
 use crate::neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper;
 
+/// Sets the propagation type of neural network, either forward or backward.
+#[unsafe(no_mangle)]
+pub extern "C" fn prop_forward_ext(nn_vp: *mut c_void, is_forward: bool)
+{
+    unsafe
+    {
+        let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
+        (*nn_ptr).traverse_forward.store(is_forward, Ordering::SeqCst);
+    }
+}
+
 /// Performs forward and backward propagation.
 #[unsafe(no_mangle)]
 pub extern "C" fn propagate_ext(nn_vp: *mut c_void) -> *mut f32
