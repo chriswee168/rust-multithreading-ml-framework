@@ -55,3 +55,26 @@ pub extern "C" fn free_vec_ext(vec_ptr: *mut f32, length: usize)
         let _ = Vec::from_raw_parts(vec_ptr, length, length);
     }
 }
+
+/// Initialise the input vectors.
+#[unsafe(no_mangle)]
+pub extern "C" fn init_input_vecs_ext(nn_vp: *mut c_void, in_dim: usize)
+{
+    unsafe
+    {
+        let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
+        (*nn_ptr).init_input_vecs(in_dim);
+    }
+}
+
+/// Initialise the output vectors.
+#[unsafe(no_mangle)]
+pub extern "C" fn init_output_vecs_ext(nn_vp: *mut c_void, out_dim: usize)
+{
+    unsafe
+    {
+        let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
+        (*nn_ptr).init_output_vecs(out_dim);
+    }
+}
+
