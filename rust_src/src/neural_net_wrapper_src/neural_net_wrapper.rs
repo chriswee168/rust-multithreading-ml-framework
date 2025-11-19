@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
+use std::{collections::{HashMap, VecDeque}, sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
 use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
@@ -30,6 +30,10 @@ pub struct NeuralNetWrapper
     // First usize is used as a counter.
     // Second usize is to keep the total number of inpt/output edges in the neural network.
     pub edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>,
+
+    // Required for direct memory transfer to thread buffers.
+    pub forward_buffers: Vec<NeuronBuffer>,
+    pub backward_buffers: Vec<NeuronBuffer>
     
 }
 impl NeuralNetWrapper
@@ -52,6 +56,9 @@ impl NeuralNetWrapper
             output_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
 
             edge_counter: Arc::new((Condvar::new(), Mutex::new((0, 0)))),
+
+            forward_buffers: Vec::new(),
+            backward_buffers: Vec::new()
         }
     }
 
