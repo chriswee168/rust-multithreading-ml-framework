@@ -45,3 +45,13 @@ pub extern "C" fn propagate_ext(nn_vp: *mut c_void) -> *mut f32
         return vector_ptr;
     }
 }
+
+/// Free vector memory.
+#[unsafe(no_mangle)]
+pub extern "C" fn free_vec_ext(vec_ptr: *mut f32, length: usize)
+{
+    unsafe
+    {
+        let _ = Vec::from_raw_parts(vec_ptr, length, length);
+    }
+}
