@@ -108,6 +108,58 @@ impl NeuralNetWrapper
         }
     }
 
+    /// Initialise the forward buffer.
+    pub fn init_forward_buffer(&mut self)
+    {
+        self.forward_buffers = self.init_neuron_buffer(&self.neural_net.input_neurons);
+    }
+
+    /// Initialize the backward buffer.
+    pub fn init_backward_buffer(&mut self)
+    {
+        self.backward_buffers = self.init_neuron_buffer(&self.neural_net.output_neurons);
+    }
+
+    /// Private method for initialising the forward or backward buffers
+    fn init_neuron_buffer(&self, io_neurons: &HashMap<String, ArcNeuronTrait>) -> Vec<NeuronBuffer>
+    {
+        let num_io_neurons: usize;
+        num_io_neurons = io_neurons.len();
+
+        let num_threads: usize = self.thread_handles.len();
+        let neurons_per_buffer: usize = (num_io_neurons / num_threads) + 1;
+
+        let mut increment: usize = 0;
+        let mut buffer_guard_idx: usize = 0;
+        
+        // Create the buffers.
+        let mut buffers: Vec<NeuronBuffer> = Vec::new();
+        for _ in 0..self.thread_handles.len()
+        {
+            buffers.push(VecDeque::new());
+        }
+
+        // Select first buffer.
+        let mut buffer: &mut NeuronBuffer = &mut buffers[buffer_guard_idx];
+
+        // Fill each buffer with neurons_per_buffer neurons.
+        for (_, neuron) in io_neurons
+        {
+            buffer.push_back(neuron.clone());
+            increment += 1;
+
+            if increment == neurons_per_buffer
+            {
+                // Obtain the next buffer.
+                buffer_guard_idx += 1;
+                buffer = &mut buffers[buffer_guard_idx];
+                increment = 0;
+            }
+        }
+
+        return buffers;
+    }
+
     /// Set the traversal mode of the neural net. 
     /// (Either forward or backward propagation)
     pub fn prop_forward(&self, boolean: bool)
