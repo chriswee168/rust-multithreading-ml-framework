@@ -17,7 +17,7 @@ pub extern "C" fn add_input_neuron_ext(
         let rand_id: String = rand_id_gen(id_len);
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
-            0, "input", 
+            "input", 
             (*nn_ptr).edge_counter.clone()
         );
         
@@ -30,7 +30,7 @@ pub extern "C" fn add_input_neuron_ext(
 #[unsafe(no_mangle)]
 pub extern "C" fn add_hidden_neuron_ext(
     nn_vp: *mut c_void, id_len: usize, 
-    max_edges: usize, neuron_level: u32
+    max_edges: usize
 )
 {
     unsafe
@@ -39,7 +39,7 @@ pub extern "C" fn add_hidden_neuron_ext(
         let rand_id: String = rand_id_gen(id_len);
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
-            neuron_level, "output", 
+            "output", 
             (*nn_ptr).edge_counter.clone()
         );
         
@@ -60,7 +60,7 @@ pub extern "C" fn add_output_neuron_ext(
         let rand_id: String = rand_id_gen(id_len);
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
-            MAX, "output", 
+            "output", 
             (*nn_ptr).edge_counter.clone()
         );
         
