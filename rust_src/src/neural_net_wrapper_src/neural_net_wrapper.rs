@@ -171,16 +171,18 @@ impl NeuralNetWrapper
     pub fn propagate(&self)
     {   
         let is_forward: bool = self.traverse_forward.load(Ordering::SeqCst);
-        let edge_count: usize;
+        let total_edges: usize = 
+            self.neural_net.input_edges.len() + 
+            self.neural_net.output_edges.len() + 
+            self.neural_net.hidden_edges.len();
+
         let stored_buffers: &Vec<NeuronBuffer>;
         if is_forward
         {
-            edge_count = self.neural_net.output_edges.len();
             stored_buffers = &self.forward_buffers;
         }
         else
         {
-            edge_count = self.neural_net.input_edges.len();
             stored_buffers = &self.backward_buffers;
         }
 
@@ -190,7 +192,7 @@ impl NeuralNetWrapper
             // Initialize the output edge counter.
             let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
             edge_count_guard.0 = 0;
-            edge_count_guard.1 = edge_count;
+            edge_count_guard.1 = total_edges;
         }
 
         // Assign each stored buffer to thread buffer.
