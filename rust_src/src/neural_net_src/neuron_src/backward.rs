@@ -1,6 +1,6 @@
 use std::{cell::{RefCell, RefMut}, sync::{atomic::AtomicUsize, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard}};
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, edge_count_funcs::{edge_count_notify, increment_edge_count}}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
 
 /// Calculate gradients of input edge parameters, as well as the final
 /// input gradient vector if selected.
@@ -39,17 +39,9 @@ pub fn input_backward(
             grad_read_guard[vector_index] += input_grad;
         }
 
-        // Update the output edge count.
-        let mut edge_counts_guard: MutexGuard<'_, (usize, usize)> = neuron_attr.edge_counter.1.lock().unwrap();
-        edge_counts_guard.0 += 1;
-                
-        // If this is the last output edge being visited, notify the main
-        // thread to resume the neural network's forward method.
-        if edge_counts_guard.0 == edge_counts_guard.1
-        {
-            neuron_attr.edge_counter.0.notify_one();
-        }
+        increment_edge_count(&neuron_attr.edge_counter);
     }
+    edge_count_notify(&neuron_attr.edge_counter);
 }
 
 /// Calculate gradients of backward edges of hidden neurons.
@@ -58,6 +50,8 @@ pub fn hidden_backward(neuron_attr: &mut NeuronAttr, lr: f32, neuron_buffer: &mu
     // Get neuron gradient sum and reset the visit count of this neuron.
     let chained_grad: f32 = neuron_attr.get_sum(false);
     neuron_attr.zero_visit_count(false);
+
+    edge_count_notify(&neuron_attr.edge_counter);
     
     for (_, edge) in &neuron_attr.backward_edges
     {
@@ -79,6 +73,8 @@ pub fn hidden_backward(neuron_attr: &mut NeuronAttr, lr: f32, neuron_buffer: &mu
         prev_neuron_guard.add_visit_count(false);
 
         neuron_buffer.push_back(prev_neuron.clone());
+
+        increment_edge_count(&neuron_attr.edge_counter);
     }
 }
 
@@ -103,8 +99,12 @@ pub fn output_backward(neuron_attr: &mut NeuronAttr, lr: f32)
         let input_val: f32 = neuron_attr.get_sum(true);
         let neuron_grad: f32 = edge_guard.backward(input_val, gradient_val, lr);
         total_gradient_sum += neuron_grad;
+
+        increment_edge_count(&neuron_attr.edge_counter);
     }
 
     // Set the accumulated gradient to use for backpropagation.
     neuron_attr.add_to_sum(total_gradient_sum, false);
+
+    edge_count_notify(&neuron_attr.edge_counter);
 }
