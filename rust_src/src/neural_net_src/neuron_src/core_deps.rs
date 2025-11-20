@@ -21,13 +21,16 @@ pub struct NeuronAttr
 
     // Determines which previous neurons can connect to this neuron.
     neuron_level: u32,
+
+    // Edge counter to keep track of the number of edges visited.
+    pub edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
 }
 
 impl NeuronAttr
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32
+        neuron_level: u32, edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
     ) -> Self
     {
         return Self 
@@ -35,7 +38,8 @@ impl NeuronAttr
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
             neuron_level, forward_sum: 0.0, backward_sum: 0.0,
-            forward_visit_count: 0, backward_visit_count: 0
+            forward_visit_count: 0, backward_visit_count: 0,
+            edge_counter
         }
     }
 

@@ -79,12 +79,12 @@ pub fn hidden_forward(neuron_attr: &mut NeuronAttr, neuron_buffer: &mut RwLockWr
 /// Function for output neurons to forward propagate values though each
 /// edge. Output neurons has output edges containing indexes for output
 /// array.
-pub fn output_forward(neuron_attr: &mut NeuronAttr, edge_counter: &Arc<(Condvar, Mutex<(usize, usize)>)>)
+pub fn output_forward(neuron_attr: &mut NeuronAttr)
 {
     // Get neuron sum and reset the visit count of this neuron.
     let neuron_sum: f32 = neuron_attr.get_sum(true);
     neuron_attr.zero_visit_count(true);
-    
+
     for (_, edge) in &neuron_attr.forward_edges
     {
         // The output index of the output array this edge "connects" to.
@@ -112,14 +112,14 @@ pub fn output_forward(neuron_attr: &mut NeuronAttr, edge_counter: &Arc<(Condvar,
             output_array[output_index] += edge_output;
 
             // Update the output edge count.
-            let mut edge_counts_guard: MutexGuard<'_, (usize, usize)> = edge_counter.1.lock().unwrap();
+            let mut edge_counts_guard: MutexGuard<'_, (usize, usize)> = neuron_attr.edge_counter.1.lock().unwrap();
             edge_counts_guard.0 += 1;
                 
             // If this is the last output edge being visited, notify the main
             // thread to resume the neural network's forward method.
             if edge_counts_guard.0 == edge_counts_guard.1
             {
-                edge_counter.0.notify_one();
+                neuron_attr.edge_counter.0.notify_one();
             }
         }
     }

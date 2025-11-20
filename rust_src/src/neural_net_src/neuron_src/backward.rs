@@ -6,7 +6,6 @@ use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_dep
 /// input gradient vector if selected.
 pub fn input_backward(
     neuron_attr: &mut NeuronAttr, lr: f32, 
-    edge_counter: &Arc<(Condvar, Mutex<(usize, usize)>)>,
     return_grads: bool
 )
 {   
@@ -41,14 +40,14 @@ pub fn input_backward(
         }
 
         // Update the output edge count.
-        let mut edge_counts_guard: MutexGuard<'_, (usize, usize)> = edge_counter.1.lock().unwrap();
+        let mut edge_counts_guard: MutexGuard<'_, (usize, usize)> = neuron_attr.edge_counter.1.lock().unwrap();
         edge_counts_guard.0 += 1;
                 
         // If this is the last output edge being visited, notify the main
         // thread to resume the neural network's forward method.
         if edge_counts_guard.0 == edge_counts_guard.1
         {
-            edge_counter.0.notify_one();
+            neuron_attr.edge_counter.0.notify_one();
         }
     }
 }
