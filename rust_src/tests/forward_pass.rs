@@ -11,15 +11,15 @@ fn forward_pass()
     // Create a single input, hidden and output neuron, and add them to neural
     // net.
     let input_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 0, "input",
+        5, 5, "input",
         neural_net.edge_counter.clone()
     );
     let hidden_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 1, "hidden",
+        5, 5, "hidden",
         neural_net.edge_counter.clone()
     );
     let output_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 1, "output",
+        5, 5, "output",
         neural_net.edge_counter.clone()
     );
     neural_net.add_input_neuron(String::from("input"), input_neuron.clone());
