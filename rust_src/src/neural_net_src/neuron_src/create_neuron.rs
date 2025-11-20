@@ -16,19 +16,19 @@ pub fn create_neuron(
     if neuron_type == "input"
     {
         neuron = Box::new(
-            InputNeuron::new(max_backward_edges, max_forward_edges, neuron_level, edge_counter)
+            InputNeuron::new(max_backward_edges, max_forward_edges, edge_counter)
         );
     }
     else if neuron_type == "output" 
     {
         neuron = Box::new(
-            OutputNeuron::new(max_backward_edges, max_forward_edges, neuron_level, edge_counter)
+            OutputNeuron::new(max_backward_edges, max_forward_edges, edge_counter)
         );
     }
     else if neuron_type == "hidden" 
     {
         neuron = Box::new(
-            HiddenNeuron::new(max_backward_edges, max_forward_edges, neuron_level, edge_counter)
+            HiddenNeuron::new(max_backward_edges, max_forward_edges, edge_counter)
         );
     }
     else
