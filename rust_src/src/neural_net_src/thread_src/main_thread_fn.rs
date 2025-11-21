@@ -70,7 +70,7 @@ pub fn main_thread_fn(
             // Increment the threads_finished counter as this thread no longer
             // has any neurons to work on.
             let mut counter_guard: MutexGuard<'_, (usize, usize)> = threads_finished.1.lock().unwrap();
-            counter_guard.1 += 1;
+            counter_guard.0 += 1;
 
             // Notify main thread when all threads have no neurons to work on.
             if counter_guard.0 == counter_guard.1
