@@ -15,7 +15,10 @@ pub fn main_thread_fn(
     lr: f32,
     // Choose whether the neural net will return the final
     // gradients of length input dim.
-    return_grads: bool
+    return_grads: bool,
+    // Used for the last thread that has no neurons left to work on
+    // to unpause the main propagation method.
+    threads_finished: Arc<(Condvar, Mutex<(usize, usize)>)>
 )
 {
     // Get specific neuron buffer for this thread as well as its condvar and mutex.
@@ -62,5 +65,18 @@ pub fn main_thread_fn(
 
         // Reset mutex guard to false to block thread at condvar.
         *mutex_guard = false;
+
+        {
+            // Increment the threads_finished counter as this thread no longer
+            // has any neurons to work on.
+            let mut counter_guard: MutexGuard<'_, (usize, usize)> = threads_finished.1.lock().unwrap();
+            counter_guard.1 += 1;
+
+            // Notify main thread when all threads have no neurons to work on.
+            if counter_guard.0 == counter_guard.1
+            {
+                threads_finished.0.notify_one();
+            }
+        }
     }
 }
