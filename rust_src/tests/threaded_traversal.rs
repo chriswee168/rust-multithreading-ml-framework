@@ -17,7 +17,6 @@ fn threaded_traversal()
     {
         let neuron = create_neuron(
             5, 5, "input",
-            neural_net.edge_counter.clone()
         );
         let name: String = String::from("input") + i.to_string().as_str();
         neural_net.add_input_neuron(name, neuron);
@@ -27,7 +26,6 @@ fn threaded_traversal()
     {
         let neuron = create_neuron(
             5, 5, "hidden",
-            neural_net.edge_counter.clone()
         );
         let name: String = String::from("hidden") + i.to_string().as_str();
         neural_net.add_hidden_neuron(name, neuron);
@@ -37,7 +35,6 @@ fn threaded_traversal()
     {
         let neuron = create_neuron(
             5, 5, "output",
-            neural_net.edge_counter.clone()
         );
         let name: String = String::from("output") + i.to_string().as_str();
         neural_net.add_output_neuron(name, neuron);
