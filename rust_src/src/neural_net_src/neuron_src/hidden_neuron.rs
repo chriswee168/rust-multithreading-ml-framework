@@ -118,4 +118,9 @@ impl NeuronTrait for HiddenNeuron
     fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait> {
         return &self.attr.backward_edges;
     }
+
+    /// Return neuron level.
+    fn get_neuron_level(&self) -> Option<u32> {
+        return Some(self.neuron_level);
+    }
 }
