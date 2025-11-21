@@ -12,12 +12,10 @@ impl OutputNeuron
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
             max_backward_edges, max_forward_edges, 
-            edge_counter
         );
 
         return Self

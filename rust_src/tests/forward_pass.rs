@@ -1,4 +1,4 @@
-use std::sync::{Arc, MutexGuard, RwLock, RwLockWriteGuard};
+use std::{sync::{Arc, MutexGuard, RwLock, RwLockWriteGuard}, u32::MAX};
 
 use libai_core::{neural_net_src::{neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron, input_neuron}, rand_id_gen::rand_id_gen, types_aliases::{ArcNeuronTrait, NeuronBuffer}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
@@ -11,16 +11,13 @@ fn forward_pass()
     // Create a single input, hidden and output neuron, and add them to neural
     // net.
     let input_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, "input",
-        neural_net.edge_counter.clone()
+        5, 5, "input", 0
     );
     let hidden_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, "hidden",
-        neural_net.edge_counter.clone()
+        5, 5, "hidden", 1
     );
     let output_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, "output",
-        neural_net.edge_counter.clone()
+        5, 5, "output", MAX
     );
     neural_net.add_input_neuron(String::from("input"), input_neuron.clone());
     neural_net.add_output_neuron(String::from("output"), output_neuron.clone());
