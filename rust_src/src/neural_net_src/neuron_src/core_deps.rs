@@ -18,16 +18,12 @@ pub struct NeuronAttr
     // during the forward and backward pass.
     forward_visit_count: usize,
     backward_visit_count: usize,
-
-    // Edge counter to keep track of the number of edges visited.
-    pub edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
 }
 
 impl NeuronAttr
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
     ) -> Self
     {
         return Self 
@@ -36,7 +32,6 @@ impl NeuronAttr
             backward_edges: HashMap::with_capacity(max_backward_edges), 
             forward_sum: 0.0, backward_sum: 0.0,
             forward_visit_count: 0, backward_visit_count: 0,
-            edge_counter
         }
     }
 

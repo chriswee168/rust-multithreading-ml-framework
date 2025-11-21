@@ -18,7 +18,6 @@ pub extern "C" fn add_input_neuron_ext(
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
             "input", 
-            (*nn_ptr).edge_counter.clone()
         );
         
         (*nn_ptr).add_input_neuron(id_str, neuron);
@@ -40,7 +39,6 @@ pub extern "C" fn add_hidden_neuron_ext(
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
             "output", 
-            (*nn_ptr).edge_counter.clone()
         );
         
         (*nn_ptr).add_hidden_neuron(id_str, neuron);
@@ -61,7 +59,6 @@ pub extern "C" fn add_output_neuron_ext(
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
             "output", 
-            (*nn_ptr).edge_counter.clone()
         );
         
         (*nn_ptr).add_output_neuron(id_str, neuron);
