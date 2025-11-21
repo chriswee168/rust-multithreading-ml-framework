@@ -21,14 +21,10 @@ pub fn input_forward(neuron_attr: &mut NeuronAttr)
         let output_value: f32 = edge_guard.forward(input_value);
 
         total_sum += output_value;
-
-        increment_edge_count(&neuron_attr.edge_counter);
     }
 
     // Set the input neuron value for propagation to hidden neurons.
     neuron_attr.add_to_sum(total_sum, true);
-
-    edge_count_notify(&neuron_attr.edge_counter);
 }
 
 /// Function for input/hidden neurons to forward propagate values though each
@@ -38,8 +34,6 @@ pub fn hidden_forward(neuron_attr: &mut NeuronAttr, neuron_buffer: &mut RwLockWr
     // Get neuron sum and reset the visit count of this neuron.
     let neuron_sum: f32 = neuron_attr.get_sum(true);
     neuron_attr.zero_visit_count(true);
-
-    edge_count_notify(&neuron_attr.edge_counter);
 
     for (_, edge) in &neuron_attr.forward_edges
     {
@@ -79,8 +73,6 @@ pub fn hidden_forward(neuron_attr: &mut NeuronAttr, neuron_buffer: &mut RwLockWr
 
         // Append the next neuron to the thread's neuron buffer.
         neuron_buffer.push_back(next_neuron.clone());
-        
-        increment_edge_count(&neuron_attr.edge_counter);
     }
 }
 
@@ -120,7 +112,5 @@ pub fn output_forward(neuron_attr: &mut NeuronAttr)
             output_array[output_index] += edge_output;
 
         }
-        increment_edge_count(&neuron_attr.edge_counter);
     }
-    edge_count_notify(&neuron_attr.edge_counter);
 }
