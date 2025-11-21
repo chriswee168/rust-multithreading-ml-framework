@@ -26,10 +26,11 @@ pub struct NeuralNetWrapper
     pub output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
     pub output_rwlock_grad_vec: Arc<RwLock<Vec<f32>>>,
 
-    // Keeping track of input/output edges visited.
+    // Blocks propagation method until all threads have no
+    // neurons to work on.
     // First usize is used as a counter.
-    // Second usize is to keep the total number of inpt/output edges in the neural network.
-    pub edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>,
+    // Second usize is to keep the total number of threads.
+    pub threads_finished: Arc<(Condvar, Mutex<(usize, usize)>)>,
 
     // Required for direct memory transfer to thread buffers.
     pub forward_buffers: Vec<NeuronBuffer>,
@@ -55,7 +56,7 @@ impl NeuralNetWrapper
             output_rwlock_vec: Arc::new(RwLock::new(Vec::new())),
             output_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
 
-            edge_counter: Arc::new((Condvar::new(), Mutex::new((0, 0)))),
+            threads_finished: Arc::new((Condvar::new(), Mutex::new((0, 0)))),
 
             forward_buffers: Vec::new(),
             backward_buffers: Vec::new()
@@ -93,6 +94,7 @@ impl NeuralNetWrapper
         {
             let traverse_forward_clone: Arc<AtomicBool> = self.traverse_forward.clone();
             let thread_buffer_clone: ArcNeuronBufferVec = self.thread_buffers.clone();
+            let threads_finished_clone: Arc<(Condvar, Mutex<(usize, usize)>)> = self.threads_finished.clone();
             
             let thread_handle: JoinHandle<()> = thread::spawn(
                 move || main_thread_fn(
@@ -100,7 +102,8 @@ impl NeuralNetWrapper
                     thread_buffer_clone, 
                     i,
                     lr,
-                    return_grad
+                    return_grad,
+                    threads_finished_clone
                 )
             );
 
@@ -189,10 +192,10 @@ impl NeuralNetWrapper
         let thread_buffers: &ArcNeuronBufferVec = &self.thread_buffers;
 
         {
-            // Initialize the output edge counter.
-            let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
-            edge_count_guard.0 = 0;
-            edge_count_guard.1 = total_edges;
+            // Initialize the threads finished counter.
+            let mut threads_count_guard: MutexGuard<'_, (usize, usize)> = self.threads_finished.1.lock().unwrap();
+            threads_count_guard.0 = 0;
+            threads_count_guard.1 = self.thread_handles.len();
         }
 
         // Assign each stored buffer to thread buffer.
@@ -212,14 +215,14 @@ impl NeuralNetWrapper
             buffer.0.notify_one();
         }
 
-        // Wait on condvar to prevent this method from finishing before the 
+        // Wait on thread finished condvar to prevent this method from finishing before the 
         // neural network is fully traversed.
-        let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
-        // Ensure edge count is actually the same as the total number of output edges
+        let mut threads_finished_guard: MutexGuard<'_, (usize, usize)> = self.threads_finished.1.lock().unwrap();
+        // Ensure count is actually the same as the total number of threads
         // to prevent spurious wakeups.
-        while !(edge_count_guard.0 == edge_count_guard.1)
+        while !(threads_finished_guard.0 == threads_finished_guard.1)
         {
-            edge_count_guard = self.edge_counter.0.wait(edge_count_guard).unwrap();
+            threads_finished_guard = self.threads_finished.0.wait(threads_finished_guard).unwrap();
         }
     }
 

@@ -12,15 +12,12 @@ fn forward_pass()
     // net.
     let input_neuron: ArcNeuronTrait = create_neuron(
         5, 5, "input",
-        neural_net.edge_counter.clone()
     );
     let hidden_neuron: ArcNeuronTrait = create_neuron(
         5, 5, "hidden",
-        neural_net.edge_counter.clone()
     );
     let output_neuron: ArcNeuronTrait = create_neuron(
         5, 5, "output",
-        neural_net.edge_counter.clone()
     );
     neural_net.add_input_neuron(String::from("input"), input_neuron.clone());
     neural_net.add_output_neuron(String::from("output"), output_neuron.clone());
