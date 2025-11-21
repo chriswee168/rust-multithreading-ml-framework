@@ -6,26 +6,23 @@ use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{backwar
 pub struct OutputNeuron
 {
     attr: NeuronAttr, // Default neuron attributes.
-    edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
 }
 
 impl OutputNeuron
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32, 
         edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
             max_backward_edges, max_forward_edges, 
-            neuron_level
+            edge_counter
         );
 
         return Self
         {
             attr: neuron_attrs,
-            edge_counter
         }
     }
 }
@@ -60,7 +57,7 @@ impl NeuronTrait for OutputNeuron
         // obtained the full dot product from all its previous edges.
         if self.attr.get_visit_count(true) == self.get_backward_edges().len()
         {
-            output_forward(&mut self.attr, &self.edge_counter);
+            output_forward(&mut self.attr);
         }
     }
     fn backward(
