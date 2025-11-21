@@ -8,7 +8,7 @@ use crate::neural_net_src::{
 /// Create input/hidden/output neuron.
 pub fn create_neuron(
     max_backward_edges: usize, max_forward_edges: usize,
-    neuron_type: &str,
+    neuron_type: &str, neuron_level: u32
 ) -> ArcNeuronTrait
 {
     let neuron: Box<dyn NeuronTrait>;
@@ -27,7 +27,7 @@ pub fn create_neuron(
     else if neuron_type == "hidden" 
     {
         neuron = Box::new(
-            HiddenNeuron::new(max_backward_edges, max_forward_edges)
+            HiddenNeuron::new(max_backward_edges, max_forward_edges, neuron_level)
         );
     }
     else

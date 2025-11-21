@@ -1,5 +1,5 @@
 use core::time;
-use std::{process::exit, time::Duration};
+use std::{process::exit, time::Duration, u32::MAX};
 
 use libai_core::{neural_net_src::{neuron_src::create_neuron::create_neuron, rand_id_gen::rand_id_gen, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
@@ -16,7 +16,7 @@ fn threaded_traversal()
     for i in 0..4
     {
         let neuron = create_neuron(
-            5, 5, "input",
+            5, 5, "input", 0
         );
         let name: String = String::from("input") + i.to_string().as_str();
         neural_net.add_input_neuron(name, neuron);
@@ -25,7 +25,7 @@ fn threaded_traversal()
     for i in 0..2
     {
         let neuron = create_neuron(
-            5, 5, "hidden",
+            5, 5, "hidden", 1
         );
         let name: String = String::from("hidden") + i.to_string().as_str();
         neural_net.add_hidden_neuron(name, neuron);
@@ -34,7 +34,7 @@ fn threaded_traversal()
     for i in 0..2
     {
         let neuron = create_neuron(
-            5, 5, "output",
+            5, 5, "output", MAX
         );
         let name: String = String::from("output") + i.to_string().as_str();
         neural_net.add_output_neuron(name, neuron);

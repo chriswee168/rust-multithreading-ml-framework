@@ -6,12 +6,13 @@ use crate::neural_net_src::{neuron_src::{backward::hidden_backward, core_deps::{
 pub struct HiddenNeuron
 {
     attr: NeuronAttr, // Default neuron attributes.
+    neuron_level: u32
 }
 
 impl HiddenNeuron
 {
     pub fn new(
-        max_backward_edges: usize, max_forward_edges: usize, 
+        max_backward_edges: usize, max_forward_edges: usize, neuron_level: u32
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
@@ -21,6 +22,7 @@ impl HiddenNeuron
         return Self
         {
             attr: neuron_attrs,
+            neuron_level
         }
     }
 }

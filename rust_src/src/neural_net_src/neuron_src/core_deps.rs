@@ -170,4 +170,7 @@ pub trait NeuronTrait: Send
     // Getter methods to access neuron edge connections.
     fn get_forward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
     fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
+
+    // For hidden neurons, return the level.
+    fn get_neuron_level(&self) -> Option<u32> { None }
 }

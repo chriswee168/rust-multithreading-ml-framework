@@ -17,7 +17,7 @@ pub extern "C" fn add_input_neuron_ext(
         let id_str: String = CStr::from_ptr(id).to_str().unwrap().to_string();
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
-            "input", 
+            "input", 0
         );
         
         (*nn_ptr).add_input_neuron(id_str, neuron);
@@ -38,7 +38,7 @@ pub extern "C" fn add_hidden_neuron_ext(
         let id_str: String = CStr::from_ptr(id).to_str().unwrap().to_string();
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
-            "output", 
+            "output", MAX
         );
         
         (*nn_ptr).add_hidden_neuron(id_str, neuron);
@@ -49,7 +49,7 @@ pub extern "C" fn add_hidden_neuron_ext(
 #[unsafe(no_mangle)]
 pub extern "C" fn add_output_neuron_ext(
     nn_vp: *mut c_void, id: *mut c_char, 
-    max_edges: usize,
+    max_edges: usize, neuron_level: u32
 )
 {
     unsafe
@@ -58,7 +58,7 @@ pub extern "C" fn add_output_neuron_ext(
         let id_str: String = CStr::from_ptr(id).to_str().unwrap().to_string();
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
-            "output", 
+            "output", neuron_level
         );
         
         (*nn_ptr).add_output_neuron(id_str, neuron);
