@@ -25,6 +25,31 @@ pub fn join_neurons_ext(
     }
 }
 
+/// Get two random neuron ids, one from each neuron group.
+fn get_two_rand_neurons_ids(
+    neuron_group1: &HashMap<String, ArcNeuronTrait>,
+    neuron_group2: &HashMap<String, ArcNeuronTrait>,
+    rand_gen: &mut rand::prelude::ThreadRng
+) -> (Option<String>, Option<String>)
+{
+    let neuron_group1_keys: Vec<&String> = neuron_group1.keys().collect();
+    let neuron_group2_keys: Vec<&String> = neuron_group2.keys().collect();
+
+    if neuron_group1_keys.len() > 0 && neuron_group2_keys.len() > 0
+    {
+        let rand_idx1: usize = rand_gen.gen_range(0..neuron_group1_keys.len());
+        let rand_idx2: usize = rand_gen.gen_range(0..neuron_group2_keys.len());
+        let neuron1: String = neuron_group1_keys[rand_idx1].clone();
+        let neuron2: String = neuron_group2_keys[rand_idx2].clone();
+
+        return (Some(neuron1), Some(neuron2));
+    }
+    else
+    {
+        return (None, None)
+    }
+}
+
 /// Add an input edge to an input neuron.
 #[unsafe(no_mangle)]
 pub extern "C" fn add_input_edge_ext(
