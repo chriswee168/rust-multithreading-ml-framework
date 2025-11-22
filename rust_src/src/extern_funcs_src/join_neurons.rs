@@ -14,15 +14,71 @@ pub fn join_two_rand_neurons_ext(
     unsafe
     {
         let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
+        
+        let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
+        let (mut neuron_id1, mut neuron_id2) = (None, None);
 
-        let neuron_id1_str: &str = CStr::from_ptr(neuron_id1).to_str().unwrap();
-        let neuron_id2_str: &str = CStr::from_ptr(neuron_id2).to_str().unwrap();
-        let edge_id: String = neuron_id1_str.to_string() + "_" + neuron_id2_str;
+        match (neuron_group1, neuron_group2)
+        {
+            // Input neuron and hidden neuron.
+            (0, 1) => {
+                (neuron_id1, neuron_id2) = get_two_rand_neurons_ids(
+                    &(*nn_ptr).neural_net.input_neurons, 
+                    &(*nn_ptr).neural_net.hidden_neurons, 
+                    &mut rand_gen
+                );
+            }
+            // Two hidden neurons.
+            (1, 1) => {
+                (neuron_id1, neuron_id2) = get_two_rand_neurons_ids(
+                    &(*nn_ptr).neural_net.hidden_neurons, 
+                    &(*nn_ptr).neural_net.hidden_neurons, 
+                    &mut rand_gen
+                );
 
-        (*nn_ptr).join_neurons(
-            neuron_id1_str, neuron_id2_str, 
-            edge_id, neg_weight, pos_weight
-        );
+                // Ensure neuron ids aren't the same to avoid deadlock.
+                if neuron_id1 != neuron_id2
+                {
+                    let neuron1: &ArcNeuronTrait = (*nn_ptr).neural_net.hidden_neurons.get(
+                        &neuron_id1.clone().unwrap()).unwrap();
+                    let neuron2: &ArcNeuronTrait = (*nn_ptr).neural_net.hidden_neurons.get(
+                        &neuron_id2.clone().unwrap()).unwrap();
+                    let neuron1_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron1.lock().unwrap();
+                    let neuron2_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron2.lock().unwrap();
+                    let neuron1_level: u32 = neuron1_guard.get_neuron_level().unwrap();
+                    let neuron2_level: u32 = neuron2_guard.get_neuron_level().unwrap();
+
+                    // Ensure neuron1's level is lower than neuron2's to avoid cyclic
+                    // edge connections.
+                    if neuron1_level >= neuron2_level
+                    {
+                        neuron_id1 = None;
+                        neuron_id2 = None;
+                    }          
+                }       
+            }
+            // Hidden neuron and output neuron.
+            (1, 2) => {
+                (neuron_id1, neuron_id2) = get_two_rand_neurons_ids(
+                    &(*nn_ptr).neural_net.hidden_neurons, 
+                    &(*nn_ptr).neural_net.output_neurons, 
+                    &mut rand_gen
+                );
+            }
+
+            // Input neuron and output neuron.
+            (0, 2) => {
+                (neuron_id1, neuron_id2) = get_two_rand_neurons_ids(
+                    &(*nn_ptr).neural_net.input_neurons, 
+                    &(*nn_ptr).neural_net.output_neurons, 
+                    &mut rand_gen
+                );
+            }
+
+            // No other combination if accepted to prevent cyclic
+            // edge connections.
+            _ => ()
+        }
         
     }
 }
