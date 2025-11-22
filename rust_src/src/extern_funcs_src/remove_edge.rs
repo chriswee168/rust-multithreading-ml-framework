@@ -40,3 +40,18 @@ pub extern "C" fn remove_random_edge_ext(nn_vp: *mut c_void, edge_param_thresh: 
         }
     }
 }
+
+/// Obtain random edge from neural net.
+fn obtain_random_edge(
+    rand_gen: &mut rand::prelude::ThreadRng,
+    edge_hashmap: &HashMap<String, ArcEdgeTrait>,
+    neural_net: &NeuralNet
+) -> Option<ArcEdgeTrait>
+{
+    let edge_vec: Vec<&String> = edge_hashmap.keys().collect();
+    let random_idx: usize = rand_gen.gen_range(0..edge_vec.len());
+    let random_edge_id: &String = edge_vec[random_idx];
+    let (_, random_edge) = 
+        neural_net.obtain_edge(&random_edge_id);
+    return random_edge;
+}
