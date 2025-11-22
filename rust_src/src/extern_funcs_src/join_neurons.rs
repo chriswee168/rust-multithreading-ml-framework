@@ -1,12 +1,14 @@
-use std::ffi::{c_char, c_void, CStr};
+use std::{collections::HashMap, ffi::{c_char, c_void, CStr}, sync::MutexGuard};
 
-use crate::neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper;
+use rand::Rng;
+
+use crate::{neural_net_src::{neuron_src::core_deps::NeuronTrait, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 /// Join two neurons together using a hidden edge.
 #[unsafe(no_mangle)]
-pub fn join_neurons_ext(
-    nn_vp: *mut c_void, neuron_id1: *mut c_char, neuron_id2: *mut c_char,
-    neg_weight: f32, pos_weight: f32
+pub fn join_two_rand_neurons_ext(
+    nn_vp: *mut c_void, neg_weight: f32, pos_weight: f32,
+    neuron_group1: usize, neuron_group2: usize
 )
 {
     unsafe
