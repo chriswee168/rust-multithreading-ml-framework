@@ -38,7 +38,7 @@ pub extern "C" fn add_hidden_neuron_ext(
         let id_str: String = CStr::from_ptr(id).to_str().unwrap().to_string();
         let neuron: ArcNeuronTrait = create_neuron(
             max_edges, max_edges, 
-            "output", neuron_level
+            "hidden", neuron_level
         );
         
         (*nn_ptr).add_hidden_neuron(id_str, neuron);
