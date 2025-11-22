@@ -80,6 +80,16 @@ pub fn join_two_rand_neurons_ext(
             _ => ()
         }
         
+        if !neuron_id1.is_none() && !neuron_id2.is_none()
+        {
+            let edge_id: String = 
+                neuron_id1.clone().unwrap() + "_" + neuron_id2.clone().unwrap().as_str();
+
+            (*nn_ptr).join_neurons(
+                &neuron_id1.unwrap(), &neuron_id2.unwrap(), 
+                edge_id, neg_weight, pos_weight
+            );
+        }
     }
 }
 
