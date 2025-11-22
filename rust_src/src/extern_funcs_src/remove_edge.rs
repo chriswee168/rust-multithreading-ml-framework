@@ -1,8 +1,8 @@
-use std::{collections::HashMap, ffi::c_void, hash::Hash};
+use std::{collections::{HashMap, VecDeque}, ffi::c_void, hash::Hash, sync::MutexGuard};
 
 use rand::Rng;
 
-use crate::{neural_net_src::{neural_net::NeuralNet, types_aliases::ArcEdgeTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use crate::{neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 #[unsafe(no_mangle)]
 pub extern "C" fn remove_random_edge_ext(nn_vp: *mut c_void, edge_param_thresh: f32)
@@ -42,14 +42,10 @@ pub extern "C" fn remove_random_edge_ext(nn_vp: *mut c_void, edge_param_thresh: 
             _ => ()
         }
 
-        if edge_ids.is_some()
+        if edge.is_some()
         {
-            let edge_vec: Vec<&String> = edge_ids.unwrap();
-            let random_idx: usize = rand_gen.gen_range(0..edge_vec.len());
-            let random_edge_id: &String = edge_vec[random_idx];
-            let (_, edge) = 
-                (*nn_ptr).neural_net.obtain_edge(&random_edge_id);
-            let edge_arc = edge.unwrap();
+            // Remove the randomly selected edge.
+            (*nn_ptr).remove_edge(&edge_id.unwrap());
         }
     }
 }
