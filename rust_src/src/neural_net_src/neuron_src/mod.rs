@@ -5,3 +5,4 @@ pub mod output_neuron;
 pub mod forward;
 pub mod create_neuron;
 pub mod backward;
+pub mod edge_count_funcs;

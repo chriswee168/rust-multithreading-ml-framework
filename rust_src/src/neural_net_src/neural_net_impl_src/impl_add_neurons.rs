@@ -21,23 +21,23 @@ impl NeuralNet
     }
 
     /// Obtain the neuron arc from either input, hidden or output neuron hashmap.
-    pub fn obtain_neuron(&self, neuron_id: &str) -> Option<ArcNeuronTrait>
+    pub fn obtain_neuron(&self, neuron_id: &str) -> (&str, Option<ArcNeuronTrait>)
     {
         if self.input_neurons.get(neuron_id).is_some()
         {
-            return Some(Arc::clone(self.input_neurons.get(neuron_id).unwrap()));
+            return ("input", Some(self.input_neurons.get(neuron_id).unwrap().clone()));
         }
         else if self.hidden_neurons.get(neuron_id).is_some() 
         {
-            return Some(Arc::clone(self.hidden_neurons.get(neuron_id).unwrap()));
+            return ("hidden", Some(self.hidden_neurons.get(neuron_id).unwrap().clone()));
         }
         else if self.output_neurons.get(neuron_id).is_some()
         {
-            return Some(Arc::clone(self.output_neurons.get(neuron_id).unwrap()));
+            return ("output", Some(self.output_neurons.get(neuron_id).unwrap().clone()));
         }
         else
         {
-            None
+            ("none", None)
         }
     }
 }

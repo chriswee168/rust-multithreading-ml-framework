@@ -1,6 +1,6 @@
 use std::{cell::{RefCell, RefMut}, sync::{atomic::AtomicUsize, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard}};
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, edge_count_funcs::{edge_count_notify, increment_edge_count}}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
 
 /// Forward propagation method explicitly for input neurons to work on values
 /// directly from the input array via input edges.
@@ -79,12 +79,12 @@ pub fn hidden_forward(neuron_attr: &mut NeuronAttr, neuron_buffer: &mut RwLockWr
 /// Function for output neurons to forward propagate values though each
 /// edge. Output neurons has output edges containing indexes for output
 /// array.
-pub fn output_forward(neuron_attr: &mut NeuronAttr, edge_counter: &Arc<(Condvar, Mutex<(usize, usize)>)>)
+pub fn output_forward(neuron_attr: &mut NeuronAttr)
 {
     // Get neuron sum and reset the visit count of this neuron.
     let neuron_sum: f32 = neuron_attr.get_sum(true);
     neuron_attr.zero_visit_count(true);
-    
+
     for (_, edge) in &neuron_attr.forward_edges
     {
         // The output index of the output array this edge "connects" to.
@@ -111,16 +111,6 @@ pub fn output_forward(neuron_attr: &mut NeuronAttr, edge_counter: &Arc<(Condvar,
             let mut output_array: RwLockWriteGuard<'_, Vec<f32>> = output_rwlock_vec.write().unwrap();
             output_array[output_index] += edge_output;
 
-            // Update the output edge count.
-            let mut edge_counts_guard: MutexGuard<'_, (usize, usize)> = edge_counter.1.lock().unwrap();
-            edge_counts_guard.0 += 1;
-                
-            // If this is the last output edge being visited, notify the main
-            // thread to resume the neural network's forward method.
-            if edge_counts_guard.0 == edge_counts_guard.1
-            {
-                edge_counter.0.notify_one();
-            }
         }
     }
 }
