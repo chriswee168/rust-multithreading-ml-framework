@@ -94,8 +94,6 @@ pub fn remove_dead_ends(
 
         let mut neuron_buffer: VecDeque<Option<ArcNeuronTrait>> = VecDeque::from([neuron1, neuron2]);
 
-        let mut edge_ids: Vec<&String>;
-
         // Traverse the network from the original two neurons connected by the
         // removed edge to disconnect dangling neurons.
         // (neurons that has zero backward or forward edges).
@@ -105,19 +103,27 @@ pub fn remove_dead_ends(
             {
                 let neuron_arc: ArcNeuronTrait = neuron.unwrap();
                 let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron_arc.lock().unwrap();
-
-                if neuron_guard.get_backward_edges().is_empty() || 
-                    neuron_guard.get_forward_edges().is_empty()
+                let is_dangling: bool = neuron_guard.get_backward_edges().is_empty() || 
+                    neuron_guard.get_forward_edges().is_empty();
+                
+                // Obtain the IDs of backward and forward edges and drop the neuron mutex
+                // guard to prevent deadlocks.
+                let backward_edge_ids: Vec<&String> = neuron_guard.get_backward_edges().keys().collect();
+                let forward_edge_ids: Vec<&String> = neuron_guard.get_forward_edges().keys().collect();
+                let backward_edge_ids: Vec<String> = backward_edge_ids.iter().map(|id: &&String| id.to_string()).collect();
+                let forward_edge_ids: Vec<String> = forward_edge_ids.iter().map(|id: &&String| id.to_string()).collect();
+                drop(neuron_guard);
+                
+                if is_dangling
                 {
                     // Iterate through each forward and backward edge this neuron
                     // has, remove them and append the previous or next neurons to
                     // the buffer.
-                            
-                    edge_ids = neuron_guard.get_backward_edges().keys().collect();
-                    for edge_id in edge_ids
+
+                    for edge_id in backward_edge_ids
                     {
-                        let edge_arc: &ArcEdgeTrait = 
-                            neuron_guard.get_backward_edges().get(edge_id).unwrap();
+                        let edge_arc: ArcEdgeTrait = 
+                            unsafe { (*nn_ptr).neural_net.obtain_edge(&edge_id).1.unwrap() };
                         let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge_arc.lock().unwrap();
                         let prev_neuron: Option<ArcNeuronTrait> = edge_guard.get_prev_neuron();
                         neuron_buffer.push_back(prev_neuron);
@@ -126,11 +132,10 @@ pub fn remove_dead_ends(
                         unsafe { (*nn_ptr).remove_edge(&edge_id) };
                     }
 
-                    edge_ids = neuron_guard.get_forward_edges().keys().collect();
-                    for edge_id in edge_ids
+                    for edge_id in forward_edge_ids
                     {
-                        let edge_arc: &ArcEdgeTrait = 
-                            neuron_guard.get_forward_edges().get(edge_id).unwrap();
+                        let edge_arc: ArcEdgeTrait = 
+                            unsafe { (*nn_ptr).neural_net.obtain_edge(&edge_id).1.unwrap() };
                         let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge_arc.lock().unwrap();
                         let prev_neuron: Option<ArcNeuronTrait> = edge_guard.get_next_neuron();
                         neuron_buffer.push_back(prev_neuron);
