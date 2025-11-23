@@ -54,7 +54,16 @@ pub extern "C" fn remove_random_edge_ext(nn_vp: *mut c_void, edge_param_thresh: 
 
             if param_abs_ave <= edge_param_thresh 
             {
+                // Remove the randomly selected edge, and initialize the neuron buffer.
+                let neuron1: Option<ArcNeuronTrait> = edge_guard.get_prev_neuron();
+                let neuron2: Option<ArcNeuronTrait> = edge_guard.get_next_neuron();
+                drop(edge_guard);
+
                 (*nn_ptr).remove_edge(&edge_id.unwrap());
+
+                let mut neuron_buffer: VecDeque<Option<ArcNeuronTrait>> = VecDeque::from([neuron1, neuron2]);
+
+                let mut edge_ids: Vec<&String>;
             }
         }
     }
