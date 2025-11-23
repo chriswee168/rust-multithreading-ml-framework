@@ -47,9 +47,12 @@ pub extern "C" fn remove_random_neuron_ext(nn_vp: *mut c_void)
         {
             let neuron_arc: ArcNeuronTrait = neuron.unwrap();
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron_arc.lock().unwrap();
+            let is_empty: bool = neuron_guard.get_backward_edges().is_empty() &&
+                neuron_guard.get_forward_edges().is_empty();
+                
+            drop(neuron_guard);
 
-            if neuron_guard.get_backward_edges().is_empty() &&
-                neuron_guard.get_forward_edges().is_empty()
+            if is_empty
             {
                 (*nn_ptr).neural_net.remove_empty_neuron(&neuron_id.unwrap());
             }
