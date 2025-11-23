@@ -64,6 +64,52 @@ pub extern "C" fn remove_random_edge_ext(nn_vp: *mut c_void, edge_param_thresh: 
                 let mut neuron_buffer: VecDeque<Option<ArcNeuronTrait>> = VecDeque::from([neuron1, neuron2]);
 
                 let mut edge_ids: Vec<&String>;
+
+                // Traverse the network from the original two neurons connected by the
+                // removed edge to remove any dangling neurons 
+                // (neurons that has zero backward or forward edges).
+                while !neuron_buffer.is_empty() {
+                    let neuron: Option<ArcNeuronTrait> = neuron_buffer.pop_front().unwrap();
+                    if neuron.is_some() // Is a neuron and not an index.
+                    {
+                        let neuron_arc: ArcNeuronTrait = neuron.unwrap();
+                        let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron_arc.lock().unwrap();
+
+                        if neuron_guard.get_backward_edges().is_empty() || 
+                            neuron_guard.get_forward_edges().is_empty()
+                        {
+                            // Iterate through each forward and backward edge this neuron
+                            // has, remove them and append the previous or next neurons to
+                            // the buffer.
+                            
+                            edge_ids = neuron_guard.get_backward_edges().keys().collect();
+                            for edge_id in edge_ids
+                            {
+                                let edge_arc: &ArcEdgeTrait = 
+                                    neuron_guard.get_backward_edges().get(edge_id).unwrap();
+                                let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge_arc.lock().unwrap();
+                                let prev_neuron: Option<ArcNeuronTrait> = edge_guard.get_prev_neuron();
+                                neuron_buffer.push_back(prev_neuron);
+                                drop(edge_guard);
+
+                                (*nn_ptr).remove_edge(&edge_id);
+                            }
+
+                            edge_ids = neuron_guard.get_forward_edges().keys().collect();
+                            for edge_id in edge_ids
+                            {
+                                let edge_arc: &ArcEdgeTrait = 
+                                    neuron_guard.get_forward_edges().get(edge_id).unwrap();
+                                let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge_arc.lock().unwrap();
+                                let prev_neuron: Option<ArcNeuronTrait> = edge_guard.get_next_neuron();
+                                neuron_buffer.push_back(prev_neuron);
+                                drop(edge_guard);
+
+                                (*nn_ptr).remove_edge(&edge_id);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
