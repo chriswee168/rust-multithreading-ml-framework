@@ -66,7 +66,7 @@ pub extern "C" fn remove_random_edge_ext(nn_vp: *mut c_void, edge_param_thresh: 
                 let mut edge_ids: Vec<&String>;
 
                 // Traverse the network from the original two neurons connected by the
-                // removed edge to remove any dangling neurons 
+                // removed edge to disconnect dangling neurons.
                 // (neurons that has zero backward or forward edges).
                 while !neuron_buffer.is_empty() {
                     let neuron: Option<ArcNeuronTrait> = neuron_buffer.pop_front().unwrap();
