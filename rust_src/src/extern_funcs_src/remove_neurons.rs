@@ -68,9 +68,16 @@ fn obtain_random_neuron(
 ) -> (Option<String>, Option<ArcNeuronTrait>)
 {
     let neuron_vec: Vec<&String> = neuron_hashmap.keys().collect();
-    let random_idx: usize = rand_gen.gen_range(0..neuron_vec.len());
-    let random_neuron_id: &String = neuron_vec[random_idx];
-    let (_, random_neuron) = 
-        neural_net.obtain_neuron(&random_neuron_id);
-    return (Some(random_neuron_id.to_string()), random_neuron);
+    if !neuron_vec.is_empty()
+    {
+        let random_idx: usize = rand_gen.gen_range(0..neuron_vec.len());
+        let random_neuron_id: &String = neuron_vec[random_idx];
+        let (_, random_neuron) = 
+            neural_net.obtain_neuron(&random_neuron_id);
+        return (Some(random_neuron_id.to_string()), random_neuron);
+    }
+    else
+    {
+        return (None, None);
+    }
 }
