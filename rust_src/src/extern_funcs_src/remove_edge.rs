@@ -15,36 +15,32 @@ pub extern "C" fn remove_random_edge_ext(nn_vp: *mut c_void, edge_param_thresh: 
         let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
         let random_group: u32 = rand_gen.gen_range(0..=2);
 
-        let mut edge: Option<ArcEdgeTrait> = None;
         let mut edge_id: Option<String> = None;
 
         match random_group
         {
             0 => {
-                (edge_id, edge) = obtain_random_edge(
+                edge_id = obtain_random_edge(
                     &mut rand_gen, 
                     &(*nn_ptr).neural_net.input_edges, 
-                    &(*nn_ptr).neural_net
                 );
             }
             1 => {
-                (edge_id, edge) = obtain_random_edge(
+                edge_id = obtain_random_edge(
                     &mut rand_gen, 
                     &(*nn_ptr).neural_net.hidden_edges, 
-                    &(*nn_ptr).neural_net
                 );
             }
             2 => {
-                (edge_id, edge) = obtain_random_edge(
+                edge_id = obtain_random_edge(
                     &mut rand_gen, 
                     &(*nn_ptr).neural_net.output_edges, 
-                    &(*nn_ptr).neural_net
                 );
             }
             _ => ()
         }
 
-        if edge.is_some()
+        if edge_id.is_some()
         {
             remove_dead_ends(nn_ptr, edge_id.unwrap(), edge_param_thresh);
         }
