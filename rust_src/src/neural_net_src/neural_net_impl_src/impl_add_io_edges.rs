@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex, MutexGuard, RwLock};
 
-use crate::neural_net_src::{edge_src::{create_edge::{create_input_edge, create_output_edge}, input_edge::InputEdge, output_edge::OutputEdge}, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, rand_id_gen::rand_id_gen, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
+use crate::neural_net_src::{edge_src::{create_edge::{create_input_edge, create_output_edge}, input_edge::InputEdge, output_edge::OutputEdge}, neural_net::NeuralNet, neuron_src::{core_deps::NeuronTrait, output_neuron}, rand_id_gen::rand_id_gen, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
 
 impl NeuralNet
 {
@@ -14,7 +14,8 @@ impl NeuralNet
     )
     {
         // Get input neuron arc.
-        let input_neuron: ArcNeuronTrait = self.obtain_neuron(input_neuron_id).unwrap();
+        let (_, input_neuron) = self.obtain_neuron(input_neuron_id);
+        let input_neuron: ArcNeuronTrait = input_neuron.unwrap();
 
         // Create input edge.
         let input_edge: ArcEdgeTrait = create_input_edge(
@@ -42,7 +43,8 @@ impl NeuralNet
     )
     {
         // Get output neuron arc.
-        let output_neuron: ArcNeuronTrait = self.obtain_neuron(output_neuron_id).unwrap();
+        let (_, output_neuron) = self.obtain_neuron(output_neuron_id);
+        let output_neuron: ArcNeuronTrait = output_neuron.unwrap();
 
         // Create output edge.
         let output_edge: ArcEdgeTrait = create_output_edge(

@@ -11,9 +11,11 @@ impl NeuralNet
     )
     {
         // Get the neuron arcs.
-        let neuron0: ArcNeuronTrait = self.obtain_neuron(neuron0_id).unwrap();
-        let neuron1: ArcNeuronTrait = self.obtain_neuron(neuron1_id).unwrap();
-
+        let (_, neuron0) = self.obtain_neuron(neuron0_id);
+        let (_, neuron1) = self.obtain_neuron(neuron1_id);
+        let neuron0: ArcNeuronTrait = neuron0.unwrap();
+        let neuron1: ArcNeuronTrait = neuron1.unwrap();
+        
         // Create hidden edge.
         let hidden_edge: ArcEdgeTrait = create_hidden_edge(
             &neuron0, &neuron1, neg_weight, pos_weight

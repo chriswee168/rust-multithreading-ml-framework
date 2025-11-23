@@ -1,4 +1,4 @@
-use std::sync::{Arc, MutexGuard};
+use std::{sync::{Arc, MutexGuard}, u32::MAX};
 
 use libai_core::{neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron}, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
@@ -11,16 +11,13 @@ fn join_neurons()
     // Create a single input, hidden and output neuron, and add them to neural
     // net.
     let input_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 0, "input",
-        neural_net.edge_counter.clone()
+        5, 5, "input", 0
     );
     let hidden_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 1, "hidden",
-        neural_net.edge_counter.clone()
+        5, 5, "hidden", 1
     );
     let output_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 1, "output",
-        neural_net.edge_counter.clone()
+        5, 5, "output", MAX
     );
 
     neural_net.add_input_neuron(String::from("input"), input_neuron.clone());
