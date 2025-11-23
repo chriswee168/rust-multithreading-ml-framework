@@ -1,28 +1,28 @@
-use std::{collections::HashMap, sync::RwLockWriteGuard};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
 
-use crate::neural_net_src::{neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::hidden_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
+use crate::neural_net_src::{neuron_src::{backward::hidden_backward, core_deps::{NeuronAttr, NeuronTrait}, forward::hidden_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 
 /// Struct to define hidden neuron attributes and behaviour.
 pub struct HiddenNeuron
 {
     attr: NeuronAttr, // Default neuron attributes.
+    neuron_level: u32
 }
 
 impl HiddenNeuron
 {
     pub fn new(
-        max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32
+        max_backward_edges: usize, max_forward_edges: usize, neuron_level: u32
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
             max_backward_edges, max_forward_edges, 
-            neuron_level
         );
 
         return Self
         {
             attr: neuron_attrs,
+            neuron_level
         }
     }
 }
@@ -52,11 +52,28 @@ impl NeuronTrait for HiddenNeuron
     /// Perform forward pass.
     fn forward(&mut self, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>) 
     {
-        hidden_forward(&mut self.attr, neuron_buffer);
+        // Check the number of visits to this neuron is the same as
+        // number of edges to determine if this neuron has 
+        // obtained the full dot product from all its previous edges.
+        if self.attr.get_visit_count(true) == self.get_backward_edges().len()
+        {
+            hidden_forward(&mut self.attr, neuron_buffer);
+        }
     }
-    fn backward(&mut self) 
+    fn backward(
+        &mut self, 
+        lr: f32, 
+        _return_grads: bool,
+        neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>
+    )
     {
-        
+        // Check the number of visits to this neuron is the same as
+        // number of edges to determine if this neuron has 
+        // accumulated gradients from all its previous edges.
+        if self.attr.get_visit_count(false) == self.get_forward_edges().len()
+        {
+            hidden_backward(&mut self.attr, lr, neuron_buffer);
+        }
     }
 
     /// Increment this neuron's sum.
@@ -100,5 +117,10 @@ impl NeuronTrait for HiddenNeuron
 
     fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait> {
         return &self.attr.backward_edges;
+    }
+
+    /// Return neuron level.
+    fn get_neuron_level(&self) -> Option<u32> {
+        return Some(self.neuron_level);
     }
 }

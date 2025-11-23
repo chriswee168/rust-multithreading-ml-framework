@@ -43,42 +43,25 @@ impl EdgeTrait for InputEdge
 {
     // Forward propagation.
     fn forward(&self, input_val: f32) -> f32 {
-        // Perform y = w * x + b
-        if input_val >= 0.0
-        {
-            return input_val * self.attr.pos_weight + self.attr.bias
-        }
-        else
-        {
-            return input_val * self.attr.neg_weight + self.attr.bias
-        }
+        return self.forward_def(
+            input_val, 
+            self.attr.pos_weight, 
+            self.attr.neg_weight, 
+            self.attr.bias
+        );
     }
 
     // Backpropagation through chain rule.
     fn backward(&mut self, input_val: f32, gradient_val: f32, lr: f32) -> f32 {
-        // Derivatives
-        // y = w * x + b
-        // d_y/d_x = w
-        // d_y/d_w = x
-        // d_y/d_b = 1
+        let (input_grad, new_bias, new_pos_weight, new_neg_weight) = 
+            self.backward_def(&self.attr, input_val, gradient_val, lr);
 
-        // Update bias parameter.
-        self.attr.bias -= lr * gradient_val;
+        // Update the edge parameters.
+        self.attr.bias = new_bias;
+        self.attr.pos_weight = new_pos_weight;
+        self.attr.neg_weight = new_neg_weight;
 
-        // Update weight parameter and calculate the gradient respect to input.
-        let input_gradient: f32;
-        if input_val >= 0.0
-        {
-            self.attr.pos_weight -= lr * gradient_val * input_val;
-            input_gradient = gradient_val * self.attr.pos_weight;
-        }
-        else
-        {
-            self.attr.neg_weight -= lr * gradient_val * input_val;
-            input_gradient = gradient_val * self.attr.neg_weight;
-        }
-
-        return input_gradient;
+        return input_grad;
     }
 
     // Get input array index.
@@ -91,9 +74,20 @@ impl EdgeTrait for InputEdge
         return Some(Arc::clone(&self.next_neuron));
     }
 
-    // Obtain input rwlock vector for obtaining input gradients
-    // during backpropagation.
+    // Obtain input rwlock vector for obtaining input array values
+    // during forward propagation.
     fn get_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
         return Some(Arc::clone(&self.input_rwlock_vec));
+    }
+
+    // Obtain input rwlock vector to store obtaining input gradients
+    // during backpropagation.
+    fn get_grad_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> {
+        return Some(Arc::clone(&self.grad_rwlock_vec));
+    }
+
+    // Get parameters.
+    fn get_params(&self) -> (f32, f32, f32) {
+        return (self.attr.pos_weight, self.attr.neg_weight, self.attr.bias);
     }
 }

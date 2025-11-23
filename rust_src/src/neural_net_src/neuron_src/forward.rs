@@ -1,6 +1,6 @@
-use std::{cell::{RefCell, RefMut}, sync::{Arc, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard}};
+use std::{cell::{RefCell, RefMut}, sync::{atomic::AtomicUsize, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard}};
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, edge_count_funcs::{edge_count_notify, increment_edge_count}}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
 
 /// Forward propagation method explicitly for input neurons to work on values
 /// directly from the input array via input edges.
@@ -84,7 +84,7 @@ pub fn output_forward(neuron_attr: &mut NeuronAttr)
     // Get neuron sum and reset the visit count of this neuron.
     let neuron_sum: f32 = neuron_attr.get_sum(true);
     neuron_attr.zero_visit_count(true);
-    
+
     for (_, edge) in &neuron_attr.forward_edges
     {
         // The output index of the output array this edge "connects" to.
@@ -110,6 +110,7 @@ pub fn output_forward(neuron_attr: &mut NeuronAttr)
             // edge output.
             let mut output_array: RwLockWriteGuard<'_, Vec<f32>> = output_rwlock_vec.write().unwrap();
             output_array[output_index] += edge_output;
+
         }
     }
 }

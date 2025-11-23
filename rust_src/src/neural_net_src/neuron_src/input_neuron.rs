@@ -1,6 +1,6 @@
-use std::{collections::HashMap, sync::RwLockWriteGuard};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
 
-use crate::neural_net_src::{neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::{hidden_forward, input_forward}}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
+use crate::neural_net_src::{neuron_src::{backward::input_backward, core_deps::{NeuronAttr, NeuronTrait}, forward::{hidden_forward, input_forward}}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 
 /// Struct to define input neuron attributes and behaviour.
 pub struct InputNeuron
@@ -12,12 +12,10 @@ impl InputNeuron
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
             max_backward_edges, max_forward_edges, 
-            neuron_level
         );
 
         return Self
@@ -58,9 +56,18 @@ impl NeuronTrait for InputNeuron
         // Propagate values to hidden neurons.
         hidden_forward(&mut self.attr, neuron_buffer);
     }
-    fn backward(&mut self) 
+    fn backward(
+        &mut self, lr: f32, return_grads: bool,
+        _neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>
+    )
     {
-        
+        // Check the number of visits to this neuron is the same as
+        // number of edges to determine if this neuron has 
+        // accumulated gradients from all its previous edges.
+        if self.attr.get_visit_count(false) == self.get_forward_edges().len()
+        {
+            input_backward(&mut self.attr, lr, return_grads);
+        }
     }
 
     /// Increment this neuron's sum.

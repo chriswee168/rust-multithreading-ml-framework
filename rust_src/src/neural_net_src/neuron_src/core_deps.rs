@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{Arc, Mutex, RwLockWriteGuard}};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
 
 use crate::neural_net_src::types_aliases::{ArcEdgeTrait, NeuronBuffer};
 
@@ -18,24 +18,20 @@ pub struct NeuronAttr
     // during the forward and backward pass.
     forward_visit_count: usize,
     backward_visit_count: usize,
-
-    // Determines which previous neurons can connect to this neuron.
-    neuron_level: u32,
 }
 
 impl NeuronAttr
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32
     ) -> Self
     {
         return Self 
         {
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
-            neuron_level, forward_sum: 0.0, backward_sum: 0.0,
-            forward_visit_count: 0, backward_visit_count: 0
+            forward_sum: 0.0, backward_sum: 0.0,
+            forward_visit_count: 0, backward_visit_count: 0,
         }
     }
 
@@ -148,7 +144,13 @@ impl NeuronAttr
 pub trait NeuronTrait: Send
 {
     fn forward(&mut self, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>); // Forward propagation.
-    fn backward(&mut self); // Backward propagation.
+    // Backward propagation.
+    fn backward(
+        &mut self,
+        lr: f32, 
+        return_grads: bool,
+        neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>
+    );  // Backward propagation.
 
     // Wrapper methods for sum attributes in NeuronAttr.
     fn add_to_sum(&mut self, value: f32, is_forward: bool);
@@ -168,4 +170,7 @@ pub trait NeuronTrait: Send
     // Getter methods to access neuron edge connections.
     fn get_forward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
     fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait>;
+
+    // For hidden neurons, return the level.
+    fn get_neuron_level(&self) -> Option<u32> { None }
 }
