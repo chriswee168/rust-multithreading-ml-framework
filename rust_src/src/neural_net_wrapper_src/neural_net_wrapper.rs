@@ -1,6 +1,6 @@
-use std::{collections::HashMap, sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
+use std::{collections::{HashMap, VecDeque}, sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
-use crate::neural_net_src::{neural_net::NeuralNet, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
 pub struct NeuralNetWrapper
 {
@@ -26,10 +26,15 @@ pub struct NeuralNetWrapper
     pub output_rwlock_vec: Arc<RwLock<Vec<f32>>>,
     pub output_rwlock_grad_vec: Arc<RwLock<Vec<f32>>>,
 
-    // Keeping track of input/output edges visited.
+    // Blocks propagation method until all threads have no
+    // neurons to work on.
     // First usize is used as a counter.
-    // Second usize is to keep the total number of inpt/output edges in the neural network.
-    pub edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>,
+    // Second usize is to keep the total number of threads.
+    pub threads_finished: Arc<(Condvar, Mutex<(usize, usize)>)>,
+
+    // Required for direct memory transfer to thread buffers.
+    pub forward_buffers: Vec<NeuronBuffer>,
+    pub backward_buffers: Vec<NeuronBuffer>
     
 }
 impl NeuralNetWrapper
@@ -51,7 +56,10 @@ impl NeuralNetWrapper
             output_rwlock_vec: Arc::new(RwLock::new(Vec::new())),
             output_rwlock_grad_vec: Arc::new(RwLock::new(Vec::new())),
 
-            edge_counter: Arc::new((Condvar::new(), Mutex::new((0, 0)))),
+            threads_finished: Arc::new((Condvar::new(), Mutex::new((0, 0)))),
+
+            forward_buffers: Vec::new(),
+            backward_buffers: Vec::new()
         }
     }
 
@@ -86,6 +94,7 @@ impl NeuralNetWrapper
         {
             let traverse_forward_clone: Arc<AtomicBool> = self.traverse_forward.clone();
             let thread_buffer_clone: ArcNeuronBufferVec = self.thread_buffers.clone();
+            let threads_finished_clone: Arc<(Condvar, Mutex<(usize, usize)>)> = self.threads_finished.clone();
             
             let thread_handle: JoinHandle<()> = thread::spawn(
                 move || main_thread_fn(
@@ -93,12 +102,65 @@ impl NeuralNetWrapper
                     thread_buffer_clone, 
                     i,
                     lr,
-                    return_grad
+                    return_grad,
+                    threads_finished_clone
                 )
             );
 
             self.thread_handles.push(thread_handle);
         }
+    }
+
+    /// Initialise the forward buffer.
+    pub fn init_forward_buffer(&mut self)
+    {
+        self.forward_buffers = self.init_neuron_buffer(&self.neural_net.input_neurons);
+    }
+
+    /// Initialize the backward buffer.
+    pub fn init_backward_buffer(&mut self)
+    {
+        self.backward_buffers = self.init_neuron_buffer(&self.neural_net.output_neurons);
+    }
+
+    /// Private method for initialising the forward or backward buffers
+    fn init_neuron_buffer(&self, io_neurons: &HashMap<String, ArcNeuronTrait>) -> Vec<NeuronBuffer>
+    {
+        let num_io_neurons: usize;
+        num_io_neurons = io_neurons.len();
+
+        let num_threads: usize = self.thread_handles.len();
+        let neurons_per_buffer: usize = (num_io_neurons / num_threads) + 1;
+
+        let mut increment: usize = 0;
+        let mut buffer_guard_idx: usize = 0;
+        
+        // Create the buffers.
+        let mut buffers: Vec<NeuronBuffer> = Vec::new();
+        for _ in 0..self.thread_handles.len()
+        {
+            buffers.push(VecDeque::new());
+        }
+
+        // Select first buffer.
+        let mut buffer: &mut NeuronBuffer = &mut buffers[buffer_guard_idx];
+
+        // Fill each buffer with neurons_per_buffer neurons.
+        for (_, neuron) in io_neurons
+        {
+            buffer.push_back(neuron.clone());
+            increment += 1;
+
+            if increment == neurons_per_buffer
+            {
+                // Obtain the next buffer.
+                buffer_guard_idx += 1;
+                buffer = &mut buffers[buffer_guard_idx];
+                increment = 0;
+            }
+        }
+
+        return buffers;
     }
 
     /// Set the traversal mode of the neural net. 
@@ -112,57 +174,37 @@ impl NeuralNetWrapper
     pub fn propagate(&self)
     {   
         let is_forward: bool = self.traverse_forward.load(Ordering::SeqCst);
-        
-        let num_io_neurons: usize;
-        let edge_count: usize;
-        let neuron_iterable: &HashMap<String, ArcNeuronTrait>;
+        let total_edges: usize = 
+            self.neural_net.input_edges.len() + 
+            self.neural_net.output_edges.len() + 
+            self.neural_net.hidden_edges.len();
 
+        let stored_buffers: &Vec<NeuronBuffer>;
         if is_forward
         {
-            num_io_neurons = self.neural_net.input_neurons.len();
-            edge_count = self.neural_net.output_edges.len();
-            neuron_iterable = &self.neural_net.input_neurons;
+            stored_buffers = &self.forward_buffers;
         }
         else
         {
-            num_io_neurons = self.neural_net.output_neurons.len();
-            edge_count = self.neural_net.input_edges.len();
-            neuron_iterable = &self.neural_net.output_neurons;
+            stored_buffers = &self.backward_buffers;
         }
-        // Get number of input/output neurons each buffer should have.
-        let num_threads: usize = self.thread_handles.len();
-        let neurons_per_buffer: usize = (num_io_neurons / num_threads) + 1;
 
-        let mut increment: usize = 0;
-        let mut buffer_guard_idx: usize = 0;
         let thread_buffers: &ArcNeuronBufferVec = &self.thread_buffers;
 
         {
-            // Initialize the output edge counter.
-            let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
-            edge_count_guard.0 = 0;
-            edge_count_guard.1 = edge_count;
+            // Initialize the threads finished counter.
+            let mut threads_count_guard: MutexGuard<'_, (usize, usize)> = self.threads_finished.1.lock().unwrap();
+            threads_count_guard.0 = 0;
+            threads_count_guard.1 = self.thread_handles.len();
         }
 
-        // Initialize first buffer write guard.
-        let mut buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
-
-        for (_, neuron) in neuron_iterable
+        // Assign each stored buffer to thread buffer.
+        for ((_, _, thread_buffer), stored_buffer) in 
+            thread_buffers.iter().zip(stored_buffers)
         {
-            buffer_guard.push_back(neuron.clone());
-            increment += 1;
-
-            if increment == neurons_per_buffer
-            {
-                // Obtain the write lock for the next thread's buffer.
-                buffer_guard_idx += 1;
-                buffer_guard = (*thread_buffers)[buffer_guard_idx].2.write().unwrap();
-                increment = 0;
-            }
+            let mut thread_buffer_guard: RwLockWriteGuard<'_, NeuronBuffer> = thread_buffer.write().unwrap();
+            *thread_buffer_guard = stored_buffer.clone();
         }
-
-        // Explicitly drop the buffer write guard variable.
-        drop(buffer_guard);
 
         // Notify all threads to begin BFS traversal on their own buffers.
         for buffer in thread_buffers.iter()
@@ -173,14 +215,64 @@ impl NeuralNetWrapper
             buffer.0.notify_one();
         }
 
-        // Wait on condvar to prevent this method from finishing before the 
+        // Wait on thread finished condvar to prevent this method from finishing before the 
         // neural network is fully traversed.
-        let mut edge_count_guard: MutexGuard<'_, (usize, usize)> = self.edge_counter.1.lock().unwrap();
-        // Ensure edge count is actually the same as the total number of output edges
+        let mut threads_finished_guard: MutexGuard<'_, (usize, usize)> = self.threads_finished.1.lock().unwrap();
+        // Ensure count is actually the same as the total number of threads
         // to prevent spurious wakeups.
-        while !(edge_count_guard.0 == edge_count_guard.1)
+        while !(threads_finished_guard.0 == threads_finished_guard.1)
         {
-            edge_count_guard = self.edge_counter.0.wait(edge_count_guard).unwrap();
+            threads_finished_guard = self.threads_finished.0.wait(threads_finished_guard).unwrap();
         }
     }
+
+    /// Display all neurons and their edges.
+    pub fn display_params(&self)
+    {
+        for (neuron_id, neuron) in &self.neural_net.input_neurons
+        {
+            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            self.display_neuron_edges(neuron_guard);
+            println!("----------");
+        }
+
+        for (neuron_id, neuron) in &self.neural_net.hidden_neurons
+        {
+            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            self.display_neuron_edges(neuron_guard);
+            println!("----------");
+        }
+
+        for (neuron_id, neuron) in &self.neural_net.output_neurons
+        {
+            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            self.display_neuron_edges(neuron_guard);
+            println!("----------");
+        }
+    }
+
+    /// Displays the parameters of each edge in a neuron.
+    fn display_neuron_edges(&self, neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>>)
+    {
+        // Display all backward edges.
+        for (edge_id, edge) in neuron_guard.get_backward_edges()
+        {
+            let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+            let edge_params: (f32, f32, f32) = edge_guard.get_params();
+            println!("({}, {:p}) --> {}, {}, {}", edge_id, *edge, edge_params.0, edge_params.1, edge_params.2);
+        }
+
+        // Display all forward edges.
+        for (edge_id, edge) in neuron_guard.get_forward_edges()
+        {
+            let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+            let edge_params: (f32, f32, f32) = edge_guard.get_params();
+            println!("{}, {}, {} --> ({}, {:p})", edge_params.0, edge_params.1, edge_params.2, edge_id, *edge);
+        }
+    }
+
+
 }

@@ -1,5 +1,5 @@
 use core::time;
-use std::{process::exit, time::Duration};
+use std::{process::exit, time::Duration, u32::MAX};
 
 use libai_core::{neural_net_src::{neuron_src::create_neuron::create_neuron, rand_id_gen::rand_id_gen, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
@@ -16,8 +16,7 @@ fn threaded_traversal()
     for i in 0..4
     {
         let neuron = create_neuron(
-            5, 5, 0, "input",
-            neural_net.edge_counter.clone()
+            5, 5, "input", 0
         );
         let name: String = String::from("input") + i.to_string().as_str();
         neural_net.add_input_neuron(name, neuron);
@@ -26,8 +25,7 @@ fn threaded_traversal()
     for i in 0..2
     {
         let neuron = create_neuron(
-            5, 5, 1, "hidden",
-            neural_net.edge_counter.clone()
+            5, 5, "hidden", 1
         );
         let name: String = String::from("hidden") + i.to_string().as_str();
         neural_net.add_hidden_neuron(name, neuron);
@@ -36,8 +34,7 @@ fn threaded_traversal()
     for i in 0..2
     {
         let neuron = create_neuron(
-            5, 5, 2, "output",
-            neural_net.edge_counter.clone()
+            5, 5, "output", MAX
         );
         let name: String = String::from("output") + i.to_string().as_str();
         neural_net.add_output_neuron(name, neuron);
@@ -105,6 +102,8 @@ fn threaded_traversal()
     
     // Spawn threads and initialize the input and output vectors.
     neural_net.spawn_threads(4, 0.0, true);
+    neural_net.init_forward_buffer();
+    neural_net.init_backward_buffer();
 
     // Check if output vector has the correct values after forward pass.
     let sample_input_vec: Vec<f32> = vec![1.0, 2.0, 3.0, 4.0];
@@ -144,6 +143,28 @@ fn threaded_traversal()
         neural_net.prop_forward(false);
         neural_net.propagate();
         neural_net.prop_forward(true);
-        println!("{:?}", neural_net.get_input_grad_vec());
+        assert_eq!(vec![96.0, 96.0, 96.0, 96.0], *neural_net.get_input_grad_vec());
+
+        // Check each neuron has the correct gradient values accumulated.
+        for (_, neuron) in &neural_net.neural_net.input_neurons
+        {
+            let guard = neuron.lock().unwrap();
+            assert_eq!(24.0, guard.get_sum(false));
+            assert_eq!(0, guard.get_visit_count(false));
+        }
+
+        for (_, neuron) in &neural_net.neural_net.hidden_neurons
+        {
+            let guard = neuron.lock().unwrap();
+            assert_eq!(8.0, guard.get_sum(false));
+            assert_eq!(0, guard.get_visit_count(false));
+        }
+
+        for (_, neuron) in &neural_net.neural_net.output_neurons
+        {
+            let guard = neuron.lock().unwrap();
+            assert_eq!(4.0, guard.get_sum(false));
+            assert_eq!(0, guard.get_visit_count(false));
+        }
     }
 }

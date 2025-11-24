@@ -6,25 +6,21 @@ use crate::neural_net_src::{neuron_src::{backward::input_backward, core_deps::{N
 pub struct InputNeuron
 {
     attr: NeuronAttr, // Default neuron attributes.
-    edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
 }
 
 impl InputNeuron
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32, edge_counter: Arc<(Condvar, Mutex<(usize, usize)>)>
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
             max_backward_edges, max_forward_edges, 
-            neuron_level
         );
 
         return Self
         {
             attr: neuron_attrs,
-            edge_counter
         }
     }
 }
@@ -70,7 +66,7 @@ impl NeuronTrait for InputNeuron
         // accumulated gradients from all its previous edges.
         if self.attr.get_visit_count(false) == self.get_forward_edges().len()
         {
-            input_backward(&mut self.attr, lr, &self.edge_counter, return_grads);
+            input_backward(&mut self.attr, lr, return_grads);
         }
     }
 

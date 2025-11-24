@@ -1,12 +1,11 @@
 use std::{cell::{RefCell, RefMut}, sync::{atomic::AtomicUsize, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard}};
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, edge_count_funcs::{edge_count_notify, increment_edge_count}}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
 
 /// Calculate gradients of input edge parameters, as well as the final
 /// input gradient vector if selected.
 pub fn input_backward(
     neuron_attr: &mut NeuronAttr, lr: f32, 
-    edge_counter: &Arc<(Condvar, Mutex<(usize, usize)>)>,
     return_grads: bool
 )
 {   
@@ -38,17 +37,6 @@ pub fn input_backward(
 
             // Accumulate the gradient at the specific index.
             grad_read_guard[vector_index] += input_grad;
-        }
-
-        // Update the output edge count.
-        let mut edge_counts_guard: MutexGuard<'_, (usize, usize)> = edge_counter.1.lock().unwrap();
-        edge_counts_guard.0 += 1;
-                
-        // If this is the last output edge being visited, notify the main
-        // thread to resume the neural network's forward method.
-        if edge_counts_guard.0 == edge_counts_guard.1
-        {
-            edge_counter.0.notify_one();
         }
     }
 }
