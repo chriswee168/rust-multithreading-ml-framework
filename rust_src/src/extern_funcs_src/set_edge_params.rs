@@ -47,7 +47,8 @@ pub extern "C" fn set_rand_edge_params(
         if edge.is_some()
         {
             let edge: ArcEdgeTrait = edge.unwrap();
-            let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+            let mut edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
+            edge_guard.set_params(pos_param, neg_param);
         }
     }    
 }
