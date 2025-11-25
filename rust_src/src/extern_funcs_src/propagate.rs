@@ -92,12 +92,13 @@ pub extern "C" fn set_input_vec_ext(nn_vp: *mut c_void, input_arr: *mut f32, in_
 
 /// Set the output gradient vector.
 #[unsafe(no_mangle)]
-pub extern "C" fn set_output_grad_vec_ext(nn_vp: *mut c_void, out_dim: usize)
+pub extern "C" fn set_output_grad_vec_ext(nn_vp: *mut c_void, output_arr: *mut f32, out_dim: usize)
 {
     unsafe
     {
+        let vector: Vec<f32> = std::slice::from_raw_parts_mut(output_arr, out_dim).to_vec();
         let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
-        (*nn_ptr).init_output_vecs(out_dim);
+        (*nn_ptr).set_output_grad_vec(vector);
     }
 }
 
