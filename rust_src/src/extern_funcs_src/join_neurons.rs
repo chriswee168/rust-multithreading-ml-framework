@@ -6,7 +6,7 @@ use crate::{neural_net_src::{neuron_src::core_deps::NeuronTrait, types_aliases::
 
 /// Join two neurons together using a hidden edge.
 #[unsafe(no_mangle)]
-pub fn join_two_rand_neurons_ext(
+pub extern "C" fn join_two_rand_neurons_ext(
     nn_vp: *mut c_void, neg_weight: f32, pos_weight: f32,
     neuron_group1: usize, neuron_group2: usize
 )
