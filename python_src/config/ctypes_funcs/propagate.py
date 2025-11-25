@@ -38,3 +38,8 @@ def get_propagation_funcs(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedF
     set_input_vec = rust_backend_lib.set_input_vec_ext
     set_input_vec.argtypes = [C.c_void_p, C.POINTER(C.c_float), C.c_uint64]
     all_funcs.update({"set_input_vec": set_input_vec})
+
+    # Args: nn_vp, output_arr, out_dim
+    set_output_grad_vec = rust_backend_lib.set_output_grad_vec_ext
+    set_output_grad_vec.argtypes = [C.c_void_p, C.POINTER(C.c_float), C.c_uint64]
+    all_funcs.update({"set_output_grad_vec": set_output_grad_vec})
