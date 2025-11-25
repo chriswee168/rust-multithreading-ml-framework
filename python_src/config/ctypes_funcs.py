@@ -1,4 +1,6 @@
 import ctypes as C
+from python_src.config.ctypes_funcs.add_neurons import get_add_neurons_funcs
+from python_src.config.ctypes_funcs.create_nn import get_create_nn_func
 
 def get_ctypes_funcs(lib_path: str) -> dict[str, C._NamedFuncPointer]:
     """
@@ -10,9 +12,7 @@ def get_ctypes_funcs(lib_path: str) -> dict[str, C._NamedFuncPointer]:
 
     all_funcs: dict[str, C._NamedFuncPointer] = {}
 
-    # Create neural network.
-    create_nn = rust_backend_lib.create_nn_ext
-    create_nn.restype = C.c_void_p
-    all_funcs.update({"create_nn": create_nn})
+    get_create_nn_func(rust_backend_lib, all_funcs)
+    get_add_neurons_funcs(rust_backend_lib, all_funcs)
 
     return all_funcs
