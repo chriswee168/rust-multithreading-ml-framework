@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_remove_edge_func(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_remove_edge_func(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Function to remove a random edge in the neural network. The edge is only removed if
     its absolute average of its parameters is below a parameter threshold indicating it

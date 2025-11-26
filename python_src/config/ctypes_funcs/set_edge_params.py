@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_set_edge_params_func(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_set_edge_params_func(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Function to change the positive and negative parameters of a random edge.
     """

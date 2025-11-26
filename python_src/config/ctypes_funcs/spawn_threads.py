@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_spawn_threads_func(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_spawn_threads_func(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Function to spawn threads for parallel propagation in neural net via Breadth
     First Search.

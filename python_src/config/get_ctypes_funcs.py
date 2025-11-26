@@ -1,7 +1,7 @@
 import ctypes as C
 from python_src.config.ctypes_funcs import *
 
-def get_ctypes_funcs(lib_path: str) -> dict[str, C._NamedFuncPointer]:
+def get_ctypes_funcs(lib_path: str) -> dict:
     """
     Create all ctypes function to interface with the
     neural net from rust backend.
@@ -9,7 +9,7 @@ def get_ctypes_funcs(lib_path: str) -> dict[str, C._NamedFuncPointer]:
 
     rust_backend_lib = C.cdll.LoadLibrary(lib_path)
 
-    all_funcs: dict[str, C._NamedFuncPointer] = {}
+    all_funcs: dict = {}
 
     create_nn.get_create_nn_func(rust_backend_lib, all_funcs)
     add_neurons.get_add_neurons_funcs(rust_backend_lib, all_funcs)

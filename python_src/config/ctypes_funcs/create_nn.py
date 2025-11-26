@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_create_nn_func(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_create_nn_func(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Create a new neural network.
     """

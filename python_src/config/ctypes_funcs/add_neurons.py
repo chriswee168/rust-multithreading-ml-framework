@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_add_neurons_funcs(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_add_neurons_funcs(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Add input, hidden and output neurons.  
     """
