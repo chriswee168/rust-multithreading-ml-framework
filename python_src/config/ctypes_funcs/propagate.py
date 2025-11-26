@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_propagation_funcs(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_propagation_funcs(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Functions responsible for the forward and backward propagation.
     """
