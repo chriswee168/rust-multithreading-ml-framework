@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_add_io_edge_funcs(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_add_io_edge_funcs(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Functions to add input and output edges to input and output neurons respectively.
     """

@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_remove_neuron_func(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_remove_neuron_func(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Function to remove a random hidden neuron that has no backward or forward edges.
     """
