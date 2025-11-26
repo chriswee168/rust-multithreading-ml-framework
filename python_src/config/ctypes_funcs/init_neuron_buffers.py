@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_neuron_buffer_funcs(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_neuron_buffer_funcs(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Initializes the initial neuron buffers for the neural network to
     use when performing forward and backpropagation.

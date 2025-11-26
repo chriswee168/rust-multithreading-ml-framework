@@ -1,7 +1,7 @@
 import ctypes as C
 from ctypes import CDLL
 
-def get_join_neurons_func(rust_backend_lib: CDLL, all_funcs: dict[str, C._NamedFuncPointer]):
+def get_join_neurons_func(rust_backend_lib: CDLL, all_funcs: dict):
     """
     Function to join two random neurons.
     """
