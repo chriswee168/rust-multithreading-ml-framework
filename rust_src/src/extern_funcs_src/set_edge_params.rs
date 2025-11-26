@@ -6,7 +6,7 @@ use crate::{extern_funcs_src::remove_edge::obtain_random_edge, neural_net_src::{
 
 /// Change the weight parameters of a random input, hidden or output edge.
 #[unsafe(no_mangle)]
-pub extern "C" fn set_rand_edge_params(
+pub extern "C" fn set_rand_edge_params_ext(
     nn_vp: *mut c_void,
     pos_param: f32,
     neg_param: f32,
