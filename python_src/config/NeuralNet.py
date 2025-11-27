@@ -63,3 +63,10 @@ class NeuralNet:
         """
 
         self.rust_backend_funcs["prop_forward"](self.nn_vp, is_forward)
+    
+    def propagate(self):
+        """
+        Performs forward/backward propagation for neural network.
+        """
+
+        self.rust_backend_funcs["propagate"](self.nn_vp)
