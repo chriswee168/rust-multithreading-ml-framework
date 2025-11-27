@@ -1,7 +1,10 @@
 import json
 
 class NeuralNet:
-    def __init__(self, hyper_param_json_path: str):
+    def __init__(self, rust_backend_funcs: dict, hyper_param_json_path: str):
+
+        self.rust_backend_funcs = rust_backend_funcs
+
         with open(hyper_param_json_path, "r") as f:
             hyper_params = json.load(f)
 
