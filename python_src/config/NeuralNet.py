@@ -1,6 +1,9 @@
 import json
 
 class NeuralNet:
+    """
+    Defines objects that interface with the neural network from the rust library.
+    """
     def __init__(self, rust_backend_funcs: dict, hyper_param_json_path: str):
 
         self.rust_backend_funcs = rust_backend_funcs
