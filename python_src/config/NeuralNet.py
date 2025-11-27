@@ -53,6 +53,11 @@ class NeuralNet:
             self.lr,
             self.return_grads
         )
+        
+        # Initialise the neuron buffers that contain the initial input and
+        # output neurons when performing propagation.
+        self.rust_backend_funcs["init_forward_buffer"](self.nn_vp)
+        self.rust_backend_funcs["init_backward_buffer"](self.nn_vp)
     
     def prop_forward(self, is_forward: bool = True):
         """        
