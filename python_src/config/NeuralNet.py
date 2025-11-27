@@ -67,5 +67,7 @@ class NeuralNet:
         :param array: Input array
         :type array: np.ndarray
         """
-
+        self.rust_backend_funcs["prop_forward"](self.nn_vp, True)
+        self.rust_backend_funcs["set_input_vec"](self.nn_vp, array, self.in_dim)
+        self.rust_backend_funcs["init_output_vecs"](self.nn_vp, self.out_dim)
         self.rust_backend_funcs["propagate"](self.nn_vp)
