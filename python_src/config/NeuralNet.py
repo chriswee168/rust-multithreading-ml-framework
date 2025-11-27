@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 class NeuralNet:
     """
@@ -59,13 +60,12 @@ class NeuralNet:
         self.rust_backend_funcs["init_forward_buffer"](self.nn_vp)
         self.rust_backend_funcs["init_backward_buffer"](self.nn_vp)
     
+    def forward(self, array: np.ndarray):
         """
-
-        self.rust_backend_funcs["prop_forward"](self.nn_vp, is_forward)
-    
-    def propagate(self):
-        """
-        Performs forward/backward propagation for neural network.
+        Performs forward propagation for neural network.
+        
+        :param array: Input array
+        :type array: np.ndarray
         """
 
         self.rust_backend_funcs["propagate"](self.nn_vp)
