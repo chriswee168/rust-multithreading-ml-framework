@@ -23,3 +23,5 @@ class NeuralNet:
         self.join_neuron_rate: float = hyper_params["join_neuron_rate"]
         self.remove_edge_rate: float = hyper_params["remove_edge_rate"]
         self.edge_param_thresh: float = hyper_params["edge_param_thresh"]
+
+        self.nn_vp = rust_backend_funcs["create_nn"]()
