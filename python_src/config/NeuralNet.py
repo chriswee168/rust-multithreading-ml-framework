@@ -29,3 +29,14 @@ class NeuralNet:
         self.edge_param_thresh: float = hyper_params["edge_param_thresh"]
 
         self.nn_vp = self.rust_backend_funcs["create_nn"]()
+    
+    def spawn_threads(self):
+        """
+        Initialise the threads to use for propagation of this neural network.
+        """
+        self.rust_backend_funcs["spawn_threads"](
+            self.nn_vp,
+            self.n_threads,
+            self.lr,
+            self.return_grads
+        )
