@@ -40,3 +40,13 @@ class NeuralNet:
             self.lr,
             self.return_grads
         )
+    
+    def prop_forward(self, is_forward: bool = True):
+        """        
+        Set propagation mode for neural network. (True by default)
+        
+        :param is_forward: Whether to forward propagate or backpropagate.
+        :type is_forward: bool
+        """
+
+        self.rust_backend_funcs["prop_forward"](self.nn_vp, is_forward)
