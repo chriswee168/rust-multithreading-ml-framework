@@ -59,12 +59,6 @@ class NeuralNet:
         self.rust_backend_funcs["init_forward_buffer"](self.nn_vp)
         self.rust_backend_funcs["init_backward_buffer"](self.nn_vp)
     
-    def prop_forward(self, is_forward: bool = True):
-        """        
-        Set propagation mode for neural network. (True by default)
-        
-        :param is_forward: Whether to forward propagate or backpropagate.
-        :type is_forward: bool
         """
 
         self.rust_backend_funcs["prop_forward"](self.nn_vp, is_forward)
