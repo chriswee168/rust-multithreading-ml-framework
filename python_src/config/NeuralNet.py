@@ -29,6 +29,19 @@ class NeuralNet:
         self.edge_param_thresh: float = hyper_params["edge_param_thresh"]
 
         self.nn_vp = self.rust_backend_funcs["create_nn"]()
+
+        # Initialise the input and output neurons.
+        for i in range(self.n_input_neurons):
+            neuron_name = f"input_{i}"
+            self.rust_backend_funcs["add_input_neuron"](
+                self.nn_vp, neuron_name.encode(), self.max_edges
+            )
+
+        for i in range(self.n_output_neurons):
+            neuron_name = f"output_{i}"
+            self.rust_backend_funcs["add_output_neuron"](
+                self.nn_vp, neuron_name.encode(), self.max_edges
+            )
     
     def spawn_threads(self):
         """
