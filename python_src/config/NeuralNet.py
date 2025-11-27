@@ -70,4 +70,8 @@ class NeuralNet:
         self.rust_backend_funcs["prop_forward"](self.nn_vp, True)
         self.rust_backend_funcs["set_input_vec"](self.nn_vp, array, self.in_dim)
         self.rust_backend_funcs["init_output_vecs"](self.nn_vp, self.out_dim)
-        self.rust_backend_funcs["propagate"](self.nn_vp)
+        output_array_ptr = self.rust_backend_funcs["propagate"](self.nn_vp)
+        output_array = np.ctypeslib.as_array(output_array_ptr, (self.out_dim,))
+        self.rust_backend_funcs["free_vec"](output_array_ptr, self.out_dim)
+
+        return output_array
