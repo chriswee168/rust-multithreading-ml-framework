@@ -8,12 +8,14 @@ class NeuralNet:
         with open(hyper_param_json_path, "r") as f:
             hyper_params = json.load(f)
 
+        self.n_threads: int = hyper_params["n_threads"]
         self.in_dim: int = hyper_params["in_dim"]
         self.out_dim: int = hyper_params["out_dim"]
         self.n_input_neurons: int = hyper_params["n_input_neurons"]
         self.n_output_neurons: int = hyper_params["n_output_neurons"]
         self.max_edges: int = hyper_params["max_edges"]
         self.max_depth: int = hyper_params["max_depth"]
+        self.lr: float = hyper_params["lr"]
 
         self.add_neuron_rate: float = hyper_params["add_neuron_rate"]
         self.remove_neuron_rate: float = hyper_params["remove_neuron_rate"]
