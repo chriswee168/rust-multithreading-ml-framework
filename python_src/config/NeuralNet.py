@@ -75,3 +75,20 @@ class NeuralNet:
         self.rust_backend_funcs["free_vec"](output_array_ptr, self.out_dim)
 
         return output_array
+    
+    def update(self, grad_array: np.ndarray):
+        """
+        Performs backward propagation for neural network and update edge parameters  
+        using gradient descent.
+        
+        :param grad_array: Output gradient array
+        :type grad_array: np.ndarray
+        """
+        self.rust_backend_funcs["prop_forward"](self.nn_vp, False)
+        self.rust_backend_funcs["set_output_grad_vec"](self.nn_vp, grad_array, self.out_dim)
+        self.rust_backend_funcs["init_input_vecs"](self.nn_vp, self.in_dim)
+        input_grad_array_ptr = self.rust_backend_funcs["propagate"](self.nn_vp)
+        input_grad_array = np.ctypeslib.as_array(input_grad_array_ptr, (self.in_dim,))
+        self.rust_backend_funcs["free_vec"](input_grad_array_ptr, self.in_dim)
+
+        return input_grad_array
