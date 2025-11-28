@@ -3,3 +3,4 @@ pub mod impl_join_neurons;
 pub mod impl_add_io_edges;
 pub mod impl_obtain_edge;
 pub mod impl_remove_edges;
+pub mod impl_remove_neurons;

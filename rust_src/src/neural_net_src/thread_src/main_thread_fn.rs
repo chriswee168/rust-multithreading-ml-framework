@@ -28,8 +28,7 @@ pub fn main_thread_fn(
     // Acquire mutex guard for condvar wait.
     let mut mutex_guard: MutexGuard<'_, bool> = tuple.1.lock().unwrap();
     
-    // Temporary for loop.
-    for i in 0..100
+    loop
     {
         // Wait on Condvar, this thread will be notified and woken up if Mutex
         // is true to indicate neuron/s are present in its queue to pop off and
