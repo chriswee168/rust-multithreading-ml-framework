@@ -25,11 +25,18 @@ impl NeuralNet
         let mut neuron0: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron0.lock().unwrap();
         let mut neuron1: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron1.lock().unwrap();
 
-        // Connect the two neurons with the same hidden edge.
-        neuron0.add_forward_edge(edge_id.clone(), hidden_edge.clone());
-        neuron1.add_backward_edge(edge_id.clone(), hidden_edge.clone());
+        if neuron0.get_forward_edges().len() < neuron0.get_forward_edge_max() &&
+           neuron1.get_backward_edges().len() < neuron1.get_backward_edge_max()
+        {
+            // Connect the two neurons with the same hidden edge.
+            let edge1_added: bool = neuron0.add_forward_edge(edge_id.clone(), hidden_edge.clone());
+            let edge2_added: bool = neuron1.add_backward_edge(edge_id.clone(), hidden_edge.clone());
 
-        // Add the edge to hidden edge hashmap.
-        self.hidden_edges.insert(edge_id, hidden_edge);
+            if edge1_added && edge2_added
+            {
+                // Add the edge to hidden edge hashmap.
+                self.hidden_edges.insert(edge_id, hidden_edge);
+            }
+        }
     }
 }
