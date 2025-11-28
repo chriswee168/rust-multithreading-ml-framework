@@ -29,7 +29,10 @@ impl NeuralNet
         neuron0.add_forward_edge(edge_id.clone(), hidden_edge.clone());
         neuron1.add_backward_edge(edge_id.clone(), hidden_edge.clone());
 
-        // Add the edge to hidden edge hashmap.
-        self.hidden_edges.insert(edge_id, hidden_edge);
+        if !self.hidden_edges.contains_key(&edge_id)
+        {
+            // Add the edge to hidden edge hashmap.
+            self.hidden_edges.insert(edge_id, hidden_edge);
+        }
     }
 }

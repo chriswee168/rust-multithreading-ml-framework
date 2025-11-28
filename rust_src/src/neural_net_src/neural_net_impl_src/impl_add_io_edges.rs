@@ -29,8 +29,11 @@ impl NeuralNet
         let mut input_neuron: MutexGuard<'_, Box<dyn NeuronTrait>> = input_neuron.lock().unwrap();
         input_neuron.add_backward_edge(edge_id.clone(), input_edge.clone());
 
-         // Add the edge to input edge hashmap.
-        self.input_edges.insert(edge_id, input_edge);
+        if !self.input_edges.contains_key(&edge_id)
+        {
+            // Add the edge to input edge hashmap.
+            self.input_edges.insert(edge_id, input_edge);
+        }
     }
 
     /// Add an edge for an output neuron to connect it to an index
@@ -58,7 +61,10 @@ impl NeuralNet
         let mut output_neuron: MutexGuard<'_, Box<dyn NeuronTrait>> = output_neuron.lock().unwrap();
         output_neuron.add_forward_edge(edge_id.clone(), output_edge.clone());
 
-         // Add the edge to output edge hashmap.
-        self.output_edges.insert(edge_id, output_edge);
+        if !self.output_edges.contains_key(&edge_id)
+        {
+            // Add the edge to output edge hashmap.
+            self.output_edges.insert(edge_id, output_edge);
+        }
     }
 }
