@@ -92,3 +92,14 @@ class NeuralNet:
         self.rust_backend_funcs["free_vec"](input_grad_array_ptr, self.in_dim)
 
         return input_grad_array
+    
+    def expand(self):
+        """
+        Performs a mutation that "expands" the neural net that increases its
+        complexity, which can include:
+        - Adding a new neuron.
+        - Adding an input or output edge for input or output neurons respectively.
+        - Joining two existing neurons.
+        """
+
+        ...
