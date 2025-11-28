@@ -20,19 +20,19 @@ pub extern "C" fn remove_random_edge_ext(nn_vp: *mut c_void, edge_param_thresh: 
         match random_group
         {
             0 => {
-                edge_id = obtain_random_edge(
+                (edge_id, _) = obtain_random_edge(
                     &mut rand_gen, 
                     &(*nn_ptr).neural_net.input_edges, 
                 );
             }
             1 => {
-                edge_id = obtain_random_edge(
+                (edge_id, _) = obtain_random_edge(
                     &mut rand_gen, 
                     &(*nn_ptr).neural_net.hidden_edges, 
                 );
             }
             2 => {
-                edge_id = obtain_random_edge(
+               (edge_id, _) = obtain_random_edge(
                     &mut rand_gen, 
                     &(*nn_ptr).neural_net.output_edges, 
                 );
@@ -48,21 +48,22 @@ pub extern "C" fn remove_random_edge_ext(nn_vp: *mut c_void, edge_param_thresh: 
 }
 
 /// Obtain random edge from neural net.
-fn obtain_random_edge(
+pub fn obtain_random_edge(
     rand_gen: &mut rand::prelude::ThreadRng,
     edge_hashmap: &HashMap<String, ArcEdgeTrait>,
-) -> Option<String>
+) -> (Option<String>, Option<ArcEdgeTrait>)
 {
     let edge_vec: Vec<&String> = edge_hashmap.keys().collect();
     if !edge_vec.is_empty()
     {
         let random_idx: usize = rand_gen.gen_range(0..edge_vec.len());
         let random_edge_id: &String = edge_vec[random_idx];
-        return Some(random_edge_id.to_string());
+        let random_edge: ArcEdgeTrait = edge_hashmap.get(random_edge_id).unwrap().clone();
+        return (Some(random_edge_id.to_string()), Some(random_edge));
     }
     else
     {
-        return None;
+        return (None, None);
     }
 }
 

@@ -28,9 +28,9 @@ impl OutputNeuron
 impl NeuronTrait for OutputNeuron
 {
     /// Add an edge for this neuron to connect to another neuron.
-    fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) 
+    fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) -> bool
     {
-        self.attr.add_forward_edge(edge_id, edge);
+        return self.attr.add_forward_edge(edge_id, edge);
     }
     /// Remove an edge to disconnect this neuron from another neuron.
     fn remove_forward_edge(&mut self, edge_id: &str) 
@@ -38,9 +38,9 @@ impl NeuronTrait for OutputNeuron
         self.attr.remove_forward_edge(edge_id);
     }
     /// Add an edge for this neuron to connect to a previous neuron.
-    fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) 
+    fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) -> bool
     {
-        self.attr.add_backward_edge(edge_id, edge);
+        return self.attr.add_backward_edge(edge_id, edge);
     }
     /// Remove an edge to disconnect this neuron from a previous neuron.
     fn remove_backward_edge(&mut self, edge_id: &str) 
