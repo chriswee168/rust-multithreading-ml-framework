@@ -47,6 +47,16 @@ impl NeuronTrait for InputNeuron
     {
         self.attr.remove_backward_edge(edge_id);
     }
+    /// Obtain forward edge max.
+    fn get_forward_edge_max(&self) -> usize 
+    {
+        return self.attr.max_forward_edges;
+    }
+    /// Obtain backward edge max.
+    fn get_backward_edge_max(&self) -> usize 
+    {
+        return self.attr.max_backward_edges;
+    }
     /// Perform forward pass.
     fn forward(&mut self, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>) 
     {
