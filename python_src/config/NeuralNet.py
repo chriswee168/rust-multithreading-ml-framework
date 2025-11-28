@@ -21,6 +21,8 @@ class NeuralNet:
         self.max_depth: int = hyper_params["max_depth"]
         self.lr: float = hyper_params["lr"]
         self.return_grads: bool = hyper_params["return_grads"]
+        self.lowest_param_val: float = hyper_params["lowest_param_val"]
+        self.highest_param_val: float = hyper_params["highest_param_val"]
 
         self.add_neuron_rate: float = hyper_params["add_neuron_rate"]
         self.remove_neuron_rate: float = hyper_params["remove_neuron_rate"]
