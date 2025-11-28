@@ -11,6 +11,9 @@ pub struct NeuronAttr
     pub forward_edges: HashMap<String, ArcEdgeTrait>,
     pub backward_edges: HashMap<String, ArcEdgeTrait>,
 
+    max_backward_edges: usize,
+    max_forward_edges: usize,
+
     forward_sum: f32, // Keep track of values during forward pass.
     backward_sum: f32, // Keep track of values during backward pass.
 
@@ -30,6 +33,7 @@ impl NeuronAttr
         {
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
+            max_backward_edges, max_forward_edges,
             forward_sum: 0.0, backward_sum: 0.0,
             forward_visit_count: 0, backward_visit_count: 0,
         }
@@ -38,7 +42,11 @@ impl NeuronAttr
     /// Add a forward edge for this neuron to connect to another neuron.
     pub fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait)
     {
-        self.forward_edges.insert(edge_id, edge);
+        if self.forward_edges.len() < self.max_forward_edges &&
+            !self.forward_edges.contains_key(&edge_id)
+        {
+            self.forward_edges.insert(edge_id, edge);
+        }
     }
 
     /// Remove a forward edge to disconnect this neuron from another neuron.
@@ -51,7 +59,11 @@ impl NeuronAttr
     /// Add a backward edge for this neuron to connect to a previous neuron.
     pub fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait)
     {
-        self.backward_edges.insert(edge_id, edge);
+        if self.backward_edges.len() < self.max_backward_edges &&
+            !self.backward_edges.contains_key(&edge_id)
+        {
+            self.backward_edges.insert(edge_id, edge);
+        }
     }
 
     /// Remove a backward edge to disconnect this neuron from a previous neuron.

@@ -4,3 +4,6 @@ pub mod init_io_neuron_buffers;
 pub mod add_neurons;
 pub mod join_neurons;
 pub mod remove_edge;
+pub mod remove_neurons;
+pub mod set_edge_params;
+pub mod spawn_threads;
