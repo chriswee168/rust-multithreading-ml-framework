@@ -27,9 +27,9 @@ impl NeuralNet
         
         // Add edge to beginning of input neuron.
         let mut input_neuron: MutexGuard<'_, Box<dyn NeuronTrait>> = input_neuron.lock().unwrap();
-        input_neuron.add_backward_edge(edge_id.clone(), input_edge.clone());
+        let edge_added: bool = input_neuron.add_backward_edge(edge_id.clone(), input_edge.clone());
 
-        if !self.input_edges.contains_key(&edge_id)
+        if edge_added
         {
             // Add the edge to input edge hashmap.
             self.input_edges.insert(edge_id, input_edge);
@@ -59,9 +59,9 @@ impl NeuralNet
         
         // Add edge to end of output neuron.
         let mut output_neuron: MutexGuard<'_, Box<dyn NeuronTrait>> = output_neuron.lock().unwrap();
-        output_neuron.add_forward_edge(edge_id.clone(), output_edge.clone());
+        let edge_added: bool = output_neuron.add_forward_edge(edge_id.clone(), output_edge.clone());
 
-        if !self.output_edges.contains_key(&edge_id)
+        if edge_added
         {
             // Add the edge to output edge hashmap.
             self.output_edges.insert(edge_id, output_edge);
