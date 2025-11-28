@@ -42,7 +42,11 @@ impl NeuronAttr
     /// Add a forward edge for this neuron to connect to another neuron.
     pub fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait)
     {
-        self.forward_edges.insert(edge_id, edge);
+        if self.forward_edges.len() < self.max_forward_edges &&
+            !self.forward_edges.contains_key(&edge_id)
+        {
+            self.forward_edges.insert(edge_id, edge);
+        }
     }
 
     /// Remove a forward edge to disconnect this neuron from another neuron.
@@ -55,7 +59,11 @@ impl NeuronAttr
     /// Add a backward edge for this neuron to connect to a previous neuron.
     pub fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait)
     {
-        self.backward_edges.insert(edge_id, edge);
+        if self.backward_edges.len() < self.max_backward_edges &&
+            !self.backward_edges.contains_key(&edge_id)
+        {
+            self.backward_edges.insert(edge_id, edge);
+        }
     }
 
     /// Remove a backward edge to disconnect this neuron from a previous neuron.
