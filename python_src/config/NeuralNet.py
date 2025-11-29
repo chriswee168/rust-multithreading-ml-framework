@@ -163,3 +163,9 @@ class NeuralNet:
                 self.nn_vp, random_neg_weight, random_pos_weight,
                 neuron_group1, neuron_group2
             )
+    
+    def display_params(self):
+        """
+        Display all neurons and their edges.
+        """
+        self.rust_backend_funcs["display_params"](self.nn_vp)
