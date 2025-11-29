@@ -122,3 +122,31 @@ class NeuralNet:
             self.rust_backend_funcs["add_hidden_neuron"](
                 self.nn_vp, self.neuron_id_len, self.max_edges, random_depth
             )
+        
+        # Add an input/output edge.
+        elif random_choice == 1:
+            io_edge_option = np.random.choice(2, 1)[0]
+
+            # Add input edge.
+            if io_edge_option == 0:
+                random_arr_idx = np.random.randint(0, self.in_dim)
+                random_neuron_idx = np.random.randint(0, self.n_input_neurons)
+                random_input_neuron = f"input_{random_neuron_idx}"
+                
+                self.rust_backend_funcs["add_input_edge"](
+                    self.nn_vp, random_input_neuron.encode(), random_arr_idx,
+                    random_neg_weight, random_pos_weight
+                )
+            
+            # Add output edge.
+            elif io_edge_option == 1:
+                random_arr_idx = np.random.randint(0, self.out_dim)
+                random_neuron_idx = np.random.randint(0, self.n_output_neurons)
+                random_output_neuron = f"output_{random_neuron_idx}"
+                
+                self.rust_backend_funcs["add_output_edge"](
+                    self.nn_vp, random_output_neuron.encode(), random_arr_idx,
+                    random_neg_weight, random_pos_weight
+                )
+        
+            )
