@@ -72,24 +72,21 @@ pub extern "C" fn join_two_rand_neurons_ext(
     }
 }
 
-/// Get two random neuron ids, one from each neuron group.
-fn get_two_rand_neurons_ids(
-    neuron_group1: &HashMap<String, ArcNeuronTrait>,
-    neuron_group2: &HashMap<String, ArcNeuronTrait>,
+/// Get random neuron and its ID from neuron group.
+fn get_rand_neuron(
+    neuron_group: &HashMap<String, ArcNeuronTrait>,
     rand_gen: &mut rand::prelude::ThreadRng
-) -> (Option<String>, Option<String>)
+) -> (Option<String>, Option<ArcNeuronTrait>)
 {
-    let neuron_group1_keys: Vec<&String> = neuron_group1.keys().collect();
-    let neuron_group2_keys: Vec<&String> = neuron_group2.keys().collect();
+    let neuron_group_keys: Vec<&String> = neuron_group.keys().collect();
 
-    if neuron_group1_keys.len() > 0 && neuron_group2_keys.len() > 0
+    if neuron_group_keys.len() > 0
     {
-        let rand_idx1: usize = rand_gen.gen_range(0..neuron_group1_keys.len());
-        let rand_idx2: usize = rand_gen.gen_range(0..neuron_group2_keys.len());
-        let neuron1: String = neuron_group1_keys[rand_idx1].clone();
-        let neuron2: String = neuron_group2_keys[rand_idx2].clone();
+        let rand_idx: usize = rand_gen.gen_range(0..neuron_group_keys.len());
+        let neuron_id: String = neuron_group_keys[rand_idx].clone();
+        let neuron: Option<ArcNeuronTrait> = neuron_group.get(&neuron_id).cloned();
 
-        return (Some(neuron1), Some(neuron2));
+        return (Some(neuron_id), neuron);
     }
     else
     {
