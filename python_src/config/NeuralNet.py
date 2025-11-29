@@ -19,6 +19,8 @@ class NeuralNet:
         self.n_output_neurons: int = hyper_params["n_output_neurons"]
         self.max_edges: int = hyper_params["max_edges"]
         self.max_depth: int = hyper_params["max_depth"]
+        self.neuron_id_len: int = hyper_params["neuron_id_len"]
+
         self.lr: float = hyper_params["lr"]
         self.return_grads: bool = hyper_params["return_grads"]
         self.lowest_param_val: float = hyper_params["lowest_param_val"]
@@ -113,3 +115,10 @@ class NeuralNet:
         )[0]
         random_neg_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
         random_pos_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+        
+        # Add a neuron.
+        if random_choice == 0:
+            random_depth = np.random.randint(0, self.max_depth)
+            self.rust_backend_funcs["add_hidden_neuron"](
+                self.nn_vp, self.neuron_id_len, self.max_edges, random_depth
+            )
