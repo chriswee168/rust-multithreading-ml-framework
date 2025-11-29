@@ -88,7 +88,7 @@ pub extern "C" fn join_two_rand_neurons_ext(
 }
 
 /// Get random neuron and its ID from neuron group.
-fn get_rand_neuron(
+pub fn get_rand_neuron(
     neuron_group: &HashMap<String, ArcNeuronTrait>,
     rand_gen: &mut rand::prelude::ThreadRng
 ) -> (Option<String>, Option<ArcNeuronTrait>)
