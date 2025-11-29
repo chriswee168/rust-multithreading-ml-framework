@@ -35,9 +35,9 @@ pub extern "C" fn add_hidden_neuron_ext(
     {
         let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
         
-        // Avoid duplicate ID'd.
+        // Avoid duplicate ID's.
         let mut random_id: String = rand_id_gen(id_len);
-        while !(*nn_ptr).neural_net.input_neurons.contains_key(&random_id)
+        while (*nn_ptr).neural_net.hidden_neurons.contains_key(&random_id)
         {
             random_id = rand_id_gen(id_len);
         }
