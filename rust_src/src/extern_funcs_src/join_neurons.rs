@@ -35,27 +35,6 @@ pub extern "C" fn join_two_rand_neurons_ext(
                     &(*nn_ptr).neural_net.hidden_neurons, 
                     &mut rand_gen
                 );
-
-                // Ensure neuron ids aren't the same to avoid deadlock.
-                if neuron_id1 != neuron_id2
-                {
-                    let neuron1: &ArcNeuronTrait = (*nn_ptr).neural_net.hidden_neurons.get(
-                        &neuron_id1.clone().unwrap()).unwrap();
-                    let neuron2: &ArcNeuronTrait = (*nn_ptr).neural_net.hidden_neurons.get(
-                        &neuron_id2.clone().unwrap()).unwrap();
-                    let neuron1_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron1.lock().unwrap();
-                    let neuron2_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron2.lock().unwrap();
-                    let neuron1_level: u32 = neuron1_guard.get_neuron_level().unwrap();
-                    let neuron2_level: u32 = neuron2_guard.get_neuron_level().unwrap();
-
-                    // Ensure neuron1's level is lower than neuron2's to avoid cyclic
-                    // edge connections.
-                    if neuron1_level >= neuron2_level
-                    {
-                        neuron_id1 = None;
-                        neuron_id2 = None;
-                    }          
-                }       
             }
             // Hidden neuron and output neuron.
             (1, 2) => {
