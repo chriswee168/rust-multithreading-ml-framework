@@ -99,10 +99,10 @@ class NeuralNet:
     
     def expand(self):
         """
-        Performs a mutation that "expands" the neural net that increases its
+        Performs a mutation that "expands" the neural net to increase its
         complexity, which can include:
         - Adding a new neuron.
-        - Adding an input or output edge for input or output neurons respectively.
+        - Adding a new input or output edge for input or output neurons respectively.
         - Joining two existing neurons.
         """
 
