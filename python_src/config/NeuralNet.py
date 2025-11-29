@@ -149,4 +149,17 @@ class NeuralNet:
                     random_neg_weight, random_pos_weight
                 )
         
+        # Join two random neurons.
+        elif random_choice == 2:
+            # Only allows the follow connections:
+            # input -> hidden
+            # hidden -> hidden
+            # hidden -> output
+            # input -> output
+            neuron_group1 = np.random.randint(0, 3)
+            neuron_group2 = np.random.randint(neuron_group1, 3)
+
+            self.rust_backend_funcs["join_two_rand_neurons"](
+                self.nn_vp, random_neg_weight, random_pos_weight,
+                neuron_group1, neuron_group2
             )
