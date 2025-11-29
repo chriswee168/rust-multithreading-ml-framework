@@ -19,8 +19,12 @@ class NeuralNet:
         self.n_output_neurons: int = hyper_params["n_output_neurons"]
         self.max_edges: int = hyper_params["max_edges"]
         self.max_depth: int = hyper_params["max_depth"]
+        self.neuron_id_len: int = hyper_params["neuron_id_len"]
+
         self.lr: float = hyper_params["lr"]
         self.return_grads: bool = hyper_params["return_grads"]
+        self.lowest_param_val: float = hyper_params["lowest_param_val"]
+        self.highest_param_val: float = hyper_params["highest_param_val"]
 
         self.add_neuron_rate: float = hyper_params["add_neuron_rate"]
         self.remove_neuron_rate: float = hyper_params["remove_neuron_rate"]
@@ -95,11 +99,67 @@ class NeuralNet:
     
     def expand(self):
         """
-        Performs a mutation that "expands" the neural net that increases its
+        Performs a mutation that "expands" the neural net to increase its
         complexity, which can include:
         - Adding a new neuron.
-        - Adding an input or output edge for input or output neurons respectively.
+        - Adding a new input or output edge for input or output neurons respectively.
         - Joining two existing neurons.
         """
 
-        ...
+        random_choice = np.random.choice(
+            3, 1, p=[
+                self.add_neuron_rate, 
+                self.add_io_edge_rate, 
+                self.join_neuron_rate
+            ]
+        )[0]
+        random_neg_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+        random_pos_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+        
+        # Add a neuron.
+        if random_choice == 0:
+            random_depth = np.random.randint(0, self.max_depth)
+            self.rust_backend_funcs["add_hidden_neuron"](
+                self.nn_vp, self.neuron_id_len, self.max_edges, random_depth
+            )
+        
+        # Add an input/output edge.
+        elif random_choice == 1:
+            io_edge_option = np.random.choice(2, 1)[0]
+
+            # Add input edge.
+            if io_edge_option == 0:
+                random_arr_idx = np.random.randint(0, self.in_dim)
+                random_neuron_idx = np.random.randint(0, self.n_input_neurons)
+                random_input_neuron = f"input_{random_neuron_idx}"
+                
+                self.rust_backend_funcs["add_input_edge"](
+                    self.nn_vp, random_input_neuron.encode(), random_arr_idx,
+                    random_neg_weight, random_pos_weight
+                )
+            
+            # Add output edge.
+            elif io_edge_option == 1:
+                random_arr_idx = np.random.randint(0, self.out_dim)
+                random_neuron_idx = np.random.randint(0, self.n_output_neurons)
+                random_output_neuron = f"output_{random_neuron_idx}"
+                
+                self.rust_backend_funcs["add_output_edge"](
+                    self.nn_vp, random_output_neuron.encode(), random_arr_idx,
+                    random_neg_weight, random_pos_weight
+                )
+        
+        # Join two random neurons.
+        elif random_choice == 2:
+            # Only allows the follow connections:
+            # input -> hidden
+            # hidden -> hidden
+            # hidden -> output
+            # input -> output
+            neuron_group1 = np.random.randint(0, 3)
+            neuron_group2 = np.random.randint(neuron_group1, 3)
+
+            self.rust_backend_funcs["join_two_rand_neurons"](
+                self.nn_vp, random_neg_weight, random_pos_weight,
+                neuron_group1, neuron_group2
+            )
