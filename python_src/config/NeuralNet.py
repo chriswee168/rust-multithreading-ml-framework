@@ -104,4 +104,12 @@ class NeuralNet:
         - Joining two existing neurons.
         """
 
-        ...
+        random_choice = np.random.choice(
+            3, 1, p=[
+                self.add_neuron_rate, 
+                self.add_io_edge_rate, 
+                self.join_neuron_rate
+            ]
+        )[0]
+        random_neg_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+        random_pos_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
