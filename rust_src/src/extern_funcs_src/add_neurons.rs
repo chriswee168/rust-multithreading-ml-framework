@@ -47,6 +47,9 @@ pub extern "C" fn add_hidden_neuron_ext(
             "hidden", neuron_level
         );
         
+        // Indicate neuron level in ID.
+        random_id += format!("[{}]", neuron_level).as_str();
+
         (*nn_ptr).add_hidden_neuron(random_id, neuron);
     }
 }
