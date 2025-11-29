@@ -22,33 +22,48 @@ pub extern "C" fn join_two_rand_neurons_ext(
         {
             // Input neuron and hidden neuron.
             (0, 1) => {
-                (neuron_id1, neuron_id2) = get_two_rand_neurons_ids(
+                (neuron_id1, _) = get_rand_neuron(
                     &(*nn_ptr).neural_net.input_neurons, 
+                    &mut rand_gen
+                );
+
+                (neuron_id2, _) = get_rand_neuron(
                     &(*nn_ptr).neural_net.hidden_neurons, 
                     &mut rand_gen
                 );
             }
             // Two hidden neurons.
             (1, 1) => {
-                (neuron_id1, neuron_id2) = get_two_rand_neurons_ids(
+                (neuron_id1, _) = get_rand_neuron(
                     &(*nn_ptr).neural_net.hidden_neurons, 
+                    &mut rand_gen
+                );
+
+                (neuron_id2, _) = get_rand_neuron(
                     &(*nn_ptr).neural_net.hidden_neurons, 
                     &mut rand_gen
                 );
             }
             // Hidden neuron and output neuron.
             (1, 2) => {
-                (neuron_id1, neuron_id2) = get_two_rand_neurons_ids(
+                (neuron_id1, _) = get_rand_neuron(
                     &(*nn_ptr).neural_net.hidden_neurons, 
+                    &mut rand_gen
+                );
+
+                (neuron_id2, _) = get_rand_neuron(
                     &(*nn_ptr).neural_net.output_neurons, 
                     &mut rand_gen
                 );
             }
-
             // Input neuron and output neuron.
             (0, 2) => {
-                (neuron_id1, neuron_id2) = get_two_rand_neurons_ids(
+                (neuron_id1, _) = get_rand_neuron(
                     &(*nn_ptr).neural_net.input_neurons, 
+                    &mut rand_gen
+                );
+
+                (neuron_id2, _) = get_rand_neuron(
                     &(*nn_ptr).neural_net.output_neurons, 
                     &mut rand_gen
                 );
