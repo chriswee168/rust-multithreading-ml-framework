@@ -1,23 +1,23 @@
-use std::sync::{Arc, MutexGuard};
+use std::{sync::{Arc, MutexGuard}, u32::MAX};
 
-use libai_core::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron}, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
+use libai_core::{neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron}, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 #[test]
 fn join_neurons()
 {
     // Create an empty neural net.
-    let mut neural_net: NeuralNet = NeuralNet::new();
+    let mut neural_net: NeuralNetWrapper = NeuralNetWrapper::new();
 
     // Create a single input, hidden and output neuron, and add them to neural
     // net.
     let input_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 0, "input"
+        5, 5, "input", 0
     );
     let hidden_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 1, "hidden"
+        5, 5, "hidden", 1
     );
     let output_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, 1, "output"
+        5, 5, "output", MAX
     );
 
     neural_net.add_input_neuron(String::from("input"), input_neuron.clone());
@@ -39,9 +39,9 @@ fn join_neurons()
         0.0, 0.0
     );
 
-    let edge: &ArcEdgeTrait = neural_net.hidden_edges.get("edge").unwrap();
-    let edge1: &ArcEdgeTrait = neural_net.hidden_edges.get("edge1").unwrap();
-    let edge2: &ArcEdgeTrait = neural_net.hidden_edges.get("edge2").unwrap();
+    let edge: &ArcEdgeTrait = neural_net.neural_net.hidden_edges.get("edge").unwrap();
+    let edge1: &ArcEdgeTrait = neural_net.neural_net.hidden_edges.get("edge1").unwrap();
+    let edge2: &ArcEdgeTrait = neural_net.neural_net.hidden_edges.get("edge2").unwrap();
 
     let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
     let edge1_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge1.lock().unwrap();

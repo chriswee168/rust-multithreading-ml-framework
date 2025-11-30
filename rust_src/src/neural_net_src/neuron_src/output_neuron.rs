@@ -1,6 +1,6 @@
-use std::{collections::HashMap, sync::{Arc, Mutex, RwLockWriteGuard}};
+use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{backward::{hidden_backward, output_backward}, core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 
 /// Struct to define output neuron attributes and behaviour.
 pub struct OutputNeuron
@@ -12,12 +12,10 @@ impl OutputNeuron
 {
     pub fn new(
         max_backward_edges: usize, max_forward_edges: usize, 
-        neuron_level: u32
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
             max_backward_edges, max_forward_edges, 
-            neuron_level
         );
 
         return Self
@@ -30,9 +28,9 @@ impl OutputNeuron
 impl NeuronTrait for OutputNeuron
 {
     /// Add an edge for this neuron to connect to another neuron.
-    fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) 
+    fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) -> bool
     {
-        self.attr.add_forward_edge(edge_id, edge);
+        return self.attr.add_forward_edge(edge_id, edge);
     }
     /// Remove an edge to disconnect this neuron from another neuron.
     fn remove_forward_edge(&mut self, edge_id: &str) 
@@ -40,23 +38,48 @@ impl NeuronTrait for OutputNeuron
         self.attr.remove_forward_edge(edge_id);
     }
     /// Add an edge for this neuron to connect to a previous neuron.
-    fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) 
+    fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) -> bool
     {
-        self.attr.add_backward_edge(edge_id, edge);
+        return self.attr.add_backward_edge(edge_id, edge);
     }
     /// Remove an edge to disconnect this neuron from a previous neuron.
     fn remove_backward_edge(&mut self, edge_id: &str) 
     {
         self.attr.remove_backward_edge(edge_id);
     }
+    /// Obtain forward edge max.
+    fn get_forward_edge_max(&self) -> usize 
+    {
+        return self.attr.max_forward_edges;
+    }
+    /// Obtain backward edge max.
+    fn get_backward_edge_max(&self) -> usize 
+    {
+        return self.attr.max_backward_edges;
+    }
     /// Perform forward pass.
     fn forward(&mut self, _neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>) 
     {
-        output_forward(&mut self.attr);
+        // Check the number of visits to this neuron is the same as
+        // number of edges to determine if this neuron has 
+        // obtained the full dot product from all its previous edges.
+        if self.attr.get_visit_count(true) == self.get_backward_edges().len()
+        {
+            output_forward(&mut self.attr);
+        }
     }
-    fn backward(&mut self) 
+    fn backward(
+        &mut self, 
+        lr: f32,
+        _return_grads: bool,
+        neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>
+    )
     {
-        
+        // Accumulate gradients from output gradient vector first.
+        output_backward(&mut self.attr, lr);
+
+        // Backpropagate the gradients through previous neurons.
+        hidden_backward(&mut self.attr, lr, neuron_buffer);
     }
 
     /// Increment this neuron's sum.

@@ -10,24 +10,54 @@ impl NeuralNet
         edge_id: String, neg_weight: f32, pos_weight: f32
     )
     {
-        // Get the neuron arcs.
-        let neuron0: ArcNeuronTrait = self.obtain_neuron(neuron0_id).unwrap();
-        let neuron1: ArcNeuronTrait = self.obtain_neuron(neuron1_id).unwrap();
+        // Cannot connect the same neurons.
+        if neuron0_id != neuron1_id
+        {
+            // Get the neuron arcs.
+            let (_, neuron0) = self.obtain_neuron(neuron0_id);
+            let (_, neuron1) = self.obtain_neuron(neuron1_id);
+            let neuron0: ArcNeuronTrait = neuron0.unwrap();
+            let neuron1: ArcNeuronTrait = neuron1.unwrap();
+            
+            // Create hidden edge.
+            let hidden_edge: ArcEdgeTrait = create_hidden_edge(
+                &neuron0, &neuron1, neg_weight, pos_weight
+            );
 
-        // Create hidden edge.
-        let hidden_edge: ArcEdgeTrait = create_hidden_edge(
-            &neuron0, &neuron1, neg_weight, pos_weight
-        );
+            // Acquire mutexes for mutability.
+            let mut neuron0: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron0.lock().unwrap();
+            let mut neuron1: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron1.lock().unwrap();
+            
+            let neuron0_level: Option<u32> = neuron0.get_neuron_level();
+            let neuron1_level: Option<u32> = neuron1.get_neuron_level();
 
-        // Acquire mutexes for mutability.
-        let mut neuron0: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron0.lock().unwrap();
-        let mut neuron1: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron1.lock().unwrap();
+            // Indicate whether the first neuron has a lower level than the second.
+            let mut level_ascending: bool = true;
+            if neuron0_level.is_some() && neuron1_level.is_some()
+            {
+                // Both are from hidden neurons.
+                if neuron0_level >= neuron1_level
+                {
+                    level_ascending = false;
+                }
+            }
 
-        // Connect the two neurons with the same hidden edge.
-        neuron0.add_forward_edge(edge_id.clone(), hidden_edge.clone());
-        neuron1.add_backward_edge(edge_id.clone(), hidden_edge.clone());
+            if level_ascending
+            {
+                if neuron0.get_forward_edges().len() < neuron0.get_forward_edge_max() &&
+                neuron1.get_backward_edges().len() < neuron1.get_backward_edge_max()
+                {
+                    // Connect the two neurons with the same hidden edge.
+                    let edge1_added: bool = neuron0.add_forward_edge(edge_id.clone(), hidden_edge.clone());
+                    let edge2_added: bool = neuron1.add_backward_edge(edge_id.clone(), hidden_edge.clone());
 
-        // Add the edge to hidden edge hashmap.
-        self.hidden_edges.insert(edge_id, hidden_edge);
+                    if edge1_added && edge2_added
+                    {
+                        // Add the edge to hidden edge hashmap.
+                        self.hidden_edges.insert(edge_id, hidden_edge);
+                    }
+                }
+            }
+        }
     }
 }
