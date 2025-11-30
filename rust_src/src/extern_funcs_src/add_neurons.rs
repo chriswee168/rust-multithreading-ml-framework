@@ -1,7 +1,9 @@
-use std::{ffi::{c_char, c_void, CStr}, u32::MAX};
+use std::{collections::HashMap, ffi::{c_char, c_void, CStr}, sync::MutexGuard, u32::MAX};
 
-use crate::{neural_net_src::{
-    neuron_src::create_neuron::create_neuron, rand_id_gen::rand_id_gen, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use rand::Rng;
+
+use crate::{extern_funcs_src::join_neurons::get_rand_neuron, neural_net_src::{
+    neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron}, rand_id_gen::rand_id_gen, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 /// Add input neuron.
 #[unsafe(no_mangle)]
@@ -28,7 +30,8 @@ pub extern "C" fn add_input_neuron_ext(
 #[unsafe(no_mangle)]
 pub extern "C" fn add_hidden_neuron_ext(
     nn_vp: *mut c_void, id_len: usize, 
-    max_edges: usize, neuron_level: u32
+    max_edges: usize, neuron_level: u32,
+    neg_weight: f32, pos_weight: f32
 )
 {
     unsafe
@@ -50,7 +53,39 @@ pub extern "C" fn add_hidden_neuron_ext(
         // Indicate neuron level in ID.
         random_id += format!("[{}]", neuron_level).as_str();
 
-        (*nn_ptr).add_hidden_neuron(random_id, neuron);
+        (*nn_ptr).add_hidden_neuron(random_id.clone(), neuron.clone());
+
+        let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
+        
+        // For backward edge.
+        let backward_neuron_id: String = obtain_valid_neuron(
+            &random_id, neuron_level, 
+            &(*nn_ptr).neural_net.input_neurons, 
+            &(*nn_ptr).neural_net.hidden_neurons, 
+            false, &mut rand_gen
+        );
+
+        // For forward edge.
+        let forward_neuron_id: String = obtain_valid_neuron(
+            &random_id, neuron_level, 
+            &(*nn_ptr).neural_net.hidden_neurons, 
+            &(*nn_ptr).neural_net.output_neurons, 
+            true, &mut rand_gen
+        );
+
+        let backward_edge_id: String = backward_neuron_id.clone() + "_" + random_id.as_str();
+        let forward_edge_id: String = random_id.clone() + "_" + forward_neuron_id.as_str();
+        
+        (*nn_ptr).join_neurons(
+            &backward_neuron_id, &random_id, 
+            backward_edge_id, neg_weight, pos_weight
+        );
+
+        (*nn_ptr).join_neurons(
+            &random_id, &forward_neuron_id, 
+            forward_edge_id, neg_weight, pos_weight
+        );
+
     }
 }
 
