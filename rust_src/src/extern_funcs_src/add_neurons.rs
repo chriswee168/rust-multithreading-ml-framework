@@ -150,34 +150,31 @@ fn obtain_valid_neuron(
                 let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
                 let neuron_level: Option<u32> = neuron_guard.get_neuron_level();
                 
-                if neuron_level.is_some()
-                {
-                    let neuron_is_valid: bool;
-                    let under_max_edges: bool;
+                let mut neuron_is_valid: bool = true;
+                let under_max_edges: bool;
                     
-                    // Either checking to connect a forward or backward edge.
-                    if connect_forward
+                // Either checking to connect a forward or backward edge.
+                if connect_forward
+                {
+                    if neuron_level.is_some()
                     {
                         // Next neuron must have higher level.
                         neuron_is_valid = target_neuron_level < neuron_guard.get_neuron_level().unwrap();
-                        under_max_edges = neuron_guard.get_forward_edges().len() < neuron_guard.get_forward_edge_max();
                     }
-                    else
-                    {
-                        // Previous neuron must have lower level.
-                        neuron_is_valid = target_neuron_level > neuron_guard.get_neuron_level().unwrap();
-                        under_max_edges = neuron_guard.get_backward_edges().len() < neuron_guard.get_backward_edge_max();
-                    }
-
-                    if neuron_is_valid && under_max_edges
-                    {
-                        selected_neuron_id = neuron_id;
-                        break;
-                    }
+                    under_max_edges = neuron_guard.get_forward_edges().len() < neuron_guard.get_forward_edge_max();
                 }
                 else
                 {
-                    // Neuron has no level, indicating its an input/output neuron.
+                    if neuron_level.is_some()
+                    {
+                        // Previous neuron must have lower level.
+                        neuron_is_valid = target_neuron_level > neuron_guard.get_neuron_level().unwrap();
+                    }
+                    under_max_edges = neuron_guard.get_backward_edges().len() < neuron_guard.get_backward_edge_max();
+                }
+
+                if neuron_is_valid && under_max_edges
+                {
                     selected_neuron_id = neuron_id;
                     break;
                 }
