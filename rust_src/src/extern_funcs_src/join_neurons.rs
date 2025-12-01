@@ -17,53 +17,54 @@ pub extern "C" fn join_two_rand_neurons_ext(
         
         let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
         let (mut neuron_id1, mut neuron_id2) = (None, None);
+        let (mut neuron1, mut neuron2) = (None, None);
 
         match (neuron_group1, neuron_group2)
         {
             // Input neuron and hidden neuron.
             (0, 1) => {
-                (neuron_id1, _) = get_rand_neuron(
+                (neuron_id1, neuron1) = get_rand_neuron(
                     &(*nn_ptr).neural_net.input_neurons, 
                     &mut rand_gen
                 );
 
-                (neuron_id2, _) = get_rand_neuron(
+                (neuron_id2, neuron2) = get_rand_neuron(
                     &(*nn_ptr).neural_net.hidden_neurons, 
                     &mut rand_gen
                 );
             }
             // Two hidden neurons.
             (1, 1) => {
-                (neuron_id1, _) = get_rand_neuron(
+                (neuron_id1, neuron1) = get_rand_neuron(
                     &(*nn_ptr).neural_net.hidden_neurons, 
                     &mut rand_gen
                 );
 
-                (neuron_id2, _) = get_rand_neuron(
+                (neuron_id2, neuron2) = get_rand_neuron(
                     &(*nn_ptr).neural_net.hidden_neurons, 
                     &mut rand_gen
                 );
             }
             // Hidden neuron and output neuron.
             (1, 2) => {
-                (neuron_id1, _) = get_rand_neuron(
+                (neuron_id1, neuron1) = get_rand_neuron(
                     &(*nn_ptr).neural_net.hidden_neurons, 
                     &mut rand_gen
                 );
 
-                (neuron_id2, _) = get_rand_neuron(
+                (neuron_id2, neuron2) = get_rand_neuron(
                     &(*nn_ptr).neural_net.output_neurons, 
                     &mut rand_gen
                 );
             }
             // Input neuron and output neuron.
             (0, 2) => {
-                (neuron_id1, _) = get_rand_neuron(
+                (neuron_id1, neuron1) = get_rand_neuron(
                     &(*nn_ptr).neural_net.input_neurons, 
                     &mut rand_gen
                 );
 
-                (neuron_id2, _) = get_rand_neuron(
+                (neuron_id2, neuron2) = get_rand_neuron(
                     &(*nn_ptr).neural_net.output_neurons, 
                     &mut rand_gen
                 );
@@ -74,15 +75,41 @@ pub extern "C" fn join_two_rand_neurons_ext(
             _ => ()
         }
         
-        if !neuron_id1.is_none() && !neuron_id2.is_none()
+        if neuron_id1.is_some() && neuron_id2.is_some() && neuron_id1 != neuron_id2
         {
-            let edge_id: String = 
-                neuron_id1.clone().unwrap() + "_" + neuron_id2.clone().unwrap().as_str();
+            let neuron1: ArcNeuronTrait = neuron1.unwrap();
+            let neuron2: ArcNeuronTrait = neuron2.unwrap();
+            let neuron1_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron1.lock().unwrap();
+            let neuron2_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron2.lock().unwrap();
+            
+            let mut ascending_levels: bool = true;
+            let neuron1_level: Option<u32> = neuron1_guard.get_neuron_level();
+            let neuron2_level: Option<u32> = neuron2_guard.get_neuron_level();
+            
+            // Only if both neuron1 and neuron2 are hidden neurons.
+            if (neuron1_level.is_some() && neuron2_level.is_some()) && neuron1_level >= neuron1_level
+            {
+                ascending_levels = false
+            }
 
-            (*nn_ptr).join_neurons(
-                &neuron_id1.unwrap(), &neuron_id2.unwrap(), 
-                edge_id, neg_weight, pos_weight
-            );
+            let not_exceeded_max_edges: bool = 
+                neuron1_guard.get_forward_edges().len() < neuron1_guard.get_forward_edge_max() &&
+                neuron2_guard.get_backward_edges().len() < neuron2_guard.get_backward_edge_max();
+
+            // Drop neuron guards.
+            drop(neuron1_guard);
+            drop(neuron2_guard);
+
+            if ascending_levels && not_exceeded_max_edges
+            {
+                let edge_id: String = 
+                    neuron_id1.clone().unwrap() + "_" + neuron_id2.clone().unwrap().as_str();
+
+                (*nn_ptr).join_neurons(
+                    &neuron_id1.unwrap(), &neuron_id2.unwrap(), 
+                    edge_id, neg_weight, pos_weight
+                );
+            }
         }
     }
 }
