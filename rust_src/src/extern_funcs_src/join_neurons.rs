@@ -74,7 +74,7 @@ pub extern "C" fn join_two_rand_neurons_ext(
             _ => ()
         }
         
-        if !neuron_id1.is_none() && !neuron_id2.is_none()
+        if neuron_id1.is_some() && neuron_id2.is_some() && neuron_id1 != neuron_id2
         {
             let edge_id: String = 
                 neuron_id1.clone().unwrap() + "_" + neuron_id2.clone().unwrap().as_str();
