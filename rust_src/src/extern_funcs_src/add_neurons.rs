@@ -53,8 +53,6 @@ pub extern "C" fn add_hidden_neuron_ext(
         // Indicate neuron level in ID.
         random_id += format!("[{}]", neuron_level).as_str();
 
-        (*nn_ptr).add_hidden_neuron(random_id.clone(), neuron.clone());
-
         let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
         
         // For backward edge.
@@ -73,18 +71,28 @@ pub extern "C" fn add_hidden_neuron_ext(
             true, &mut rand_gen
         );
 
-        let backward_edge_id: String = backward_neuron_id.clone() + "_" + random_id.as_str();
-        let forward_edge_id: String = random_id.clone() + "_" + forward_neuron_id.as_str();
-        
-        (*nn_ptr).join_neurons(
-            &backward_neuron_id, &random_id, 
-            backward_edge_id, neg_weight, pos_weight
-        );
+        // If there is a valid backward and forward neuron to connect to, create
+        // the new neuron and connect it to them.
+        if backward_neuron_id.is_some() && forward_neuron_id.is_some()
+        {
+            (*nn_ptr).add_hidden_neuron(random_id.clone(), neuron.clone());
 
-        (*nn_ptr).join_neurons(
-            &random_id, &forward_neuron_id, 
-            forward_edge_id, neg_weight, pos_weight
-        );
+            let backward_neuron_id: String = backward_neuron_id.unwrap();
+            let forward_neuron_id: String = forward_neuron_id.unwrap();
+
+            let backward_edge_id: String = backward_neuron_id.clone() + "_" + random_id.as_str();
+            let forward_edge_id: String = random_id.clone() + "_" + forward_neuron_id.as_str();
+            
+            (*nn_ptr).join_neurons(
+                &backward_neuron_id, &random_id, 
+                backward_edge_id, neg_weight, pos_weight
+            );
+
+            (*nn_ptr).join_neurons(
+                &random_id, &forward_neuron_id, 
+                forward_edge_id, neg_weight, pos_weight
+            );
+        }
 
     }
 }
