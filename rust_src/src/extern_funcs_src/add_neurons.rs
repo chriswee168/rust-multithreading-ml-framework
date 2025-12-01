@@ -1,7 +1,9 @@
-use std::{ffi::{c_char, c_void, CStr}, u32::MAX};
+use std::{collections::HashMap, ffi::{c_char, c_void, CStr}, sync::MutexGuard, u32::MAX};
 
-use crate::{neural_net_src::{
-    neuron_src::create_neuron::create_neuron, rand_id_gen::rand_id_gen, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use rand::Rng;
+
+use crate::{extern_funcs_src::join_neurons::get_rand_neuron, neural_net_src::{
+    neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron}, rand_id_gen::rand_id_gen, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 /// Add input neuron.
 #[unsafe(no_mangle)]
@@ -28,7 +30,8 @@ pub extern "C" fn add_input_neuron_ext(
 #[unsafe(no_mangle)]
 pub extern "C" fn add_hidden_neuron_ext(
     nn_vp: *mut c_void, id_len: usize, 
-    max_edges: usize, neuron_level: u32
+    max_edges: usize, neuron_level: u32,
+    neg_weight: f32, pos_weight: f32
 )
 {
     unsafe
@@ -47,7 +50,50 @@ pub extern "C" fn add_hidden_neuron_ext(
             "hidden", neuron_level
         );
         
-        (*nn_ptr).add_hidden_neuron(random_id, neuron);
+        // Indicate neuron level in ID.
+        random_id += format!("[{}]", neuron_level).as_str();
+
+        let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
+        
+        // For backward edge.
+        let backward_neuron_id: Option<String> = obtain_valid_neuron(
+            neuron_level, 
+            &(*nn_ptr).neural_net.input_neurons, 
+            &(*nn_ptr).neural_net.hidden_neurons, 
+            false, &mut rand_gen
+        );
+
+        // For forward edge.
+        let forward_neuron_id: Option<String> = obtain_valid_neuron(
+            neuron_level, 
+            &(*nn_ptr).neural_net.hidden_neurons, 
+            &(*nn_ptr).neural_net.output_neurons, 
+            true, &mut rand_gen
+        );
+
+        // If there is a valid backward and forward neuron to connect to, create
+        // the new neuron and connect it to them.
+        if backward_neuron_id.is_some() && forward_neuron_id.is_some()
+        {
+            (*nn_ptr).add_hidden_neuron(random_id.clone(), neuron.clone());
+
+            let backward_neuron_id: String = backward_neuron_id.unwrap();
+            let forward_neuron_id: String = forward_neuron_id.unwrap();
+
+            let backward_edge_id: String = backward_neuron_id.clone() + "_" + random_id.as_str();
+            let forward_edge_id: String = random_id.clone() + "_" + forward_neuron_id.as_str();
+            
+            (*nn_ptr).join_neurons(
+                &backward_neuron_id, &random_id, 
+                backward_edge_id, neg_weight, pos_weight
+            );
+
+            (*nn_ptr).join_neurons(
+                &random_id, &forward_neuron_id, 
+                forward_edge_id, neg_weight, pos_weight
+            );
+        }
+
     }
 }
 
@@ -69,4 +115,69 @@ pub extern "C" fn add_output_neuron_ext(
         
         (*nn_ptr).add_output_neuron(id_str, neuron);
     }
+}
+
+/// Conditionally select existing neuron from the neural network
+/// to connect with a newly added one.
+fn obtain_valid_neuron(
+    target_neuron_level: u32,
+    neuron_group1: &HashMap<String, ArcNeuronTrait>,
+    neuron_group2: &HashMap<String, ArcNeuronTrait>,
+    connect_forward: bool,
+    mut rand_gen: &mut rand::prelude::ThreadRng,
+) -> Option<String>
+{
+    let mut selected_neuron_id: Option<String> = None;
+
+    let (neuron_id_op, neuron_op);
+
+    if rand_gen.gen_bool(0.5)
+    {
+        (neuron_id_op, neuron_op) = get_rand_neuron(
+            neuron_group1, &mut rand_gen
+        )
+    }
+    else
+    {
+        (neuron_id_op, neuron_op) = get_rand_neuron(
+            neuron_group2, &mut rand_gen
+        )
+    }
+
+    if neuron_op.is_some()
+    {
+        let neuron: ArcNeuronTrait = neuron_op.unwrap();
+        let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+        let neuron_level: Option<u32> = neuron_guard.get_neuron_level();
+
+        let mut neuron_is_valid: bool = true;
+        let under_max_edges: bool;
+
+        // Either checking to connect a forward or backward edge.
+        if connect_forward
+        {
+            if neuron_level.is_some()
+            {
+                // Next neuron must have higher level.
+                neuron_is_valid = target_neuron_level < neuron_guard.get_neuron_level().unwrap();
+            }
+            under_max_edges = neuron_guard.get_backward_edges().len() < neuron_guard.get_backward_edge_max();
+        }
+        else
+        {
+            if neuron_level.is_some()
+            {
+                // Previous neuron must have lower level.
+                neuron_is_valid = target_neuron_level > neuron_guard.get_neuron_level().unwrap();
+            }
+            under_max_edges = neuron_guard.get_forward_edges().len() < neuron_guard.get_forward_edge_max();
+        }
+
+        if neuron_is_valid && under_max_edges
+        {
+            selected_neuron_id = neuron_id_op;
+        }
+    }
+
+    return selected_neuron_id;
 }

@@ -120,7 +120,8 @@ class NeuralNet:
         if random_choice == 0:
             random_depth = np.random.randint(0, self.max_depth)
             self.rust_backend_funcs["add_hidden_neuron"](
-                self.nn_vp, self.neuron_id_len, self.max_edges, random_depth
+                self.nn_vp, self.neuron_id_len, self.max_edges, random_depth,
+                random_neg_weight, random_pos_weight
             )
         
         # Add an input/output edge.
