@@ -117,12 +117,11 @@ fn obtain_valid_neuron(
     neuron_group2: &HashMap<String, ArcNeuronTrait>,
     connect_forward: bool,
     mut rand_gen: &mut rand::prelude::ThreadRng,
-) -> String
+) -> Option<String>
 {
-    let selected_neuron_id: String;
+    let mut selected_neuron_id: Option<String> = None;
 
-    let (mut neuron_id_op, mut neuron_op);
-    let mut neuron_id: String;
+    let (neuron_id_op, neuron_op);
 
     if rand_gen.gen_bool(0.5)
     {
@@ -139,8 +138,6 @@ fn obtain_valid_neuron(
 
     if neuron_op.is_some()
     {
-        neuron_id = neuron_id_op.unwrap();
-        
         let neuron: ArcNeuronTrait = neuron_op.unwrap();
         let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
         let neuron_level: Option<u32> = neuron_guard.get_neuron_level();
@@ -170,7 +167,7 @@ fn obtain_valid_neuron(
 
         if neuron_is_valid && under_max_edges
         {
-            selected_neuron_id = neuron_id;
+            selected_neuron_id = neuron_id_op;
         }
     }
 
