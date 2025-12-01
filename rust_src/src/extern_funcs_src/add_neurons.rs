@@ -58,16 +58,16 @@ pub extern "C" fn add_hidden_neuron_ext(
         let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
         
         // For backward edge.
-        let backward_neuron_id: String = obtain_valid_neuron(
-            &random_id, neuron_level, 
+        let backward_neuron_id: Option<String> = obtain_valid_neuron(
+            neuron_level, 
             &(*nn_ptr).neural_net.input_neurons, 
             &(*nn_ptr).neural_net.hidden_neurons, 
             false, &mut rand_gen
         );
 
         // For forward edge.
-        let forward_neuron_id: String = obtain_valid_neuron(
-            &random_id, neuron_level, 
+        let forward_neuron_id: Option<String> = obtain_valid_neuron(
+            neuron_level, 
             &(*nn_ptr).neural_net.hidden_neurons, 
             &(*nn_ptr).neural_net.output_neurons, 
             true, &mut rand_gen
