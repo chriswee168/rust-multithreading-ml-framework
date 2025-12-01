@@ -15,28 +15,28 @@ fn threaded_traversal()
     // Create input neurons.
     for i in 0..4
     {
-        let neuron = create_neuron(
-            10, 10, "input", 0
-        );
         let name: String = String::from("input") + i.to_string().as_str();
+        let neuron = create_neuron(
+            name.clone(), 10, 10, "input", 0
+        );
         neural_net.add_input_neuron(name, neuron);
     }
     // Create hidden neurons.
     for i in 0..2
     {
-        let neuron = create_neuron(
-            10, 10, "hidden", 1
-        );
         let name: String = String::from("hidden") + i.to_string().as_str();
+        let neuron = create_neuron(
+            name.clone(), 10, 10, "hidden", 1
+        );
         neural_net.add_hidden_neuron(name, neuron);
     }
     // Create output neurons.
     for i in 0..2
     {
-        let neuron = create_neuron(
-            10, 10, "output", MAX
-        );
         let name: String = String::from("output") + i.to_string().as_str();
+        let neuron = create_neuron(
+            name.clone(), 10, 10, "output", MAX
+        );
         neural_net.add_output_neuron(name, neuron);
     }
 
