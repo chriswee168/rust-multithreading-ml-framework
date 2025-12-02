@@ -120,7 +120,8 @@ class NeuralNet:
         if random_choice == 0:
             random_depth = np.random.randint(0, self.max_depth)
             self.rust_backend_funcs["add_hidden_neuron"](
-                self.nn_vp, self.neuron_id_len, self.max_edges, random_depth
+                self.nn_vp, self.neuron_id_len, self.max_edges, random_depth,
+                random_neg_weight, random_pos_weight
             )
         
         # Add an input/output edge.
@@ -163,3 +164,21 @@ class NeuralNet:
                 self.nn_vp, random_neg_weight, random_pos_weight,
                 neuron_group1, neuron_group2
             )
+    
+    def reduce(self):
+        """
+        Performs a mutation that "reduces" the neural net to decrease its
+        complexity by removing an edge, as well any subsequent "dead ends"
+        where propagation ends up at hidden neurons with no edges as a result of 
+        removing said edge.
+        """
+
+        self.rust_backend_funcs["remove_random_edge"](
+            self.nn_vp, self.edge_param_thresh
+        )
+    
+    def display_params(self):
+        """
+        Display all neurons and their edges.
+        """
+        self.rust_backend_funcs["display_params"](self.nn_vp)
