@@ -11,13 +11,13 @@ fn remove_edges()
     // Create a single input, hidden and output neuron, and add them to neural
     // net.
     let input_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, "input", 0
+        String::from("input"), 5, 5, "input", 0
     );
     let hidden_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, "hidden", 1
+        String::from("hidden"), 5, 5, "hidden", 1
     );
     let output_neuron: ArcNeuronTrait = create_neuron(
-        5, 5, "output", MAX
+        String::from("output"), 5, 5, "output", MAX
     );
 
     neural_net.add_input_neuron(String::from("input"), input_neuron.clone());

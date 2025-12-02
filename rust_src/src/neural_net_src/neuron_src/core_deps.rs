@@ -6,6 +6,8 @@ use crate::neural_net_src::types_aliases::{ArcEdgeTrait, NeuronBuffer};
 /// hidden and output neurons.
 pub struct NeuronAttr
 {
+    pub neuron_id: String,
+
     // Contains Arc references to edges indicating which neurons the current
     // neuron is connected to.
     pub forward_edges: HashMap<String, ArcEdgeTrait>,
@@ -26,11 +28,12 @@ pub struct NeuronAttr
 impl NeuronAttr
 {
     pub fn new(
-        max_backward_edges: usize, max_forward_edges: usize, 
+        neuron_id: String, max_backward_edges: usize, max_forward_edges: usize, 
     ) -> Self
     {
         return Self 
         {
+            neuron_id,
             forward_edges: HashMap::with_capacity(max_forward_edges), 
             backward_edges: HashMap::with_capacity(max_backward_edges), 
             max_backward_edges, max_forward_edges,
@@ -197,4 +200,6 @@ pub trait NeuronTrait: Send
 
     // For hidden neurons, return the level.
     fn get_neuron_level(&self) -> Option<u32> { None }
+
+    fn get_neuron_id(&self) -> String;
 }
