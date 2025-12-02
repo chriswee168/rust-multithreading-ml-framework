@@ -16,7 +16,7 @@ pub fn input_forward(neuron_attr: &mut NeuronAttr)
         let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
         let rwlock_vec: Arc<RwLock<Vec<f32>>> = edge_guard.get_rwlock_vec().unwrap();
         let read_guard: RwLockReadGuard<'_, Vec<f32>> = rwlock_vec.read().unwrap();
-        let vector_index: usize = edge_guard.get_prev_id().unwrap();
+        let vector_index: usize = edge_guard.get_prev_idx().unwrap();
         let input_value: f32 = read_guard[vector_index];
         let output_value: f32 = edge_guard.forward(input_value);
 
@@ -101,7 +101,7 @@ pub fn output_forward(neuron_attr: &mut NeuronAttr)
             edge_output = edge_guard.forward(neuron_sum);
 
             // Get the output index of the output array this edge "connects" to.
-            output_index = edge_guard.get_next_id().unwrap();
+            output_index = edge_guard.get_next_idx().unwrap();
             output_rwlock_vec = edge_guard.get_rwlock_vec().unwrap();
         }
 
