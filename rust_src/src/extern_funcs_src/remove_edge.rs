@@ -94,6 +94,9 @@ pub fn remove_dead_ends(
         unsafe { (*nn_ptr).remove_edge(&edge_id) };
 
         let mut neuron_buffer: VecDeque<Option<ArcNeuronTrait>> = VecDeque::from([neuron1, neuron2]);
+        
+        // Contains IDs of hidden neurons that have no edges.
+        let mut neurons_to_remove: Vec<String> = Vec::new();
 
         // Traverse the network from the original two neurons connected by the
         // removed edge to disconnect dangling neurons.
@@ -113,6 +116,8 @@ pub fn remove_dead_ends(
                 let forward_edge_ids: Vec<&String> = neuron_guard.get_forward_edges().keys().collect();
                 let backward_edge_ids: Vec<String> = backward_edge_ids.iter().map(|id: &&String| id.to_string()).collect();
                 let forward_edge_ids: Vec<String> = forward_edge_ids.iter().map(|id: &&String| id.to_string()).collect();
+                let neuron_id: String = neuron_guard.get_neuron_id();
+                let is_hidden_neuron: bool = neuron_guard.get_neuron_level().is_some();
                 drop(neuron_guard);
                 
                 if is_dangling
@@ -144,8 +149,19 @@ pub fn remove_dead_ends(
 
                         unsafe { (*nn_ptr).remove_edge(&edge_id) };
                     }
+
+                    if is_hidden_neuron
+                    {
+                        neurons_to_remove.push(neuron_id);
+                    }
                 }
             }
+        }
+
+        // Remove each hidden neuron that had its edges removed.
+        for neuron_id in neurons_to_remove
+        {
+            unsafe { (*nn_ptr).neural_net.remove_empty_neuron(&neuron_id); }
         }
     }
 }
