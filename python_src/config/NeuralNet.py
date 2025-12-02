@@ -78,7 +78,7 @@ class NeuralNet:
 
         return output_array
     
-    def update(self, grad_array: np.ndarray):
+    def optimize(self, grad_array: np.ndarray):
         """
         Performs backward propagation for neural network and update edge parameters  
         using gradient descent.
