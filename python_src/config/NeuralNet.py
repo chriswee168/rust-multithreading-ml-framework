@@ -177,6 +177,16 @@ class NeuralNet:
             self.nn_vp, self.edge_param_thresh
         )
     
+    def modify_random_edge(self):
+        """
+        Randomly select an edge to randomly modify its parameters.
+        """
+        rand_pos_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+        rand_neg_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+        self.rust_backend_funcs["set_rand_edge_params"](
+            self.nn_vp, rand_pos_weight, rand_neg_weight
+        )
+    
     def display_params(self):
         """
         Display all neurons and their edges.
