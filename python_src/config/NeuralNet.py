@@ -27,10 +27,8 @@ class NeuralNet:
         self.highest_param_val: float = hyper_params["highest_param_val"]
 
         self.add_neuron_rate: float = hyper_params["add_neuron_rate"]
-        self.remove_neuron_rate: float = hyper_params["remove_neuron_rate"]
         self.add_io_edge_rate: float = hyper_params["add_io_edge_rate"]
         self.join_neuron_rate: float = hyper_params["join_neuron_rate"]
-        self.remove_edge_rate: float = hyper_params["remove_edge_rate"]
         self.edge_param_thresh: float = hyper_params["edge_param_thresh"]
 
         self.nn_vp = self.rust_backend_funcs["create_nn"]()
