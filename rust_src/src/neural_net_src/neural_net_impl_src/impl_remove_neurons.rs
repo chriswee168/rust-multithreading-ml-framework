@@ -10,25 +10,28 @@ impl NeuralNet
         let (neuron_type, neuron) = 
             self.obtain_neuron(neuron_id);
         
-        let neuron: ArcNeuronTrait = neuron.unwrap();
-        let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
-        let is_empty: bool = neuron_guard.get_forward_edges().is_empty() && 
-            neuron_guard.get_backward_edges().is_empty();
-        drop(neuron_guard);
-
-        if is_empty
+        if neuron.is_some()
         {
-            if neuron_type == "input"
+            let neuron: ArcNeuronTrait = neuron.unwrap();
+            let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            let is_empty: bool = neuron_guard.get_forward_edges().is_empty() && 
+                neuron_guard.get_backward_edges().is_empty();
+            drop(neuron_guard);
+
+            if is_empty
             {
-                self.input_neurons.remove(neuron_id);
-            }
-            else if neuron_type == "output"
-            {
-                self.output_neurons.remove(neuron_id);
-            }
-            else if neuron_type == "hidden"
-            {
-                self.hidden_neurons.remove(neuron_id);
+                if neuron_type == "input"
+                {
+                    self.input_neurons.remove(neuron_id);
+                }
+                else if neuron_type == "output"
+                {
+                    self.output_neurons.remove(neuron_id);
+                }
+                else if neuron_type == "hidden"
+                {
+                    self.hidden_neurons.remove(neuron_id);
+                }
             }
         }
     }

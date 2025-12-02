@@ -65,7 +65,7 @@ impl EdgeTrait for InputEdge
     }
 
     // Get input array index.
-    fn get_prev_id(&self) -> Option<usize> {
+    fn get_prev_idx(&self) -> Option<usize> {
         return Some(self.input_array_index);
     }
 

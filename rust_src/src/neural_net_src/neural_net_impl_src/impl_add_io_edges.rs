@@ -27,10 +27,16 @@ impl NeuralNet
         
         // Add edge to beginning of input neuron.
         let mut input_neuron: MutexGuard<'_, Box<dyn NeuronTrait>> = input_neuron.lock().unwrap();
-        input_neuron.add_backward_edge(edge_id.clone(), input_edge.clone());
 
-         // Add the edge to input edge hashmap.
-        self.input_edges.insert(edge_id, input_edge);
+        if input_neuron.get_backward_edges().len() < input_neuron.get_backward_edge_max()
+        {
+            let edge_added: bool = input_neuron.add_backward_edge(edge_id.clone(), input_edge.clone());
+            if edge_added
+            {
+                // Add the edge to input edge hashmap.
+                self.input_edges.insert(edge_id, input_edge);
+            }
+        }
     }
 
     /// Add an edge for an output neuron to connect it to an index
@@ -56,9 +62,15 @@ impl NeuralNet
         
         // Add edge to end of output neuron.
         let mut output_neuron: MutexGuard<'_, Box<dyn NeuronTrait>> = output_neuron.lock().unwrap();
-        output_neuron.add_forward_edge(edge_id.clone(), output_edge.clone());
 
-         // Add the edge to output edge hashmap.
-        self.output_edges.insert(edge_id, output_edge);
+        if output_neuron.get_forward_edges().len() < output_neuron.get_forward_edge_max()
+        {
+            let edge_added: bool = output_neuron.add_forward_edge(edge_id.clone(), output_edge.clone());
+            if edge_added
+            {
+                // Add the edge to output edge hashmap.
+                self.output_edges.insert(edge_id, output_edge);
+            }
+        }
     }
 }

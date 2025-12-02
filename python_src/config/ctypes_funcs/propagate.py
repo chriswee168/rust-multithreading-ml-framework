@@ -1,5 +1,6 @@
 import ctypes as C
 from ctypes import CDLL
+import numpy as np
 
 def get_propagation_funcs(rust_backend_lib: CDLL, all_funcs: dict):
     """
@@ -36,10 +37,10 @@ def get_propagation_funcs(rust_backend_lib: CDLL, all_funcs: dict):
 
     # Args: nn_vp, input_arr, in_dim
     set_input_vec = rust_backend_lib.set_input_vec_ext
-    set_input_vec.argtypes = [C.c_void_p, C.POINTER(C.c_float), C.c_uint64]
+    set_input_vec.argtypes = [C.c_void_p, np.ctypeslib.ndpointer(C.c_float), C.c_uint64]
     all_funcs.update({"set_input_vec": set_input_vec})
 
     # Args: nn_vp, output_arr, out_dim
     set_output_grad_vec = rust_backend_lib.set_output_grad_vec_ext
-    set_output_grad_vec.argtypes = [C.c_void_p, C.POINTER(C.c_float), C.c_uint64]
+    set_output_grad_vec.argtypes = [C.c_void_p, np.ctypeslib.ndpointer(C.c_float), C.c_uint64]
     all_funcs.update({"set_output_grad_vec": set_output_grad_vec})

@@ -12,11 +12,11 @@ pub struct HiddenNeuron
 impl HiddenNeuron
 {
     pub fn new(
-        max_backward_edges: usize, max_forward_edges: usize, neuron_level: u32
+        neuron_id: String, max_backward_edges: usize, max_forward_edges: usize, neuron_level: u32
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
-            max_backward_edges, max_forward_edges, 
+            neuron_id, max_backward_edges, max_forward_edges, 
         );
 
         return Self
@@ -30,9 +30,9 @@ impl HiddenNeuron
 impl NeuronTrait for HiddenNeuron
 {
     /// Add an edge for this neuron to connect to another neuron.
-    fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) 
+    fn add_forward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) -> bool
     {
-        self.attr.add_forward_edge(edge_id, edge);
+        return self.attr.add_forward_edge(edge_id, edge);
     }
     /// Remove an edge to disconnect this neuron from another neuron.
     fn remove_forward_edge(&mut self, edge_id: &str) 
@@ -40,14 +40,24 @@ impl NeuronTrait for HiddenNeuron
         self.attr.remove_forward_edge(edge_id);
     }
     /// Add an edge for this neuron to connect to a previous neuron.
-    fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) 
+    fn add_backward_edge(&mut self, edge_id: String, edge: ArcEdgeTrait) -> bool
     {
-        self.attr.add_backward_edge(edge_id, edge);
+        return self.attr.add_backward_edge(edge_id, edge);
     }
     /// Remove an edge to disconnect this neuron from a previous neuron.
     fn remove_backward_edge(&mut self, edge_id: &str) 
     {
         self.attr.remove_backward_edge(edge_id);
+    }
+    /// Obtain forward edge max.
+    fn get_forward_edge_max(&self) -> usize 
+    {
+        return self.attr.max_forward_edges;
+    }
+    /// Obtain backward edge max.
+    fn get_backward_edge_max(&self) -> usize 
+    {
+        return self.attr.max_backward_edges;
     }
     /// Perform forward pass.
     fn forward(&mut self, neuron_buffer: &mut RwLockWriteGuard<'_, NeuronBuffer>) 
@@ -122,5 +132,10 @@ impl NeuronTrait for HiddenNeuron
     /// Return neuron level.
     fn get_neuron_level(&self) -> Option<u32> {
         return Some(self.neuron_level);
+    }
+
+    fn get_neuron_id(&self) -> String 
+    {
+        return self.attr.neuron_id.clone();
     }
 }

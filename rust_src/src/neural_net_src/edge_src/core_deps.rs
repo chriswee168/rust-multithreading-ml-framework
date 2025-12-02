@@ -79,9 +79,9 @@ pub trait EdgeTrait: Send
 
     // Methods to obtain the previous/next neuron/index, typing depends on
     // edge struct.
-    fn get_prev_id(&self) -> Option<usize> { None }
+    fn get_prev_idx(&self) -> Option<usize> { None }
     fn get_prev_neuron(&self) -> Option<ArcNeuronTrait> { None }
-    fn get_next_id(&self) -> Option<usize> { None }
+    fn get_next_idx(&self) -> Option<usize> { None }
     fn get_next_neuron(&self) -> Option<ArcNeuronTrait> { None }
 
     // Obtain the rwlock vector for input and output edges.

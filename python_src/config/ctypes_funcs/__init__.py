@@ -5,6 +5,6 @@ from . import init_neuron_buffers
 from . import join_neurons
 from . import propagate
 from . import remove_edge
-from . import remove_neuron
 from . import set_edge_params
 from . import spawn_threads
+from . import display_params
