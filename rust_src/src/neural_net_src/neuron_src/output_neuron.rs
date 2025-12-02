@@ -11,11 +11,11 @@ pub struct OutputNeuron
 impl OutputNeuron
 {
     pub fn new(
-        max_backward_edges: usize, max_forward_edges: usize, 
+       neuron_id: String, max_backward_edges: usize, max_forward_edges: usize, 
     ) -> Self
     {
         let neuron_attrs: NeuronAttr = NeuronAttr::new(
-            max_backward_edges, max_forward_edges, 
+            neuron_id, max_backward_edges, max_forward_edges, 
         );
 
         return Self
@@ -123,5 +123,10 @@ impl NeuronTrait for OutputNeuron
 
     fn get_backward_edges(&self) -> &HashMap<String, ArcEdgeTrait> {
         return &self.attr.backward_edges;
+    }
+
+    fn get_neuron_id(&self) -> String 
+    {
+        return self.attr.neuron_id.clone();
     }
 }

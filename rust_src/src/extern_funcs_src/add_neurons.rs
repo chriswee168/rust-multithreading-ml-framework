@@ -17,7 +17,7 @@ pub extern "C" fn add_input_neuron_ext(
         let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
         let id_str: String = CStr::from_ptr(id).to_str().unwrap().to_string();
         let neuron: ArcNeuronTrait = create_neuron(
-            max_edges, max_edges, 
+            id_str.clone(), max_edges, max_edges, 
             "input", 0
         );
         
@@ -45,13 +45,14 @@ pub extern "C" fn add_hidden_neuron_ext(
             random_id = rand_id_gen(id_len);
         }
 
+        // Indicate neuron level in ID.
+        random_id += format!("[{}]", neuron_level).as_str();
+
         let neuron: ArcNeuronTrait = create_neuron(
-            max_edges, max_edges, 
+            random_id.clone(), max_edges, max_edges, 
             "hidden", neuron_level
         );
         
-        // Indicate neuron level in ID.
-        random_id += format!("[{}]", neuron_level).as_str();
 
         let mut rand_gen: rand::prelude::ThreadRng = rand::thread_rng();
         
@@ -109,7 +110,7 @@ pub extern "C" fn add_output_neuron_ext(
         let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
         let id_str: String = CStr::from_ptr(id).to_str().unwrap().to_string();
         let neuron: ArcNeuronTrait = create_neuron(
-            max_edges, max_edges, 
+            id_str.clone(), max_edges, max_edges, 
             "output", MAX
         );
         
