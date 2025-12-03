@@ -93,7 +93,7 @@ pub trait EdgeTrait: Send
     fn get_grad_rwlock_vec(&self) -> Option<Arc<RwLock<Vec<f32>>>> { None }
 
     // Obtain the parameters of this edge.
-    fn get_params(&self) -> (f32, f32, f32);
+    fn get_params(&self) -> (f32, f32, f32, f32);
 
     // Set the negative and positive weights.
     fn set_params(&mut self, pos_weight: f32, neg_weight: f32);
