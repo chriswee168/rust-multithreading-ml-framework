@@ -79,9 +79,9 @@ pub trait EdgeTrait: Send
 
     // Methods to obtain the previous/next neuron/index, typing depends on
     // edge struct.
-    fn get_prev_id(&self) -> Option<usize> { None }
+    fn get_prev_idx(&self) -> Option<usize> { None }
     fn get_prev_neuron(&self) -> Option<ArcNeuronTrait> { None }
-    fn get_next_id(&self) -> Option<usize> { None }
+    fn get_next_idx(&self) -> Option<usize> { None }
     fn get_next_neuron(&self) -> Option<ArcNeuronTrait> { None }
 
     // Obtain the rwlock vector for input and output edges.
@@ -91,4 +91,7 @@ pub trait EdgeTrait: Send
 
     // Obtain the parameters of this edge.
     fn get_params(&self) -> (f32, f32, f32);
+
+    // Set the negative and positive weights.
+    fn set_params(&mut self, pos_weight: f32, neg_weight: f32);
 }

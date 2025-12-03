@@ -70,7 +70,7 @@ impl EdgeTrait for OutputEdge
     }
 
     // Get index of output array.
-    fn get_next_id(&self) -> Option<usize> {
+    fn get_next_idx(&self) -> Option<usize> {
         return Some(self.output_array_index);
     }
 
@@ -87,5 +87,12 @@ impl EdgeTrait for OutputEdge
     // Get parameters.
     fn get_params(&self) -> (f32, f32, f32) {
         return (self.attr.pos_weight, self.attr.neg_weight, self.attr.bias);
+    }
+
+    // Set the negative and positive weights.
+    fn set_params(&mut self, pos_weight: f32, neg_weight: f32) 
+    {
+        self.attr.pos_weight = pos_weight;
+        self.attr.neg_weight = neg_weight;
     }
 }

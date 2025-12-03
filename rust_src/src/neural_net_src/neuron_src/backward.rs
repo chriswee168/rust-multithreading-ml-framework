@@ -24,7 +24,7 @@ pub fn input_backward(
         let input_read_guard: RwLockReadGuard<'_, Vec<f32>> = input_rwlock_vec.read().unwrap();
 
         // Calculate the gradients for this edge's parameters and perform gradient descent.
-        let vector_index: usize = edge_guard.get_prev_id().unwrap();
+        let vector_index: usize = edge_guard.get_prev_idx().unwrap();
         let input_value: f32 = input_read_guard[vector_index];
         let input_grad: f32 = edge_guard.backward(input_value, chained_grad, lr);
 
@@ -85,7 +85,7 @@ pub fn output_backward(neuron_attr: &mut NeuronAttr, lr: f32)
         // Get value from the gradient vector given index.
         let grad_rwlock_vec: Arc<RwLock<Vec<f32>>> = edge_guard.get_grad_rwlock_vec().unwrap();
         let grad_vec_read_guard: RwLockReadGuard<'_, Vec<f32>> = grad_rwlock_vec.read().unwrap();
-        let grad_vec_idx: usize = edge_guard.get_next_id().unwrap();
+        let grad_vec_idx: usize = edge_guard.get_next_idx().unwrap();
         let gradient_val: f32 = grad_vec_read_guard[grad_vec_idx];
 
         // Return input gradient of the edge and accumulate to neuron gradient.

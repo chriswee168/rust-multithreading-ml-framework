@@ -65,7 +65,7 @@ impl EdgeTrait for InputEdge
     }
 
     // Get input array index.
-    fn get_prev_id(&self) -> Option<usize> {
+    fn get_prev_idx(&self) -> Option<usize> {
         return Some(self.input_array_index);
     }
 
@@ -89,5 +89,12 @@ impl EdgeTrait for InputEdge
     // Get parameters.
     fn get_params(&self) -> (f32, f32, f32) {
         return (self.attr.pos_weight, self.attr.neg_weight, self.attr.bias);
+    }
+
+    // Set the negative and positive weights.
+    fn set_params(&mut self, pos_weight: f32, neg_weight: f32) 
+    {
+        self.attr.pos_weight = pos_weight;
+        self.attr.neg_weight = neg_weight;
     }
 }
