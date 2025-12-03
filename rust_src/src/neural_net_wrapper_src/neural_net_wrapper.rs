@@ -231,7 +231,7 @@ impl NeuralNetWrapper
     {
         for (neuron_id, neuron) in &self.neural_net.input_neurons
         {
-            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            println!("\x1b[31mneuron_id: {}\x1b[0m", neuron_id);
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
             self.display_neuron_edges(neuron_guard);
             println!("----------");
@@ -239,7 +239,7 @@ impl NeuralNetWrapper
 
         for (neuron_id, neuron) in &self.neural_net.hidden_neurons
         {
-            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            println!("\x1b[31mneuron_id: {}\x1b[0m", neuron_id);
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
             self.display_neuron_edges(neuron_guard);
             println!("----------");
@@ -247,7 +247,7 @@ impl NeuralNetWrapper
 
         for (neuron_id, neuron) in &self.neural_net.output_neurons
         {
-            println!("neuron_id: {} | neuron_addr: {:p}", neuron_id, neuron);
+            println!("\x1b[31mneuron_id: {}\x1b[0m", neuron_id);
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
             self.display_neuron_edges(neuron_guard);
             println!("----------");
@@ -262,7 +262,7 @@ impl NeuralNetWrapper
         {
             let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
             let edge_params: (f32, f32, f32) = edge_guard.get_params();
-            println!("({}, {:p}) --> {}, {}, {}", edge_id, *edge, edge_params.0, edge_params.1, edge_params.2);
+            println!("\x1b[32m{} --> {}, {}, {}\x1b[0m", edge_id, edge_params.0, edge_params.1, edge_params.2);
         }
 
         // Display all forward edges.
@@ -270,7 +270,7 @@ impl NeuralNetWrapper
         {
             let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
             let edge_params: (f32, f32, f32) = edge_guard.get_params();
-            println!("{}, {}, {} --> ({}, {:p})", edge_params.0, edge_params.1, edge_params.2, edge_id, *edge);
+            println!("\x1b[33m{} --> {}, {}, {}\x1b[0m",  edge_id, edge_params.0, edge_params.1, edge_params.2);
         }
     }
 
