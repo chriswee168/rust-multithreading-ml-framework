@@ -27,10 +27,8 @@ class NeuralNet:
         self.highest_param_val: float = hyper_params["highest_param_val"]
 
         self.add_neuron_rate: float = hyper_params["add_neuron_rate"]
-        self.remove_neuron_rate: float = hyper_params["remove_neuron_rate"]
         self.add_io_edge_rate: float = hyper_params["add_io_edge_rate"]
         self.join_neuron_rate: float = hyper_params["join_neuron_rate"]
-        self.remove_edge_rate: float = hyper_params["remove_edge_rate"]
         self.edge_param_thresh: float = hyper_params["edge_param_thresh"]
 
         self.nn_vp = self.rust_backend_funcs["create_nn"]()
@@ -80,7 +78,7 @@ class NeuralNet:
 
         return output_array
     
-    def update(self, grad_array: np.ndarray):
+    def optimize(self, grad_array: np.ndarray):
         """
         Performs backward propagation for neural network and update edge parameters  
         using gradient descent.
@@ -175,6 +173,16 @@ class NeuralNet:
 
         self.rust_backend_funcs["remove_random_edge"](
             self.nn_vp, self.edge_param_thresh
+        )
+    
+    def modify_random_edge(self):
+        """
+        Randomly select an edge to randomly modify its parameters.
+        """
+        rand_pos_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+        rand_neg_weight = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+        self.rust_backend_funcs["set_rand_edge_params"](
+            self.nn_vp, rand_pos_weight, rand_neg_weight
         )
     
     def display_params(self):
