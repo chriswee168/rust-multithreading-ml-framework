@@ -31,7 +31,8 @@ pub extern "C" fn add_input_neuron_ext(
 pub extern "C" fn add_hidden_neuron_ext(
     nn_vp: *mut c_void, id_len: usize, 
     max_edges: usize, neuron_level: u32,
-    neg_weight: f32, pos_weight: f32
+    neg_weight1: f32, pos_weight1: f32,
+    neg_weight2: f32, pos_weight2: f32
 )
 {
     unsafe
@@ -81,17 +82,17 @@ pub extern "C" fn add_hidden_neuron_ext(
             let backward_neuron_id: String = backward_neuron_id.unwrap();
             let forward_neuron_id: String = forward_neuron_id.unwrap();
 
-            let backward_edge_id: String = backward_neuron_id.clone() + "_" + random_id.as_str();
-            let forward_edge_id: String = random_id.clone() + "_" + forward_neuron_id.as_str();
+            let backward_edge_id: String = backward_neuron_id.clone() + " --> " + random_id.as_str();
+            let forward_edge_id: String = random_id.clone() + " --> " + forward_neuron_id.as_str();
             
             (*nn_ptr).join_neurons(
                 &backward_neuron_id, &random_id, 
-                backward_edge_id, neg_weight, pos_weight
+                backward_edge_id, neg_weight1, pos_weight1
             );
 
             (*nn_ptr).join_neurons(
                 &random_id, &forward_neuron_id, 
-                forward_edge_id, neg_weight, pos_weight
+                forward_edge_id, neg_weight2, pos_weight2
             );
         }
 

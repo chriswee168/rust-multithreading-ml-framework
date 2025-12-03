@@ -103,7 +103,7 @@ pub extern "C" fn join_two_rand_neurons_ext(
             if ascending_levels && not_exceeded_max_edges
             {
                 let edge_id: String = 
-                    neuron_id1.clone().unwrap() + "_" + neuron_id2.clone().unwrap().as_str();
+                    neuron_id1.clone().unwrap() + " --> " + neuron_id2.clone().unwrap().as_str();
 
                 (*nn_ptr).join_neurons(
                     &neuron_id1.unwrap(), &neuron_id2.unwrap(), 
@@ -147,7 +147,7 @@ pub extern "C" fn add_input_edge_ext(
     {
         let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
         let neuron_id_str: &str = CStr::from_ptr(input_neuron_id).to_str().unwrap();
-        let edge_id: String = arr_idx.to_string() + "_" + neuron_id_str;
+        let edge_id: String = arr_idx.to_string() + " --> " + neuron_id_str;
 
         (*nn_ptr).add_input_edge(
             neuron_id_str, edge_id, 
@@ -168,7 +168,7 @@ pub extern "C" fn add_output_edge_ext(
     {
         let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
         let neuron_id_str: &str = CStr::from_ptr(output_neuron_id).to_str().unwrap();
-        let edge_id: String = neuron_id_str.to_string() + "_" + arr_idx.to_string().as_str();
+        let edge_id: String = neuron_id_str.to_string() +  "--> " + arr_idx.to_string().as_str();
 
         (*nn_ptr).add_output_edge(
             neuron_id_str, edge_id, 
