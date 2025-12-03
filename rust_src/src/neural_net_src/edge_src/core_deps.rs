@@ -10,7 +10,8 @@ pub struct EdgeAttr
     // Weight values to use for negative and positive input.
     pub neg_weight: f32,
     pub pos_weight: f32,
-    pub bias: f32, // Bias value to shift the product.
+    pub neg_bias: f32, // Bias value to shift the product for negative input.
+    pub pos_bias: f32, // Bias value to shift the product for positive input.
 }
 
 // Implement constructor method.
@@ -22,7 +23,8 @@ impl EdgeAttr
         {
             neg_weight,
             pos_weight,
-            bias: 0.0,
+            neg_bias: 0.0,
+            pos_bias: 0.0
         }
     }
 }
@@ -32,16 +34,16 @@ pub trait EdgeTrait: Send
 {
     fn forward(&self, input_val: f32) -> f32;
     // Default implementation.
-    fn forward_def(&self, input_val: f32, pos_weight: f32, neg_weight: f32, bias: f32) -> f32
+    fn forward_def(&self, input_val: f32, pos_weight: f32, neg_weight: f32, neg_bias: f32, pos_bias: f32) -> f32
     {
         // Perform y = w * x + b
         if input_val >= 0.0
         {
-            return input_val * pos_weight + bias;
+            return input_val * pos_weight + pos_bias;
         }
         else
         {
-            return input_val * neg_weight + bias;
+            return input_val * neg_weight + neg_bias;
         }
     }
     fn backward(&mut self, input_val: f32, gradient_val: f32, lr: f32) -> f32;
@@ -49,32 +51,33 @@ pub trait EdgeTrait: Send
     fn backward_def(
         &self, attr: &EdgeAttr,
         input_val: f32, gradient_val: f32, lr: f32
-    ) -> (f32, f32, f32, f32) {
+    ) -> (f32, f32, f32, f32, f32) {
         // Derivatives
         // y = w * x + b
         // d_y/d_x = w
         // d_y/d_w = x
         // d_y/d_b = 1
 
-        // Update bias parameter.
-        let new_bias: f32 = attr.bias - lr * gradient_val;
-
-        // Update weight parameter and calculate the gradient respect to input.
+        // Update weight and bias parameters and calculate the gradient respect to input.
         let input_gradient: f32;
         let mut new_pos_weight: f32 = attr.pos_weight;
         let mut new_neg_weight: f32 = attr.neg_weight;
+        let mut new_pos_bias: f32 = attr.pos_bias;
+        let mut new_neg_bias: f32 = attr.neg_bias;
         if input_val >= 0.0
         {
             new_pos_weight -= lr * gradient_val * input_val;
             input_gradient = gradient_val * attr.pos_weight;
+            new_pos_bias -= lr * gradient_val;
         }
         else
         {
             new_neg_weight -= lr * gradient_val * input_val;
             input_gradient = gradient_val * attr.neg_weight;
+            new_neg_bias -= lr * gradient_val;
         }
 
-        return (input_gradient, new_bias, new_pos_weight, new_neg_weight);
+        return (input_gradient, new_neg_bias, new_pos_bias, new_pos_weight, new_neg_weight);
     }
 
     // Methods to obtain the previous/next neuron/index, typing depends on
