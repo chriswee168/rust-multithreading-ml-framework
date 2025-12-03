@@ -70,7 +70,7 @@ impl EdgeTrait for OutputEdge
     }
 
     // Get index of output array.
-    fn get_next_id(&self) -> Option<usize> {
+    fn get_next_idx(&self) -> Option<usize> {
         return Some(self.output_array_index);
     }
 
