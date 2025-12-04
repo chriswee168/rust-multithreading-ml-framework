@@ -87,7 +87,7 @@ pub extern "C" fn join_two_rand_neurons_ext(
             let neuron2_level: Option<u32> = neuron2_guard.get_neuron_level();
             
             // Only if both neuron1 and neuron2 are hidden neurons.
-            if (neuron1_level.is_some() && neuron2_level.is_some()) && neuron1_level >= neuron1_level
+            if (neuron1_level.is_some() && neuron2_level.is_some()) && neuron1_level >= neuron2_level
             {
                 ascending_levels = false
             }
