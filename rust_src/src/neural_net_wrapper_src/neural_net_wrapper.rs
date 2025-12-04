@@ -261,16 +261,16 @@ impl NeuralNetWrapper
         for (edge_id, edge) in neuron_guard.get_backward_edges()
         {
             let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
-            let edge_params: (f32, f32, f32, f32) = edge_guard.get_params();
-            println!("\x1b[32m{} --> {}, {}, {}, {}\x1b[0m", edge_id, edge_params.0, edge_params.1, edge_params.2, edge_params.3);
+            let edge_params: (f32, f32) = edge_guard.get_params();
+            println!("\x1b[32m{} --> {}, {}\x1b[0m", edge_id, edge_params.0, edge_params.1);
         }
 
         // Display all forward edges.
         for (edge_id, edge) in neuron_guard.get_forward_edges()
         {
             let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
-            let edge_params: (f32, f32, f32, f32) = edge_guard.get_params();
-            println!("\x1b[33m{} --> {}, {}, {}, {}\x1b[0m",  edge_id, edge_params.0, edge_params.1, edge_params.2, edge_params.3);
+            let edge_params: (f32, f32) = edge_guard.get_params();
+            println!("\x1b[33m{} --> {}, {}\x1b[0m",  edge_id, edge_params.0, edge_params.1);
         }
     }
 
