@@ -116,10 +116,14 @@ class NeuralNet:
         
         # Add a neuron.
         if random_choice == 0:
+            random_neg_weight1 = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+            random_pos_weight1 = np.random.uniform(self.lowest_param_val, self.highest_param_val)
+
             random_depth = np.random.randint(0, self.max_depth)
             self.rust_backend_funcs["add_hidden_neuron"](
                 self.nn_vp, self.neuron_id_len, self.max_edges, random_depth,
-                random_neg_weight, random_pos_weight
+                random_neg_weight, random_pos_weight,
+                random_neg_weight1, random_pos_weight1
             )
         
         # Add an input/output edge.
