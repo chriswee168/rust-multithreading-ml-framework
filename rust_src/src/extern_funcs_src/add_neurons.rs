@@ -82,8 +82,8 @@ pub extern "C" fn add_hidden_neuron_ext(
             let backward_neuron_id: String = backward_neuron_id.unwrap();
             let forward_neuron_id: String = forward_neuron_id.unwrap();
 
-            let backward_edge_id: String = backward_neuron_id.clone() + "_" + random_id.as_str();
-            let forward_edge_id: String = random_id.clone() + "_" + forward_neuron_id.as_str();
+            let backward_edge_id: String = backward_neuron_id.clone() + " --> " + random_id.as_str();
+            let forward_edge_id: String = random_id.clone() + " --> " + forward_neuron_id.as_str();
             
             (*nn_ptr).join_neurons(
                 &backward_neuron_id, &random_id, 
