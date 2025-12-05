@@ -130,7 +130,7 @@ impl NeuralNetWrapper
         num_io_neurons = io_neurons.len();
 
         let num_threads: usize = self.thread_handles.len();
-        let neurons_per_buffer: usize = (num_io_neurons / num_threads) + 1;
+        let neurons_per_buffer: usize = (num_io_neurons as f32 / num_threads as f32).ceil() as usize;
 
         let mut increment: usize = 0;
         let mut buffer_guard_idx: usize = 0;
@@ -155,7 +155,10 @@ impl NeuralNetWrapper
             {
                 // Obtain the next buffer.
                 buffer_guard_idx += 1;
-                buffer = &mut buffers[buffer_guard_idx];
+                if buffer_guard_idx < self.thread_handles.len()
+                {
+                    buffer = &mut buffers[buffer_guard_idx];
+                }
                 increment = 0;
             }
         }
