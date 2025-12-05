@@ -161,7 +161,7 @@ fn obtain_valid_neuron(
             if neuron_level.is_some()
             {
                 // Next neuron must have higher level.
-                neuron_is_valid = target_neuron_level < neuron_guard.get_neuron_level().unwrap();
+                neuron_is_valid = target_neuron_level < neuron_level.unwrap();
             }
             under_max_edges = neuron_guard.get_backward_edges().len() < neuron_guard.get_backward_edge_max();
         }
@@ -170,7 +170,7 @@ fn obtain_valid_neuron(
             if neuron_level.is_some()
             {
                 // Previous neuron must have lower level.
-                neuron_is_valid = target_neuron_level > neuron_guard.get_neuron_level().unwrap();
+                neuron_is_valid = target_neuron_level > neuron_level.unwrap();
             }
             under_max_edges = neuron_guard.get_forward_edges().len() < neuron_guard.get_forward_edge_max();
         }
