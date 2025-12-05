@@ -252,6 +252,15 @@ impl NeuralNetWrapper
             self.display_neuron_edges(neuron_guard);
             println!("----------");
         }
+
+        // Display the number of neurons and edges.
+        println!("N Input neurons: {}", self.neural_net.input_neurons.len());
+        println!("N Hidden neurons: {}", self.neural_net.hidden_neurons.len());
+        println!("N Output neurons: {}", self.neural_net.output_neurons.len());
+
+        println!("N Input edges: {}", self.neural_net.input_edges.len());
+        println!("N Hidden edges: {}", self.neural_net.hidden_edges.len());
+        println!("N Output edges: {}", self.neural_net.output_edges.len());
     }
 
     /// Displays the parameters of each edge in a neuron.
