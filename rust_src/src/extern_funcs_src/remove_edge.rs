@@ -80,9 +80,8 @@ pub fn remove_dead_ends(
 
     let edge_arc: ArcEdgeTrait = edge.unwrap();
     let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge_arc.lock().unwrap();
-    let edge_params: (f32, f32, f32) = edge_guard.get_params();
-    let param_abs_ave: f32 = 
-        (edge_params.0.abs() + edge_params.1.abs() + edge_params.2.abs()) / 3.0;
+    let edge_params: (f32, f32) = edge_guard.get_params();
+    let param_abs_ave: f32 = (edge_params.0.abs() + edge_params.1.abs()) / 2.0;
 
     if param_abs_ave <= edge_param_thresh 
     {

@@ -82,8 +82,8 @@ pub extern "C" fn add_hidden_neuron_ext(
             let backward_neuron_id: String = backward_neuron_id.unwrap();
             let forward_neuron_id: String = forward_neuron_id.unwrap();
 
-            let backward_edge_id: String = backward_neuron_id.clone() + "_" + random_id.as_str();
-            let forward_edge_id: String = random_id.clone() + "_" + forward_neuron_id.as_str();
+            let backward_edge_id: String = backward_neuron_id.clone() + " --> " + random_id.as_str();
+            let forward_edge_id: String = random_id.clone() + " --> " + forward_neuron_id.as_str();
             
             (*nn_ptr).join_neurons(
                 &backward_neuron_id, &random_id, 
@@ -161,7 +161,7 @@ fn obtain_valid_neuron(
             if neuron_level.is_some()
             {
                 // Next neuron must have higher level.
-                neuron_is_valid = target_neuron_level < neuron_guard.get_neuron_level().unwrap();
+                neuron_is_valid = target_neuron_level < neuron_level.unwrap();
             }
             under_max_edges = neuron_guard.get_backward_edges().len() < neuron_guard.get_backward_edge_max();
         }
@@ -170,7 +170,7 @@ fn obtain_valid_neuron(
             if neuron_level.is_some()
             {
                 // Previous neuron must have lower level.
-                neuron_is_valid = target_neuron_level > neuron_guard.get_neuron_level().unwrap();
+                neuron_is_valid = target_neuron_level > neuron_level.unwrap();
             }
             under_max_edges = neuron_guard.get_forward_edges().len() < neuron_guard.get_forward_edge_max();
         }

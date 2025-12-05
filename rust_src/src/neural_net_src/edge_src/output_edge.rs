@@ -47,17 +47,15 @@ impl EdgeTrait for OutputEdge
             input_val, 
             self.attr.pos_weight, 
             self.attr.neg_weight, 
-            self.attr.bias
         );
     }
 
     // Backpropagation through chain rule.
     fn backward(&mut self, input_val: f32, gradient_val: f32, lr: f32) -> f32 {
-        let (input_grad, new_bias, new_pos_weight, new_neg_weight) = 
+        let (input_grad, new_pos_weight, new_neg_weight) = 
             self.backward_def(&self.attr, input_val, gradient_val, lr);
 
         // Update the edge parameters.
-        self.attr.bias = new_bias;
         self.attr.pos_weight = new_pos_weight;
         self.attr.neg_weight = new_neg_weight;
 
@@ -85,8 +83,8 @@ impl EdgeTrait for OutputEdge
     }
 
     // Get parameters.
-    fn get_params(&self) -> (f32, f32, f32) {
-        return (self.attr.pos_weight, self.attr.neg_weight, self.attr.bias);
+    fn get_params(&self) -> (f32, f32) {
+        return (self.attr.pos_weight, self.attr.neg_weight);
     }
 
     // Set the negative and positive weights.
