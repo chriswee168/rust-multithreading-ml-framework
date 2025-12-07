@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::neural_net_src::{neural_net::NeuralNet, types_aliases::ArcNeuronTrait};
 
 impl NeuralNet

@@ -1,6 +1,6 @@
-use std::{sync::{Arc, MutexGuard}, u32::MAX};
+use std::u32::MAX;
 
-use libai_core::{extern_funcs_src::remove_edge::remove_dead_ends, neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::create_neuron::create_neuron, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use libai_core::{extern_funcs_src::remove_edge::remove_dead_ends, neural_net_src::{neuron_src::create_neuron::create_neuron, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 #[test]
 fn remove_edges()

@@ -1,4 +1,4 @@
-use std::{collections::{HashMap, VecDeque}, sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
+use std::{collections::{HashMap, VecDeque}, sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard}, thread::{self, JoinHandle}};
 
 use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, thread_src::main_thread_fn::main_thread_fn, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
@@ -177,10 +177,6 @@ impl NeuralNetWrapper
     pub fn propagate(&self)
     {   
         let is_forward: bool = self.traverse_forward.load(Ordering::SeqCst);
-        let total_edges: usize = 
-            self.neural_net.input_edges.len() + 
-            self.neural_net.output_edges.len() + 
-            self.neural_net.hidden_edges.len();
 
         let stored_buffers: &Vec<NeuronBuffer>;
         if is_forward

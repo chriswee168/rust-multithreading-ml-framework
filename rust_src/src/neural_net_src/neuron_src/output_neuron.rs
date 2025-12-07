@@ -1,6 +1,6 @@
-use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
+use std::{collections::HashMap, sync::RwLockWriteGuard};
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{backward::{hidden_backward, output_backward}, core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
+use crate::neural_net_src::{neuron_src::{backward::{hidden_backward, output_backward}, core_deps::{NeuronAttr, NeuronTrait}, forward::output_forward}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 
 /// Struct to define output neuron attributes and behaviour.
 pub struct OutputNeuron
