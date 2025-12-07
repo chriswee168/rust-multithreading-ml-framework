@@ -1,8 +1,8 @@
-use std::{collections::{HashMap, VecDeque}, ffi::c_void, hash::Hash, sync::MutexGuard};
+use std::{collections::{HashMap, VecDeque}, ffi::c_void, sync::MutexGuard};
 
 use rand::Rng;
 
-use crate::{neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use crate::{neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::NeuronTrait, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 /// Randomly select an edge to remove if the absolute average of the edge parameters
 /// is below a threshold.
@@ -80,10 +80,8 @@ pub fn remove_dead_ends(
 
     let edge_arc: ArcEdgeTrait = edge.unwrap();
     let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge_arc.lock().unwrap();
-    let edge_params: (f32, f32, f32, f32) = edge_guard.get_params();
-    let param_abs_ave: f32 = 
-        (edge_params.0.abs() + edge_params.1.abs() + 
-         edge_params.2.abs() + edge_params.3.abs()) / 4.0;
+    let edge_params: (f32, f32) = edge_guard.get_params();
+    let param_abs_ave: f32 = (edge_params.0.abs() + edge_params.1.abs()) / 2.0;
 
     if param_abs_ave <= edge_param_thresh 
     {

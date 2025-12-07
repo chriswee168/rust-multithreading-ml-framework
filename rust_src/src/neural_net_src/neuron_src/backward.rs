@@ -1,6 +1,6 @@
-use std::{cell::{RefCell, RefMut}, sync::{atomic::AtomicUsize, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard}};
+use std::sync::{Arc, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard};
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::{core_deps::{NeuronAttr, NeuronTrait}, edge_count_funcs::{edge_count_notify, increment_edge_count}}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::{NeuronAttr, NeuronTrait}, types_aliases::{ArcNeuronTrait, NeuronBuffer}};
 
 /// Calculate gradients of input edge parameters, as well as the final
 /// input gradient vector if selected.

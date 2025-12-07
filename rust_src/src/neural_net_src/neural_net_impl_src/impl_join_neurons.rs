@@ -1,6 +1,6 @@
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::MutexGuard;
 
-use crate::neural_net_src::{edge_src::{create_edge::create_hidden_edge, hidden_edge::HiddenEdge}, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, rand_id_gen::rand_id_gen, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
+use crate::neural_net_src::{edge_src::create_edge::create_hidden_edge, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
 
 impl NeuralNet
 {

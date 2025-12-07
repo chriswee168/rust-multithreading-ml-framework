@@ -17,7 +17,8 @@ class NeuralNet:
         self.out_dim: int = hyper_params["out_dim"]
         self.n_input_neurons: int = hyper_params["n_input_neurons"]
         self.n_output_neurons: int = hyper_params["n_output_neurons"]
-        self.max_edges: int = hyper_params["max_edges"]
+        self.max_io_edges: int = hyper_params["max_io_edges"]
+        self.max_hidden_edges: int = hyper_params["max_hidden_edges"]
         self.max_depth: int = hyper_params["max_depth"]
         self.neuron_id_len: int = hyper_params["neuron_id_len"]
 
@@ -37,13 +38,13 @@ class NeuralNet:
         for i in range(self.n_input_neurons):
             neuron_name = f"input_{i}"
             self.rust_backend_funcs["add_input_neuron"](
-                self.nn_vp, neuron_name.encode(), self.max_edges
+                self.nn_vp, neuron_name.encode(), self.max_io_edges
             )
 
         for i in range(self.n_output_neurons):
             neuron_name = f"output_{i}"
             self.rust_backend_funcs["add_output_neuron"](
-                self.nn_vp, neuron_name.encode(), self.max_edges
+                self.nn_vp, neuron_name.encode(), self.max_io_edges
             )
     
     def spawn_threads(self):
@@ -121,7 +122,7 @@ class NeuralNet:
 
             random_depth = np.random.randint(0, self.max_depth)
             self.rust_backend_funcs["add_hidden_neuron"](
-                self.nn_vp, self.neuron_id_len, self.max_edges, random_depth,
+                self.nn_vp, self.neuron_id_len, self.max_hidden_edges, random_depth,
                 random_neg_weight, random_pos_weight,
                 random_neg_weight1, random_pos_weight1
             )

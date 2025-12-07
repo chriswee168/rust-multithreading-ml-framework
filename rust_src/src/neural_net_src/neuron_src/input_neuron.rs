@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
+use std::{collections::HashMap, sync::RwLockWriteGuard};
 
 use crate::neural_net_src::{neuron_src::{backward::input_backward, core_deps::{NeuronAttr, NeuronTrait}, forward::{hidden_forward, input_forward}}, types_aliases::{ArcEdgeTrait, NeuronBuffer}};
 

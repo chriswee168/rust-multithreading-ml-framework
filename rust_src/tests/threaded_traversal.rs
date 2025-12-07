@@ -1,7 +1,6 @@
-use core::time;
-use std::{process::exit, time::Duration, u32::MAX};
+use std::u32::MAX;
 
-use libai_core::{neural_net_src::{neuron_src::create_neuron::create_neuron, rand_id_gen::rand_id_gen, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use libai_core::{neural_net_src::{neuron_src::create_neuron::create_neuron, rand_id_gen::rand_id_gen}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 #[test]
 fn threaded_traversal()
@@ -107,7 +106,7 @@ fn threaded_traversal()
 
     // Check if output vector has the correct values after forward pass.
     let sample_input_vec: Vec<f32> = vec![1.0, 2.0, 3.0, 4.0];
-    for i in 0..3
+    for _ in 0..3
     {
         neural_net.init_input_vecs(4);
         neural_net.init_output_vecs(4);
