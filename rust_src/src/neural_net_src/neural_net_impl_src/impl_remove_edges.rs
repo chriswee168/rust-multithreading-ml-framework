@@ -1,6 +1,6 @@
 use std::sync::MutexGuard;
 
-use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::{core_deps::NeuronTrait, input_neuron}, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
+use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
 
 impl NeuralNet
 {

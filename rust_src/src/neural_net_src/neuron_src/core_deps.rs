@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{Arc, Condvar, Mutex, RwLockWriteGuard}};
+use std::{collections::HashMap, sync::RwLockWriteGuard};
 
 use crate::neural_net_src::types_aliases::{ArcEdgeTrait, NeuronBuffer};
 
