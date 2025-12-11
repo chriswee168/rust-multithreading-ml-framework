@@ -1,6 +1,6 @@
 use std::sync::{atomic::{AtomicBool, Ordering}, Arc, Condvar, Mutex, MutexGuard, RwLock, RwLockWriteGuard};
 
-use crate::neural_net_src::{neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron}, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
+use crate::neural_net_src::{neuron_src::{core_deps::NeuronTrait}, types_aliases::{ArcNeuronBufferVec, ArcNeuronTrait, NeuronBuffer}};
 
 /// Main function for threads to perform forward or backward
 /// propagation of the neural network.

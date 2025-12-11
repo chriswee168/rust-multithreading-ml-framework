@@ -1,4 +1,4 @@
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::{Arc, Mutex};
 
 use crate::neural_net_src::{
     neuron_src::{core_deps::NeuronTrait, hidden_neuron::HiddenNeuron, 

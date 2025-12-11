@@ -1,8 +1,8 @@
-use std::{collections::{HashMap, VecDeque}, ffi::c_void, hash::Hash, sync::MutexGuard};
+use std::{collections::{HashMap, VecDeque}, ffi::c_void, sync::MutexGuard};
 
 use rand::Rng;
 
-use crate::{neural_net_src::{edge_src::core_deps::EdgeTrait, neural_net::NeuralNet, neuron_src::core_deps::NeuronTrait, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use crate::{neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::NeuronTrait, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 /// Randomly select an edge to remove if the absolute average of the edge parameters
 /// is below a threshold.
