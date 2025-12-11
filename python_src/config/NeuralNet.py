@@ -1,5 +1,6 @@
 import json
 import numpy as np
+from copy import deepcopy
 
 class NeuralNet:
     """
@@ -74,7 +75,7 @@ class NeuralNet:
         self.rust_backend_funcs["set_input_vec"](self.nn_vp, array, self.in_dim)
         self.rust_backend_funcs["init_output_vecs"](self.nn_vp, self.out_dim)
         output_array_ptr = self.rust_backend_funcs["propagate"](self.nn_vp)
-        output_array = np.ctypeslib.as_array(output_array_ptr, (self.out_dim,))
+        output_array = deepcopy(np.ctypeslib.as_array(output_array_ptr, (self.out_dim,)))
         self.rust_backend_funcs["free_vec"](output_array_ptr, self.out_dim)
 
         return output_array
@@ -91,7 +92,7 @@ class NeuralNet:
         self.rust_backend_funcs["set_output_grad_vec"](self.nn_vp, grad_array, self.out_dim)
         self.rust_backend_funcs["init_input_vecs"](self.nn_vp, self.in_dim)
         input_grad_array_ptr = self.rust_backend_funcs["propagate"](self.nn_vp)
-        input_grad_array = np.ctypeslib.as_array(input_grad_array_ptr, (self.in_dim,))
+        input_grad_array = deepcopy(np.ctypeslib.as_array(input_grad_array_ptr, (self.in_dim,)))
         self.rust_backend_funcs["free_vec"](input_grad_array_ptr, self.in_dim)
 
         return input_grad_array
