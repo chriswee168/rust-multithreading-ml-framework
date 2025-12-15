@@ -108,9 +108,7 @@ fn threaded_traversal()
     let sample_input_vec: Vec<f32> = vec![1.0, 2.0, 3.0, 4.0];
     for _ in 0..3
     {
-        neural_net.init_input_vecs(4);
-        neural_net.init_output_vecs(4);
-        
+        neural_net.init_output_vec(4);
         neural_net.set_input_vec(sample_input_vec.clone());
         neural_net.propagate();
         assert_eq!(vec![240.0, 240.0, 240.0, 240.0], *neural_net.get_output_vec());
@@ -138,6 +136,7 @@ fn threaded_traversal()
         }
 
         // Test backpropagation and final input gradients.
+        neural_net.init_input_grad_vec(4);
         neural_net.set_output_grad_vec(vec![1.0, 1.0, 1.0, 1.0]);
         neural_net.prop_forward(false);
         neural_net.propagate();
