@@ -4,13 +4,11 @@ use crate::neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper;
 
 impl NeuralNetWrapper
 {
-    /// Initialize the input vector and input gradient vector with zeros
+    /// Initialize the input gradient vector with zeros
     /// of specificed dimension.
-    pub fn init_input_vecs(&self, in_dim: usize)
+    pub fn init_input_grad_vecs(&self, in_dim: usize)
     {
         let vector: Vec<f32> = Vec::from_iter(repeat(0.0).take(in_dim));
-        self.set_input_vec(vector.clone());
-
         let mut write_guard: RwLockWriteGuard<'_, Vec<f32>> = self.input_rwlock_grad_vec.write().unwrap();
         *write_guard = vector;
     }
