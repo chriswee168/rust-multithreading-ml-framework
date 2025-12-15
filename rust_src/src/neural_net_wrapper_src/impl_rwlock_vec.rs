@@ -29,13 +29,11 @@ impl NeuralNetWrapper
     }
 
     
-    /// Initialize the output vector and output gradient vector with zeros
+    /// Initialize the output vector with zeros
     /// of specificed dimension.
-    pub fn init_output_vecs(&self, out_dim: usize)
+    pub fn init_output_vec(&self, out_dim: usize)
     {
         let vector: Vec<f32> = Vec::from_iter(repeat(0.0).take(out_dim));
-        self.set_output_grad_vec(vector.clone());
-
         let mut write_guard: RwLockWriteGuard<'_, Vec<f32>> = self.output_rwlock_vec.write().unwrap();
         *write_guard = vector;
     }
