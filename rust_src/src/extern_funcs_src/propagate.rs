@@ -63,7 +63,7 @@ pub extern "C" fn init_input_grad_vecs_ext(nn_vp: *mut c_void, in_dim: usize)
     unsafe
     {
         let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
-        (*nn_ptr).init_input_grad_vecs(in_dim);
+        (*nn_ptr).init_input_grad_vec(in_dim);
     }
 }
 

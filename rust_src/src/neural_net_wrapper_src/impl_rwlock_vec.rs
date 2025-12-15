@@ -6,7 +6,7 @@ impl NeuralNetWrapper
 {
     /// Initialize the input gradient vector with zeros
     /// of specificed dimension.
-    pub fn init_input_grad_vecs(&self, in_dim: usize)
+    pub fn init_input_grad_vec(&self, in_dim: usize)
     {
         let vector: Vec<f32> = Vec::from_iter(repeat(0.0).take(in_dim));
         let mut write_guard: RwLockWriteGuard<'_, Vec<f32>> = self.input_rwlock_grad_vec.write().unwrap();
