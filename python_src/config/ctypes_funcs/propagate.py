@@ -26,14 +26,14 @@ def get_propagation_funcs(rust_backend_lib: CDLL, all_funcs: dict):
     all_funcs.update({"free_vec": free_vec})
 
     # Args: nn_vp, in_dim
-    init_input_vecs = rust_backend_lib.init_input_vecs_ext
-    init_input_vecs.argtypes = [C.c_void_p, C.c_uint64]
-    all_funcs.update({"init_input_vecs": init_input_vecs})
+    init_input_grad_vec = rust_backend_lib.init_input_grad_vec_ext
+    init_input_grad_vec.argtypes = [C.c_void_p, C.c_uint64]
+    all_funcs.update({"init_input_grad_vec": init_input_grad_vec})
 
     # Args: nn_vp, out_dim
-    init_output_vecs = rust_backend_lib.init_output_vecs_ext
-    init_output_vecs.argtypes = [C.c_void_p, C.c_uint64]
-    all_funcs.update({"init_output_vecs": init_output_vecs})
+    init_output_vec = rust_backend_lib.init_output_vec_ext
+    init_output_vec.argtypes = [C.c_void_p, C.c_uint64]
+    all_funcs.update({"init_output_vec": init_output_vec})
 
     # Args: nn_vp, input_arr, in_dim
     set_input_vec = rust_backend_lib.set_input_vec_ext
