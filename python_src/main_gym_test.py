@@ -4,7 +4,9 @@ neural network.
 
 This script uses the CartPole-v1 environment from the 
 Gymnasium python library developed by the Farama Foundation.
-Link: https://gymnasium.farama.org/
+Official link: https://gymnasium.farama.org/
+Github link: https://github.com/Farama-Foundation/Gymnasium
+
 """
 from python_src.config.NeuralNet import NeuralNet
 from python_src.config.get_ctypes_funcs import get_ctypes_funcs
