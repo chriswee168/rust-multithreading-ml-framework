@@ -58,7 +58,7 @@ pub extern "C" fn free_vec_ext(vec_ptr: *mut f32, length: usize)
 
 /// Initialise the input vectors.
 #[unsafe(no_mangle)]
-pub extern "C" fn init_input_grad_vecs_ext(nn_vp: *mut c_void, in_dim: usize)
+pub extern "C" fn init_input_grad_vec_ext(nn_vp: *mut c_void, in_dim: usize)
 {
     unsafe
     {
