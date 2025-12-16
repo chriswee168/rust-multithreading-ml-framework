@@ -10,6 +10,8 @@ pub struct EdgeAttr
     // Weight values to use for negative and positive input.
     pub neg_weight: f32,
     pub pos_weight: f32,
+    pub neg_weight_vel: f32,
+    pub pos_weight_vel: f32,
 }
 
 // Implement constructor method.
@@ -21,6 +23,8 @@ impl EdgeAttr
         {
             neg_weight,
             pos_weight,
+            neg_weight_vel: 0.0,
+            pos_weight_vel: 0.0
         }
     }
 }
@@ -59,12 +63,12 @@ pub trait EdgeTrait: Send
         let mut new_neg_weight: f32 = attr.neg_weight;
         if input_val >= 0.0
         {
-            new_pos_weight -= lr * gradient_val * input_val;
+            new_pos_weight -= (lr / (attr.pos_weight_vel + 1e-6).sqrt()) * (gradient_val * input_val);
             input_gradient = gradient_val * attr.pos_weight;
         }
         else
         {
-            new_neg_weight -= lr * gradient_val * input_val;
+            new_neg_weight -= (lr / (attr.neg_weight_vel + 1e-6).sqrt()) * (gradient_val * input_val);
             input_gradient = gradient_val * attr.neg_weight;
         }
 

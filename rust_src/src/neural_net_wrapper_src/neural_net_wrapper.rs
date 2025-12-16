@@ -228,27 +228,47 @@ impl NeuralNetWrapper
     /// Display all neurons and their edges.
     pub fn display_params(&self)
     {
+        let neuron_colour: &'static str = "\x1b[48;5;245;30m";
+        let backward_edge_id_colour: &'static str = "\x1b[48;5;240m";
+        let forward_edge_id_colour: &'static str = "\x1b[48;5;236m";
+        let param_colour: &'static str = "\x1b[48;5;255;30m";
+
         for (neuron_id, neuron) in &self.neural_net.input_neurons
         {
-            println!("\x1b[31mneuron_id: {}\x1b[0m", neuron_id);
+            println!("{neuron_colour}neuron_id: {neuron_id}\x1b[0m");
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
-            self.display_neuron_edges(neuron_guard);
+            self.display_neuron_edges(
+                neuron_guard, 
+                backward_edge_id_colour, 
+                forward_edge_id_colour, 
+                param_colour
+            );
             println!("----------");
         }
 
         for (neuron_id, neuron) in &self.neural_net.hidden_neurons
         {
-            println!("\x1b[31mneuron_id: {}\x1b[0m", neuron_id);
+            println!("{neuron_colour}neuron_id: {neuron_id}\x1b[0m");
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
-            self.display_neuron_edges(neuron_guard);
+            self.display_neuron_edges(
+                neuron_guard, 
+                backward_edge_id_colour, 
+                forward_edge_id_colour, 
+                param_colour
+            );
             println!("----------");
         }
 
         for (neuron_id, neuron) in &self.neural_net.output_neurons
         {
-            println!("\x1b[31mneuron_id: {}\x1b[0m", neuron_id);
+            println!("{neuron_colour}neuron_id: {neuron_id}\x1b[0m");
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
-            self.display_neuron_edges(neuron_guard);
+            self.display_neuron_edges(
+                neuron_guard, 
+                backward_edge_id_colour, 
+                forward_edge_id_colour, 
+                param_colour
+            );
             println!("----------");
         }
 
@@ -263,14 +283,22 @@ impl NeuralNetWrapper
     }
 
     /// Displays the parameters of each edge in a neuron.
-    fn display_neuron_edges(&self, neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>>)
+    fn display_neuron_edges(
+        &self, 
+        neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>>,
+        backward_edge_id_colour: &'static str,
+        forward_edge_id_colour: &'static str,
+        param_colour: &'static str,
+    )
     {
         // Display all backward edges.
         for (edge_id, edge) in neuron_guard.get_backward_edges()
         {
             let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
             let edge_params: (f32, f32) = edge_guard.get_params();
-            println!("\x1b[32m{} --> {}, {}\x1b[0m", edge_id, edge_params.0, edge_params.1);
+            let pos_param: f32 = edge_params.0;
+            let neg_param: f32 = edge_params.1;
+            println!("{backward_edge_id_colour}{edge_id}\x1b[0m : {param_colour}{pos_param}, {neg_param}\x1b[0m");
         }
 
         // Display all forward edges.
@@ -278,7 +306,9 @@ impl NeuralNetWrapper
         {
             let edge_guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
             let edge_params: (f32, f32) = edge_guard.get_params();
-            println!("\x1b[33m{} --> {}, {}\x1b[0m",  edge_id, edge_params.0, edge_params.1);
+            let pos_param: f32 = edge_params.0;
+            let neg_param: f32 = edge_params.1;
+            println!("{forward_edge_id_colour}{edge_id}\x1b[0m : {param_colour}{pos_param}, {neg_param}\x1b[0m");
         }
     }
 
