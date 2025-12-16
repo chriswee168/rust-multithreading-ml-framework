@@ -52,6 +52,19 @@ impl EdgeTrait for OutputEdge
 
     // Backpropagation through chain rule.
     fn backward(&mut self, input_val: f32, gradient_val: f32, lr: f32) -> f32 {
+        // Update gradient velocities for RMSprop gradient optimization.
+        let weight_grad_sqr: f32 = (gradient_val * input_val).powi(2);
+        if input_val >= 0.0
+        {
+            self.attr.pos_weight_vel = 
+                0.9 * self.attr.pos_weight_vel + 0.1 * weight_grad_sqr;
+        }
+        else 
+        {
+            self.attr.neg_weight_vel = 
+                0.9 * self.attr.neg_weight_vel + 0.1 * weight_grad_sqr;
+        }
+        
         let (input_grad, new_pos_weight, new_neg_weight) = 
             self.backward_def(&self.attr, input_val, gradient_val, lr);
 
