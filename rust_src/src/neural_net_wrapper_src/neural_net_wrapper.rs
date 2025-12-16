@@ -228,9 +228,10 @@ impl NeuralNetWrapper
     /// Display all neurons and their edges.
     pub fn display_params(&self)
     {
+        let neuron_colour: &'static str = "\x1b[48;5;236m";
         for (neuron_id, neuron) in &self.neural_net.input_neurons
         {
-            println!("\x1b[31mneuron_id: {}\x1b[0m", neuron_id);
+            println!("{neuron_colour}neuron_id: {neuron_id}\x1b[0m");
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
             self.display_neuron_edges(neuron_guard);
             println!("----------");
@@ -238,7 +239,7 @@ impl NeuralNetWrapper
 
         for (neuron_id, neuron) in &self.neural_net.hidden_neurons
         {
-            println!("\x1b[31mneuron_id: {}\x1b[0m", neuron_id);
+            println!("{neuron_colour}neuron_id: {neuron_id}\x1b[0m");
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
             self.display_neuron_edges(neuron_guard);
             println!("----------");
@@ -246,7 +247,7 @@ impl NeuralNetWrapper
 
         for (neuron_id, neuron) in &self.neural_net.output_neurons
         {
-            println!("\x1b[31mneuron_id: {}\x1b[0m", neuron_id);
+            println!("{neuron_colour}neuron_id: {neuron_id}\x1b[0m");
             let neuron_guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
             self.display_neuron_edges(neuron_guard);
             println!("----------");
