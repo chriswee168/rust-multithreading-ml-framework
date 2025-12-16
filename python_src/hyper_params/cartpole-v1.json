@@ -5,12 +5,12 @@
     "out_dim": 2,
     "n_input_neurons": 5,
     "n_output_neurons": 5,
-    "max_io_edges": 5,
-    "max_hidden_edges": 5,
-    "max_depth": 3,
+    "max_io_edges": 4,
+    "max_hidden_edges": 2,
+    "max_depth": 1,
     "neuron_id_len": 15,
 
-    "lr": 0.00001,
+    "lr": 0.001,
     "return_grads": true,
 
     "lowest_param_val": -0.1,
