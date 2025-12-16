@@ -168,7 +168,7 @@ pub extern "C" fn add_output_edge_ext(
     {
         let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
         let neuron_id_str: &str = CStr::from_ptr(output_neuron_id).to_str().unwrap();
-        let edge_id: String = neuron_id_str.to_string() +  "--> " + arr_idx.to_string().as_str();
+        let edge_id: String = neuron_id_str.to_string() +  " --> " + arr_idx.to_string().as_str();
 
         (*nn_ptr).add_output_edge(
             neuron_id_str, edge_id, 
