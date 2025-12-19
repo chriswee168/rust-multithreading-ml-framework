@@ -1,6 +1,6 @@
 use std::u32::MAX;
 
-use libai_core::{neural_net_src::{neuron_src::create_neuron::create_neuron, rand_id_gen::rand_id_gen}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use ai_core::{neural_net_src::{neuron_src::create_neuron::create_neuron, rand_id_gen::rand_id_gen}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 #[test]
 fn threaded_traversal()
