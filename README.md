@@ -31,3 +31,11 @@ rustup install 1.90.0
 # Set Rust version to 1.90.0.
 rustup override set 1.90.0
 ```
+
+## Project Building
+Neural networks utilise a shared Rust library which handles multi-threading required to optimise training and inference. To build it run the command below in the `rust_src/` directory:
+```
+cargo build --release
+```
+
+This will produce a shared library in the `rust_src/target/release/` directory, named either `core.dll` or `libcore.so` depending on whether operation system is Windows or Linux respectively.
