@@ -4,9 +4,9 @@ Repository for experimental neural network models that are capable of dynamicall
 List of Contents:
 1. [Dependencies](#dependencies)
 2. [Project Building](#project-building)
-3. [Neural Network Mutation Rules](#neural-network-mutation-rules)
 3. [Training And Testing](#training-and-testing)
-4. [Acknowledgements](#acknowledgements)
+4. [Neural Network Mutation Rules](#neural-network-mutation-rules)
+5. [Acknowledgements](#acknowledgements)
 
 ## Dependencies
 
@@ -39,3 +39,12 @@ cargo build --release
 ```
 
 This will produce a shared library in the `rust_src/target/release/` directory, named either `core.dll` or `libcore.so` depending on whether operation system is Windows or Linux respectively.
+
+## Training And Testing
+This project uses the CartPole-v1 environment from the Gymnasium Python library developed by
+the Farama Foundation to train and test the performance of the neural networks using a simple reinforcement learning algorithm to obtain the best reward. More details for this library can be found under [Acknowledgements](#acknowledgements).
+
+The cartpole environment test can be started by executing the command below in the project's root directory:
+```
+python -m python_src.main_gym_test
+```
