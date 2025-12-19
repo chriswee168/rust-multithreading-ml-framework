@@ -1,6 +1,6 @@
 use std::{sync::{Arc, MutexGuard, RwLock, RwLockWriteGuard}, u32::MAX};
 
-use libai_core::{neural_net_src::{neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron}, rand_id_gen::rand_id_gen, types_aliases::{ArcNeuronTrait, NeuronBuffer}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use ai_core::{neural_net_src::{neuron_src::{core_deps::NeuronTrait, create_neuron::create_neuron}, rand_id_gen::rand_id_gen, types_aliases::{ArcNeuronTrait, NeuronBuffer}}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 #[test]
 fn forward_pass()

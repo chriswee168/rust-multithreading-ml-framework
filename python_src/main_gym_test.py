@@ -13,10 +13,16 @@ from python_src.config.get_ctypes_funcs import get_ctypes_funcs
 import numpy as np
 import gymnasium as gym
 import heapq
+import platform
 from copy import deepcopy
 from python_src.HeapEntry import HeapEntry
 
-rust_lib_path = "rust_src/target/release/libai_core.dll"
+# Use path to shared library depending on operating system.
+if platform.system() == "Windows":
+    rust_lib_path = "rust_src/target/release/ai_core.dll"
+elif platform.system() == "Linux":
+    rust_lib_path = "rust_src/target/release/libai_core.so"
+
 hyper_params = "python_src/hyper_params/cartpole-v1.json"
 env_name = "CartPole-v1"
 #render_mode = "human"
