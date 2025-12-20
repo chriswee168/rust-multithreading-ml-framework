@@ -5,7 +5,7 @@ List of Contents:
 1. [Dependencies](#dependencies)
 2. [Project Building](#project-building)
 3. [Training And Testing](#training-and-testing)
-4. [Neural Network Mutation Rules](#neural-network-mutation-rules)
+    - [Neural Network Mutation Rules](#neural-network-mutation-rules)
 5. [Acknowledgements](#acknowledgements)
 
 ## Dependencies
@@ -48,3 +48,8 @@ The cartpole environment test can be started by executing the command below in t
 ```
 python -m python_src.main_gym_test
 ```
+
+### Neural Network Mutation Rules
+Neural networks can dynamically alter their toplogies during training to either grow in complexity by adding new neurons and joining random neurons together with random parameterised connections, or reduce complexity and optimize memory by removing redundant connections between neurons that have a parameter average below a specified threshold or magnitude, typically a small value.
+
+## Acknowledgements
