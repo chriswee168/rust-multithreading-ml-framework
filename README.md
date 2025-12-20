@@ -5,7 +5,8 @@ List of Contents:
 1. [Dependencies](#dependencies)
 2. [Project Building](#project-building)
 3. [Training And Testing](#training-and-testing)
-    - [Neural Network Mutation Rules](#neural-network-mutation-rules)
+    - [Main Test Script](#main-test-script)
+    - [Neural Network Mutation](#neural-network-mutation)
 5. [Acknowledgements](#acknowledgements)
 
 ## Dependencies
@@ -41,6 +42,7 @@ cargo build --release
 This will produce a shared library in the `rust_src/target/release/` directory, named either `core.dll` or `libcore.so` depending on whether operation system is Windows or Linux respectively.
 
 ## Training And Testing
+### Main Test Script
 This project uses the CartPole-v1 environment from the Gymnasium Python library developed by
 the Farama Foundation to train and test the performance of the neural networks using a simple reinforcement learning algorithm to obtain the best reward. More details for this library can be found under [Acknowledgements](#acknowledgements).
 
@@ -49,7 +51,7 @@ The cartpole environment test can be started by executing the command below in t
 python -m python_src.main_gym_test
 ```
 
-### Neural Network Mutation Rules
+### Neural Network Mutation
 Neural networks can dynamically alter their toplogies during training to either grow in complexity by adding new neurons and joining random neurons together with random parameterised connections, or reduce complexity and optimize memory by removing redundant connections between neurons that have a parameter average below a specified threshold or magnitude, typically a small value.
 
 ## Acknowledgements
