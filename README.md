@@ -59,7 +59,7 @@ JSON files stored in the `python_src/hyper_params` directory are used to define 
 - **n_input_neurons**: Number of neurons that read from the input array.
 - **n_output_neurons**: Number of neurons that write to the output array.
 - **max_io_edges**: Maximum number of edges input and output neurons can have to read from or write to input and output arrays respectively.
-- **max_hidden_edges**: Maximum number of forward and backward edges for hidden neurons
+- **max_hidden_edges**: Maximum number of forward and backward edges for hidden neurons.
 - **max_depth**: Controls how deep neural network can be, neurons can only connect to others that are marked at a lower depth to ensure acyclic connections.
 - **neuron_id_len**: How many characters do random ID string have.
 - **lr**: Learning rate (neural networks use RMSprop optimizer.)
