@@ -41,6 +41,9 @@ cargo build --release
 
 This will produce a shared library in the `rust_src/target/release/` directory, named either `core.dll` or `libcore.so` depending on whether operation system is Windows or Linux respectively.
 
+## Neural Network Architecture
+Neural networks in this project differ from the classical feedforward neural networks where data is sequentially passed through distinct layers. In this project models have no distinct hidden layers and neurons can be connected irregularly in an acyclic manner, with some neuron paths from the input to output being longer than others. Due to irregularity, models can't effectively take advantage of GPU parallelism and must rely on high performance CPU multi-threading to perform parallel Breadth First Search for propagation.
+
 ## Training And Testing
 ### Main Test Script
 This project uses the CartPole-v1 environment from the Gymnasium Python library developed by
