@@ -4,9 +4,11 @@ Repository for experimental neural network models that are capable of dynamicall
 List of Contents:
 1. [Dependencies](#dependencies)
 2. [Project Building](#project-building)
-3. [Training And Testing](#training-and-testing)
-    - [Main Test Script](#main-test-script)
+3. [Neural Network Architecture](#neural-network-architecture)
     - [Neural Network Mutation](#neural-network-mutation)
+4. [Training And Testing](#training-and-testing)
+    - [Main Test Script](#main-test-script)
+    - [Hyperparameters](#hyperparameters)
 5. [Acknowledgements](#acknowledgements)
 
 ## Dependencies
