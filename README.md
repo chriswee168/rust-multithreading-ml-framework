@@ -53,7 +53,7 @@ python -m python_src.main_gym_test
 
 ### Hyperparameters
 JSON files stored in the `python_src/hyper_params` directory are used to define hyperparameters for neural networks. Each file must include the following hyperparameters enclosed in curly brackets:
-- **n_threads**: Number of threads to use for propagation through neural network.
+- **n_threads**: Number of threads to use for parallel Breadth First Search traversal/propagation through neural network. (Should ideally be kept below the number of cores CPU has to optimize parallelism and reduce context switching.)
 - **in_dim**: Dimension of the input array.
 - **out_dim**: Dimension of the output array.
 - **n_input_neurons**: Number of neurons that read from the input array.
