@@ -5,6 +5,7 @@ List of Contents:
 1. [Dependencies](#dependencies)
 2. [Project Building](#project-building)
 3. [Neural Network Architecture](#neural-network-architecture)
+    - [Neuron Edge Architecture](#neuron-edge-architecture)
     - [Neural Network Mutation](#neural-network-mutation)
 4. [Training And Testing](#training-and-testing)
     - [Main Test Script](#main-test-script)
@@ -45,6 +46,17 @@ This will produce a shared library in the `rust_src/target/release/` directory, 
 
 ## Neural Network Architecture
 Neural networks in this project differ from the classical feedforward neural networks where data is sequentially passed through distinct layers. In this project models have no distinct hidden layers and neurons can be connected irregularly in an acyclic manner, with some neuron paths from the input to output being longer than others. Due to irregularity, models can't effectively take advantage of GPU parallelism and must rely on high performance CPU multi-threading to perform parallel Breadth First Search for propagation.
+
+### Neuron Edge Architecture
+The edges that connect neurons each consist of a pair of weights, only one of the weights are used depending on whether the input value is below or above/equal to zero. Below is pseudocode for a neuron edge:
+```
+edge(x, w1, w2):
+    if x >= 0:
+        return x * w1
+    else:
+        return x * w2 
+```
+This design aims to inject nonlinearity into the edges which outnumber neurons to compensate for the sparse connectivity of neural networks.
 
 ### Neural Network Mutation
 Models can also dynamically alter their toplogies during training to either grow in complexity by adding new neurons and joining random neurons together with random parameterised connections, or reduce complexity and optimize memory by removing redundant connections between neurons that have a parameter average below a specified threshold or magnitude, typically a small value.
