@@ -44,6 +44,9 @@ This will produce a shared library in the `rust_src/target/release/` directory, 
 ## Neural Network Architecture
 Neural networks in this project differ from the classical feedforward neural networks where data is sequentially passed through distinct layers. In this project models have no distinct hidden layers and neurons can be connected irregularly in an acyclic manner, with some neuron paths from the input to output being longer than others. Due to irregularity, models can't effectively take advantage of GPU parallelism and must rely on high performance CPU multi-threading to perform parallel Breadth First Search for propagation.
 
+### Neural Network Mutation
+Models can also dynamically alter their toplogies during training to either grow in complexity by adding new neurons and joining random neurons together with random parameterised connections, or reduce complexity and optimize memory by removing redundant connections between neurons that have a parameter average below a specified threshold or magnitude, typically a small value.
+
 ## Training And Testing
 ### Main Test Script
 This project uses the CartPole-v1 environment from the Gymnasium Python library developed by
@@ -75,8 +78,5 @@ JSON files stored in the `python_src/hyper_params` directory are used to define 
 - **edge_param_thresh**: Edge parameter threshold to determine whether an edge should be removed. (An edge is determined to be redundant if the magnitude of the parameter average is below the threshold.)
 
 A JSON hyperparameter file for the cartpole environment is already included in `python_src/hyper_params/cartpole-v1.json`.
-
-### Neural Network Mutation
-Neural networks can dynamically alter their toplogies during training to either grow in complexity by adding new neurons and joining random neurons together with random parameterised connections, or reduce complexity and optimize memory by removing redundant connections between neurons that have a parameter average below a specified threshold or magnitude, typically a small value.
 
 ## Acknowledgements
