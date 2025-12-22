@@ -94,3 +94,8 @@ JSON files stored in the `python_src/hyper_params` directory are used to define 
 A JSON hyperparameter file for the cartpole environment is already included in `python_src/hyper_params/cartpole-v1.json`.
 
 ## Acknowledgements
+
+Python libraries used:
+- [Gymnasium](https://gymnasium.farama.org/) — Python library that provides environments for training and testing AI models using reinforcement learning techniques. Used to evaluate the performance of dynamic neural nets for this project.
+    - License type: MIT
+    - Link: https://github.com/Farama-Foundation/Gymnasium/blob/main/LICENSE
