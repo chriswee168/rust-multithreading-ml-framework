@@ -99,6 +99,12 @@ Python libraries used:
 - [Gymnasium](https://gymnasium.farama.org/) — Python library that provides environments for training and testing AI models using reinforcement learning techniques. Used to evaluate the performance of dynamic neural nets for this project.
     - License type: MIT
     - Link: https://github.com/Farama-Foundation/Gymnasium/blob/main/LICENSE
+
+Rust crates used:
+- [Rand](https://github.com/rust-random/rand) — Required for generating random parameter values for neuron edges between the low and high bounds specified in JSON hyperparameter files.
+    - License type: MIT
+    - Link: https://github.com/rust-random/rand/blob/master/LICENSE-MIT
+
 Papers referenced:
 - The architectures of neural networks in this project take partial inspiration from Kolmogorov Arnold Networks, introduced in the paper "KAN: Kolmogorov-Arnold Networks", reference below:  
 Liu, Z., Wang, Y., Vaidya, S., Ruehle, F., Halverson, J., Soljačić, M., Hou, T. Y., & Tegmark, M. (2024). *KAN: Kolmogorov-Arnold Networks*. ArXiv.org. https://arxiv.org/abs/2404.19756
