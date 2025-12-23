@@ -56,7 +56,7 @@ edge(x, w1, w2):
     else:
         return x * w2 
 ```
-This design aims to inject nonlinearity into the edges which outnumber neurons to compensate for the sparse connectivity of neural networks.
+This design aims to inject nonlinearity into the edges which outnumber neurons to compensate for the sparse connectivity of neural networks. The idea of moving nonlinearity to weights is inspired by Kolmogorov Arnold Networks (KANs) that uses B-Splines instead which are more computationally expensive than a simple sign check. The paper to KANs are referenced under [Acknowledgements](#acknowledgements).
 
 ### Neural Network Mutation
 Models can also dynamically alter their toplogies during training to either grow in complexity by adding new neurons and joining random neurons together with random parameterised connections, or reduce complexity and optimize memory by removing redundant connections between neurons that have a parameter average below a specified threshold or magnitude, typically a small value.
@@ -99,3 +99,6 @@ Python libraries used:
 - [Gymnasium](https://gymnasium.farama.org/) — Python library that provides environments for training and testing AI models using reinforcement learning techniques. Used to evaluate the performance of dynamic neural nets for this project.
     - License type: MIT
     - Link: https://github.com/Farama-Foundation/Gymnasium/blob/main/LICENSE
+Papers referenced:
+- The architectures of neural networks in this project take partial inspiration from Kolmogorov Arnold Networks, introduced in the paper "KAN: Kolmogorov-Arnold Networks", reference below:  
+Liu, Z., Wang, Y., Vaidya, S., Ruehle, F., Halverson, J., Soljačić, M., Hou, T. Y., & Tegmark, M. (2024). *KAN: Kolmogorov-Arnold Networks*. ArXiv.org. https://arxiv.org/abs/2404.19756
