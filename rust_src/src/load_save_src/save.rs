@@ -7,8 +7,7 @@ use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_dep
 /// Obtain each neuron and write data to json file.
 pub fn save_neurons(neuron_hashmap: &HashMap<String, ArcNeuronTrait>, json_path: String)
 {
-    let json_file: Result<File, std::io::Error> = 
-        OpenOptions::new().create(true).append(true).open(json_path);
+    let json_file: Result<File, std::io::Error> = File::create(json_path);
     
     if json_file.is_err()
     {
@@ -46,8 +45,7 @@ pub fn save_neurons(neuron_hashmap: &HashMap<String, ArcNeuronTrait>, json_path:
 /// Obtain each edge and write data to json file.
 pub fn save_edges(edge_hashmap: &HashMap<String, ArcEdgeTrait>, json_path: String, edge_type: &str)
 {
-    let json_file: Result<File, std::io::Error> = 
-        OpenOptions::new().create(true).append(true).open(json_path);
+    let json_file: Result<File, std::io::Error> = File::create(json_path);
     
     if json_file.is_err()
     {
