@@ -21,5 +21,6 @@ def get_ctypes_funcs(lib_path: str) -> dict:
     set_edge_params.get_set_edge_params_func(rust_backend_lib, all_funcs)
     spawn_threads.get_spawn_threads_func(rust_backend_lib, all_funcs)
     display_params.get_display_params_func(rust_backend_lib, all_funcs)
+    load_save.get_load_save_funcs(rust_backend_lib, all_funcs)
 
     return all_funcs
