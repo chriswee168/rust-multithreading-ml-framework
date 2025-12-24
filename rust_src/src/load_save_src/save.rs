@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs::{File, OpenOptions}, io::Write, sync::MutexGuard};
+use std::{collections::HashMap, fs::File, io::Write, sync::MutexGuard};
 
 use serde_json::{json, Value};
 
