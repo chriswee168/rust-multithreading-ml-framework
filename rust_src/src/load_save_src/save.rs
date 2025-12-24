@@ -1,3 +1,18 @@
+use std::{collections::HashMap, fs::{File, OpenOptions}, io::Write, sync::MutexGuard};
+
+use serde_json::json;
+
+use crate::{neural_net_src::{neuron_src::core_deps::NeuronTrait, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+
+/// Save the parameters of neural network.
+pub fn save_model(neural_net: &NeuralNetWrapper, model_dir: String)
+{
+    // Save input, hidden and output neurons.
+    save_neurons(&neural_net.neural_net.input_neurons, model_dir.clone() + "/input_neurons.json");
+    save_neurons(&neural_net.neural_net.hidden_neurons, model_dir.clone() + "/hidden_neurons.json");
+    save_neurons(&neural_net.neural_net.output_neurons, model_dir.clone() + "/output_neurons.json");
+}
+
 /// Obtain each neuron and write data to json file.
 fn save_neurons(neuron_hashmap: &HashMap<String, ArcNeuronTrait>, json_path: String)
 {
