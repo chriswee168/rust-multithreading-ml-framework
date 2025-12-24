@@ -18,6 +18,7 @@ pub fn save_neurons(neuron_hashmap: &HashMap<String, ArcNeuronTrait>, json_path:
     else
     {
         let mut json_file: File = json_file.unwrap();
+        let mut json_vec: Vec<Value> = Vec::new();
         for (_, neuron) in neuron_hashmap
         {
             let guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
@@ -28,14 +29,16 @@ pub fn save_neurons(neuron_hashmap: &HashMap<String, ArcNeuronTrait>, json_path:
                 "neuron_id": guard.get_neuron_id(),
                 "neuron_level": guard.get_neuron_level()
             });
-            
-            // Write to JSON file.
-            let json_str: String = serde_json::to_string(&json_entry).unwrap();
-            let result: Result<(), std::io::Error> = json_file.write_all(json_str.as_bytes());
-            if result.is_err()
-            {
-                println!("{}", result.err().unwrap())
-            }
+
+            json_vec.push(json_entry);
+        }
+
+        // Write to JSON file.
+        let json_str: String = serde_json::to_string(&json_vec).unwrap();
+        let result: Result<(), std::io::Error> = json_file.write_all(json_str.as_bytes());
+        if result.is_err()
+        {
+            println!("{}", result.err().unwrap())
         }
     }
 }
@@ -54,6 +57,7 @@ pub fn save_edges(edge_hashmap: &HashMap<String, ArcEdgeTrait>, json_path: Strin
     else
     {
         let mut json_file: File = json_file.unwrap();
+        let mut json_vec: Vec<Value> = Vec::new();
         for (_, edge) in edge_hashmap
         {
             let guard: MutexGuard<'_, Box<dyn EdgeTrait>> = edge.lock().unwrap();
@@ -100,14 +104,16 @@ pub fn save_edges(edge_hashmap: &HashMap<String, ArcEdgeTrait>, json_path: Strin
                     "neg_param": params.1
                 });
             }
-            
-            // Write to JSON file.
-            let json_str: String = serde_json::to_string(&json_entry).unwrap();
-            let result: Result<(), std::io::Error> = json_file.write_all(json_str.as_bytes());
-            if result.is_err()
-            {
-                println!("{}", result.err().unwrap())
-            }
+
+            json_vec.push(json_entry);
+        }
+
+        // Write to JSON file.
+        let json_str: String = serde_json::to_string(&json_vec).unwrap();
+        let result: Result<(), std::io::Error> = json_file.write_all(json_str.as_bytes());
+        if result.is_err()
+        {
+            println!("{}", result.err().unwrap())
         }
     }
 }
