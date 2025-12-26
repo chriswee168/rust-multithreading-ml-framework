@@ -2,10 +2,10 @@ use std::{ffi::{c_char, CString}, fs::read_to_string, os::raw::c_void};
 
 use serde_json::Value;
 
-use crate::{extern_funcs_src::{add_neurons::{add_input_neuron_ext, add_output_neuron_ext}, join_neurons::{add_input_edge_ext, add_output_edge_ext}}, neural_net_src::{neuron_src::create_neuron::create_neuron, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
+use crate::{extern_funcs_src::join_neurons::{add_input_edge_ext, add_output_edge_ext}, neural_net_src::{neuron_src::create_neuron::create_neuron, types_aliases::ArcNeuronTrait}, neural_net_wrapper_src::neural_net_wrapper::NeuralNetWrapper};
 
 /// Obtain the JSON entries to create the necessary neurons.
-pub fn load_neurons(nn_vp: *mut c_void, json_path: String, neuron_type: &str)
+pub fn load_hidden_neurons(nn_vp: *mut c_void, json_path: String)
 {
     let string_data: Result<String, std::io::Error> = read_to_string(json_path);    
     if string_data.is_err()
@@ -19,27 +19,16 @@ pub fn load_neurons(nn_vp: *mut c_void, json_path: String, neuron_type: &str)
         for entry in json_entries
         {
             let neuron_id: String = entry["neuron_id"].to_string().replace('"', "");
-            let neuron_id_char_ptr: *mut c_char = CString::new(neuron_id.clone()).unwrap().into_raw();
             let max_edges: usize = entry["backward_edge_max"].as_u64().unwrap() as usize;
+            let neuron_level: u32 = entry["neuron_level"].as_u64().unwrap() as u32;
+            
             let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
-            if neuron_type == "input"
-            {
-                add_input_neuron_ext(nn_vp, neuron_id_char_ptr, max_edges);
-            }
-            else if neuron_type == "output"
-            {
-                add_output_neuron_ext(nn_vp, neuron_id_char_ptr, max_edges);
-            }
-            else if neuron_type == "hidden"
-            {
-                let neuron_level: u32 = entry["neuron_level"].as_u64().unwrap() as u32;
-                let neuron: ArcNeuronTrait = create_neuron(
-                    neuron_id.clone(), max_edges, max_edges, 
-                    "hidden", neuron_level
-                );
+            let neuron: ArcNeuronTrait = create_neuron(
+                neuron_id.clone(), max_edges, max_edges, 
+                "hidden", neuron_level
+            );
 
-                unsafe {(*nn_ptr).add_hidden_neuron(neuron_id, neuron)};
-            }
+            unsafe {(*nn_ptr).add_hidden_neuron(neuron_id, neuron)};
         }
     }
 }

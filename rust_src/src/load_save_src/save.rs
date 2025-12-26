@@ -5,7 +5,7 @@ use serde_json::{json, Value};
 use crate::neural_net_src::{edge_src::core_deps::EdgeTrait, neuron_src::core_deps::NeuronTrait, types_aliases::{ArcEdgeTrait, ArcNeuronTrait}};
 
 /// Obtain each neuron and write data to json file.
-pub fn save_neurons(neuron_hashmap: &HashMap<String, ArcNeuronTrait>, json_path: String)
+pub fn save_hidden_neurons(neuron_hashmap: &HashMap<String, ArcNeuronTrait>, json_path: String)
 {
     let json_file: Result<File, std::io::Error> = File::create(json_path);
     
@@ -21,22 +21,13 @@ pub fn save_neurons(neuron_hashmap: &HashMap<String, ArcNeuronTrait>, json_path:
         for (_, neuron) in neuron_hashmap
         {
             let guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
-            let neuron_level_op: Option<u32> = guard.get_neuron_level();
-            let neuron_level: u32;
-            if neuron_level_op.is_none()
-            {
-                neuron_level = 0;   
-            }
-            else
-            {
-                neuron_level = guard.get_neuron_level().unwrap();
-            }
+            
             // Obtain all necessary neuron info.
             let json_entry = json!({
                 "backward_edge_max": guard.get_backward_edge_max(),
                 "forward_edge_max": guard.get_forward_edge_max(),
                 "neuron_id": guard.get_neuron_id(),
-                "neuron_level": neuron_level
+                "neuron_level": guard.get_neuron_level().unwrap()
             });
 
             json_vec.push(json_entry);
