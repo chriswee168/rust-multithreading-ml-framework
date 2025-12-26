@@ -18,7 +18,7 @@ pub fn load_neurons(nn_vp: *mut c_void, json_path: String, neuron_type: &str)
         let json_entries: Vec<Value> = serde_json::from_str(&string_data.unwrap()).unwrap();
         for entry in json_entries
         {
-            let neuron_id: String = entry["neuron_id"].to_string();
+            let neuron_id: String = entry["neuron_id"].to_string().replace('"', "");
             let neuron_id_char_ptr: *mut c_char = CString::new(neuron_id.clone()).unwrap().into_raw();
             let max_edges: usize = entry["backward_edge_max"].as_u64().unwrap() as usize;
             let nn_ptr: *mut NeuralNetWrapper = nn_vp as *mut NeuralNetWrapper;
