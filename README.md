@@ -10,6 +10,9 @@ List of Contents:
 4. [Training And Testing](#training-and-testing)
     - [Main Test Script](#main-test-script)
     - [Hyperparameters](#hyperparameters)
+    - [Saving/Loading Neural Networks](#savingloading-neural-networks)
+        - [Saving parameters](#saving-parameters)
+        - [Loading parameters](#loading-parameters)
 5. [Acknowledgements](#acknowledgements)
 
 ## Dependencies
@@ -94,6 +97,21 @@ JSON files stored in the `python_src/hyper_params` directory are used to define 
 - **edge_param_thresh**: Edge parameter threshold to determine whether an edge should be removed. (An edge is determined to be redundant if the magnitude of the parameter average is below the threshold.)
 
 A JSON hyperparameter file for the cartpole environment is already included in `python_src/hyper_params/cartpole-v1.json`.
+
+### Saving/Loading Neural Networks
+#### Saving parameters
+The parameters of neural nets can be saved to JSON files and loaded later to resume training/inference.
+To save neural network parameters, call the `NeuralNet.save(model_dir)` method, where `model_dir` is a path to a directory
+or folder to store the parameters in several JSON files.
+
+#### Loading parameters
+Empty neural networks can also be initialised by loading parameters from an existing model directory. Below is an example:
+```
+hyper_params = "path/to/hyperparameters/file"
+model_dir = "path/to/model/dir"
+model = NeuralNet(hyper_params)
+model.load(model_dir)
+```
 
 ## Acknowledgements
 
