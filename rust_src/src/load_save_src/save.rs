@@ -21,12 +21,22 @@ pub fn save_neurons(neuron_hashmap: &HashMap<String, ArcNeuronTrait>, json_path:
         for (_, neuron) in neuron_hashmap
         {
             let guard: MutexGuard<'_, Box<dyn NeuronTrait>> = neuron.lock().unwrap();
+            let neuron_level_op: Option<u32> = guard.get_neuron_level();
+            let neuron_level: u32;
+            if neuron_level_op.is_none()
+            {
+                neuron_level = 0;   
+            }
+            else
+            {
+                neuron_level = guard.get_neuron_level().unwrap();
+            }
             // Obtain all necessary neuron info.
             let json_entry = json!({
                 "backward_edge_max": guard.get_backward_edge_max(),
                 "forward_edge_max": guard.get_forward_edge_max(),
                 "neuron_id": guard.get_neuron_id(),
-                "neuron_level": guard.get_neuron_level()
+                "neuron_level": neuron_level
             });
 
             json_vec.push(json_entry);
