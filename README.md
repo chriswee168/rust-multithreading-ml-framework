@@ -23,6 +23,8 @@ Third party Python libraries can be installed by running:
 
 ### Rust 1.90.0
 Rust crates required (crates are already included in Cargo.toml):
+- serde = { version = "1.0", features = ["derive"] }
+- serde_json = "1.0"
 - rand = "0.8.5"
 
 Rust and its dependencies can be installed for either Windows or Linux by following the instructions from: https://rust-lang.org/tools/install/.  
