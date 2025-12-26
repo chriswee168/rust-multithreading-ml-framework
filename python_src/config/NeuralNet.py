@@ -198,7 +198,7 @@ class NeuralNet:
         """
         self.rust_backend_funcs["display_params"](self.nn_vp)
     
-    def save_model(self, model_dir: str):
+    def save(self, model_dir: str):
         """
         Save the model parameters to directory.
         
