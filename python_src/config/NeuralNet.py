@@ -209,3 +209,13 @@ class NeuralNet:
             os.makedirs(model_dir)
 
         self.rust_backend_funcs["save_model"](self.nn_vp, model_dir.encode())
+    
+    def load(self, model_dir: str):
+        """
+        Load model parameters into empty neural network.
+        
+        :param model_dir: Path to directory that stores model parameters.
+        :type model_dir: str
+        """
+
+        self.rust_backend_funcs["load_model"](self.nn_vp, model_dir.encode())
