@@ -1,4 +1,5 @@
 import json
+import os
 import numpy as np
 from copy import deepcopy
 
@@ -196,3 +197,27 @@ class NeuralNet:
         Display all neurons and their edges.
         """
         self.rust_backend_funcs["display_params"](self.nn_vp)
+    
+    def save(self, model_dir: str):
+        """
+        Save the model parameters to directory.
+        
+        :param model_dir: Path to directory to store model parameters.
+        :type model_dir: str
+        """
+        if not os.path.exists(model_dir):
+            os.makedirs(model_dir)
+
+        self.rust_backend_funcs["save_model"](self.nn_vp, model_dir.encode())
+    
+    def load(self, model_dir: str):
+        """
+        Load model parameters into empty neural network.
+        
+        :param model_dir: Path to directory that stores model parameters.
+        :type model_dir: str
+        """
+        if os.path.exists(model_dir):
+            self.rust_backend_funcs["load_model"](self.nn_vp, model_dir.encode())
+        else:
+            print(f"Error: Directory path {model_dir} doesn't exist.")

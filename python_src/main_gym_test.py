@@ -23,6 +23,7 @@ if platform.system() == "Windows":
 elif platform.system() == "Linux":
     rust_lib_path = "rust_src/target/release/libai_core.so"
 
+model_path = "python_src/models/cartpole-v1-model"
 hyper_params = "python_src/hyper_params/cartpole-v1.json"
 env_name = "CartPole-v1"
 #render_mode = "human"
@@ -32,7 +33,9 @@ env = gym.make(env_name, render_mode=render_mode)
 rust_funcs = get_ctypes_funcs(rust_lib_path)
 
 neural_net = NeuralNet(rust_funcs, hyper_params)
+#neural_net.load(model_path)
 neural_net.spawn_threads()
+neural_net.display_params()
 
 # Used to store sequences of experiences neural network is to be trained on.
 heap_buffer: list[tuple[float, list[tuple[np.ndarray, np.ndarray]]]] = []
@@ -173,4 +176,6 @@ for i in range(max_epochs):
     if stop_training:
         break
 
+# Save parameters.
 neural_net.display_params()
+neural_net.save(model_path)
