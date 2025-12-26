@@ -217,5 +217,7 @@ class NeuralNet:
         :param model_dir: Path to directory that stores model parameters.
         :type model_dir: str
         """
-
-        self.rust_backend_funcs["load_model"](self.nn_vp, model_dir.encode())
+        if os.path.exists(model_dir):
+            self.rust_backend_funcs["load_model"](self.nn_vp, model_dir.encode())
+        else:
+            print(f"Error: Directory path {model_dir} doesn't exist.")
