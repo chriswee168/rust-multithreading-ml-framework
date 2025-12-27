@@ -10,6 +10,9 @@ List of Contents:
 4. [Training And Testing](#training-and-testing)
     - [Main Test Script](#main-test-script)
     - [Hyperparameters](#hyperparameters)
+    - [Saving/Loading Neural Networks](#savingloading-neural-networks)
+        - [Saving parameters](#saving-parameters)
+        - [Loading parameters](#loading-parameters)
 5. [Acknowledgements](#acknowledgements)
 
 ## Dependencies
@@ -23,6 +26,8 @@ Third party Python libraries can be installed by running:
 
 ### Rust 1.90.0
 Rust crates required (crates are already included in Cargo.toml):
+- serde = { version = "1.0", features = ["derive"] }
+- serde_json = "1.0"
 - rand = "0.8.5"
 
 Rust and its dependencies can be installed for either Windows or Linux by following the instructions from: https://rust-lang.org/tools/install/.  
@@ -93,6 +98,20 @@ JSON files stored in the `python_src/hyper_params` directory are used to define 
 
 A JSON hyperparameter file for the cartpole environment is already included in `python_src/hyper_params/cartpole-v1.json`.
 
+### Saving/Loading Neural Networks
+#### Saving parameters
+The parameters of neural nets can be saved to JSON files and loaded later to resume training/inference.
+To save neural network parameters, call the `NeuralNet.save(model_dir)` method, where `model_dir` is a path to a directory or folder to store the parameters in several JSON files.
+
+#### Loading parameters
+Empty neural networks can also be initialised by loading parameters from an existing model directory. Below is an example:
+```
+hyper_params = "path/to/hyperparameters/file"
+model_dir = "path/to/model/dir"
+model = NeuralNet(hyper_params)
+model.load(model_dir)
+```
+
 ## Acknowledgements
 
 Python libraries used:
@@ -104,6 +123,10 @@ Rust crates used:
 - [Rand](https://github.com/rust-random/rand) — Required for generating random parameter values for neuron edges between the low and high bounds specified in JSON hyperparameter files.
     - License type: MIT
     - Link: https://github.com/rust-random/rand/blob/master/LICENSE-MIT
+
+- [Serde](https://serde.rs/) — Required for saving and loading neural network parameters to and from JSON files which is necessary for pausing/resuming training progress and inference.
+    - License type: MIT
+    - Link: https://github.com/serde-rs/serde/blob/master/LICENSE-MIT
 
 Papers referenced:
 - The architectures of neural networks in this project take partial inspiration from Kolmogorov Arnold Networks, introduced in the paper "KAN: Kolmogorov-Arnold Networks", reference below:  
