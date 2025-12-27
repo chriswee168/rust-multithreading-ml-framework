@@ -124,6 +124,10 @@ Rust crates used:
     - License type: MIT
     - Link: https://github.com/rust-random/rand/blob/master/LICENSE-MIT
 
+- [Serde](https://serde.rs/) — Required for saving and loading neural network parameters to and from JSON files which is necessary for pausing/resuming training progress and inference.
+    - License type: MIT
+    - Link: https://github.com/serde-rs/serde/blob/master/LICENSE-MIT
+
 Papers referenced:
 - The architectures of neural networks in this project take partial inspiration from Kolmogorov Arnold Networks, introduced in the paper "KAN: Kolmogorov-Arnold Networks", reference below:  
 Liu, Z., Wang, Y., Vaidya, S., Ruehle, F., Halverson, J., Soljačić, M., Hou, T. Y., & Tegmark, M. (2024). *KAN: Kolmogorov-Arnold Networks*. ArXiv.org. https://arxiv.org/abs/2404.19756
