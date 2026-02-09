@@ -16,6 +16,7 @@ import heapq
 import platform
 from copy import deepcopy
 from python_src.HeapEntry import HeapEntry
+import random
 
 # Use path to shared library depending on operating system.
 if platform.system() == "Windows":
@@ -38,7 +39,7 @@ neural_net.spawn_threads()
 neural_net.display_params()
 
 # Used to store sequences of experiences neural network is to be trained on.
-heap_buffer: list[tuple[float, list[tuple[np.ndarray, np.ndarray]]]] = []
+heap_buffer: list[HeapEntry] = []
 # Online buffer to record the observations and actions made by neural net.
 obs_action_seq: list[tuple[np.ndarray, np.ndarray]] = []
 selected_entry = None
@@ -96,7 +97,7 @@ for i in range(max_epochs):
             prev_obs = deepcopy(obs)
             output_arr = np.zeros(2, dtype=np.float32)
             output_arr[action] = 1
-            entry = (prev_obs, output_arr)
+            entry = deepcopy((prev_obs, output_arr))
 
             # Perform action in environment and get reward.
             obs, reward, done, _, _ = env.step(action)
@@ -114,10 +115,10 @@ for i in range(max_epochs):
                 obs_action_seq.pop(0)
                 total_reward -= reward_seq.pop(0)
 
-            if len(heap_buffer) == heap_buffer_max_size:
+            random_entry = deepcopy(random.choice(obs_action_seq))
+            heapq.heappush(heap_buffer, HeapEntry(total_reward, random_entry))
+            if len(heap_buffer) > heap_buffer_max_size:
                 heapq.heappop(heap_buffer)
-
-            heapq.heappush(heap_buffer, HeapEntry(total_reward, deepcopy(obs_action_seq)))
             
             # Every n passes, randomly add a neuron or join edges or
             # remove a random edge with parameters below a specified parameter
@@ -129,27 +130,9 @@ for i in range(max_epochs):
                 iterator = 0
             
             if heap_buffer:
-                
-                # Equally train on each input/output array pair in each
-                # heap entry.
-                # Alternate between ascending and descending order.
-                if selected_entry is None:
-                    selected_entry = deepcopy(heap_buffer[heap_entry_idx])
-                    if ascending:
-                        heap_entry_idx += 1
-                        if heap_entry_idx > len(heap_buffer) - 1:
-                            ascending = False
-                            heap_entry_idx = len(heap_buffer) - 1
-
-                    else:
-                        heap_entry_idx -= 1
-                        if heap_entry_idx < 0:
-                            ascending = True
-                            heap_entry_idx = 0
-                            
-                io_tuple = selected_entry.io_seq[io_arrays_idx]
-                input_array = io_tuple[0]
-                output_array = io_tuple[1]
+                selected_entry = heap_buffer[heap_entry_idx]
+                input_array = selected_entry.entry[0]
+                output_array = selected_entry.entry[1]
 
                 # Train and optimize neural network.
                 output = neural_net.forward(input_array)
@@ -160,12 +143,12 @@ for i in range(max_epochs):
                 # Backpropagate and perform gradient descent.
                 grads = softmax_probs - output_array
                 neural_net.optimize(grads)
-                io_arrays_idx += 1
+
+                heap_entry_idx += 1
 
                 # Signal for the next entry in the heap to be selected.
-                if io_arrays_idx > len(selected_entry.io_seq) - 1:
-                    io_arrays_idx = 0
-                    selected_entry = None
+                if heap_entry_idx > len(heap_buffer) - 1:
+                    heap_entry_idx = 0
 
             n_runs += 1
 
