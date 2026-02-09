@@ -47,16 +47,12 @@ reward_seq: list[float] = []
 max_seq_len = 100
 heap_buffer_max_size = 5000
 heap_entry_idx = 0
-io_arrays_idx = 0
-ascending = True
 
 stop_training = False
-iterator = 0
-loss_slope_total = 0
-count = 0
 max_epochs = 1000000
 max_runs = 50000
 mutation_interval = 100
+iterator = 0
     
 def softmax(x: np.ndarray):
     """
