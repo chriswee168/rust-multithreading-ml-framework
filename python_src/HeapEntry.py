@@ -2,12 +2,12 @@ class HeapEntry:
     """
     Class used for heapq to store sequences of states/actions.
     """
-    def __init__(self, priority, io_seq):
+    def __init__(self, priority, entry):
         """
         :param priority: Total reward for state-action sequence.
-        :param io_seq: Sequence of states and actions (input and output arrays).
+        :param entry: A single state and action pair (input and output array).
         """
-        self.io_seq = io_seq
+        self.entry = entry
         self.priority = priority
     
     def __lt__(self, other):
