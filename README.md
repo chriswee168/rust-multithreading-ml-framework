@@ -20,6 +20,7 @@ List of Contents:
 ### Python 3.11.0
 Third party Python libraries required:
 - gymnasium==1.1.1
+- numpy==1.24.3
 
 Third party Python libraries can be installed by running:  
 `pip install -r requirements.txt`
@@ -118,6 +119,10 @@ Python libraries used:
 - [Gymnasium](https://gymnasium.farama.org/) — Python library that provides environments for training and testing AI models using reinforcement learning techniques. Used to evaluate the performance of dynamic neural nets for this project.
     - License type: MIT
     - Link: https://github.com/Farama-Foundation/Gymnasium/blob/main/LICENSE
+
+- [NumPy](https://numpy.org/) — Python library for numerical computing, handling of arrays and linear algebra.
+    - License type: BSD 3-Clause
+    - Link: https://github.com/numpy/numpy/blob/main/LICENSE.txt
 
 Rust crates used:
 - [Rand](https://github.com/rust-random/rand) — Required for generating random parameter values for neuron edges between the low and high bounds specified in JSON hyperparameter files.
