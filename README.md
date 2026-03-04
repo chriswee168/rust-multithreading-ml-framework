@@ -43,12 +43,12 @@ rustup override set 1.90.0
 ```
 
 ## Project Building
-Neural networks utilise a shared Rust library which handles multi-threading required to optimise training and inference. To build it run the command below in the `rust_src/` directory:
+Neural networks utilise a shared Rust library which handles multi-threading required to optimise training and inference. To build it run the command below in the `./rust_src/` directory:
 ```
 cargo build --release
 ```
 
-This will produce a shared library in the `rust_src/target/release/` directory, named either `ai_core.dll` or `libai_core.so` depending on whether operation system is Windows or Linux respectively.
+This will produce a shared library in the `./rust_src/target/release/` directory, named either `ai_core.dll` or `libai_core.so` depending on whether operation system is Windows or Linux respectively.
 
 ## Neural Network Architecture
 Neural networks in this project differ from the classical feedforward neural networks where data is sequentially passed through distinct layers. In this project models have no distinct hidden layers and neurons can be connected irregularly in an acyclic manner, with some neuron paths from the input to output being longer than others. Due to irregularity, models can't effectively take advantage of GPU parallelism and must rely on high performance CPU multi-threading to perform parallel Breadth First Search for propagation.
@@ -78,7 +78,7 @@ python -m python_src.main_gym_test
 ```
 
 ### Hyperparameters
-JSON files stored in the `python_src/hyper_params` directory are used to define hyperparameters for neural networks. Each file must include the following hyperparameters enclosed in curly brackets:
+JSON files stored in the `./python_src/hyper_params` directory are used to define hyperparameters for neural networks. Each file must include the following hyperparameters enclosed in curly brackets:
 - **n_threads**: Number of threads to use for parallel Breadth First Search traversal/propagation through neural network. (Should ideally be kept below the number of cores CPU has to optimize parallelism and reduce context switching.)
 - **in_dim**: Dimension of the input array.
 - **out_dim**: Dimension of the output array.
@@ -97,7 +97,7 @@ JSON files stored in the `python_src/hyper_params` directory are used to define 
 - **join_neuron_rate**: Change of joining two existing neurons when calling `NeuralNet.expand()`.
 - **edge_param_thresh**: Edge parameter threshold to determine whether an edge should be removed. (An edge is determined to be redundant if the magnitude of the parameter average is below the threshold.)
 
-A JSON hyperparameter file for the cartpole environment is already included in `python_src/hyper_params/cartpole-v1.json`.
+A JSON hyperparameter file for the cartpole environment is already included in `./python_src/hyper_params/cartpole-v1.json`.
 
 ### Saving/Loading Neural Networks
 #### Saving parameters
