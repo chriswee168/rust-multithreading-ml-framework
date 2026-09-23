@@ -1,5 +1,5 @@
-# Dynamic/Adaptive AI Model Project
-Repository for experimental neural network models that are capable of dynamically rewiring their topologies during their training process. This project uses both a Rust backend to handle the high performance multi-threading needed for model training/inference, and a Python frontend for convenient interfacing with Rust functions to create model training scripts.
+# Rust Multithreading ML Framework
+Repository for the development of a machine learning framework capable of creating CPU-based neural nets that rely on multithreading instead of GPU acceleration, and are capable of dynamically rewiring their topology when training on datasets. 
 
 List of Contents:
 1. [Dependencies](#dependencies)
